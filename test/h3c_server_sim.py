@@ -8,6 +8,7 @@ import random
 import signal
 import threading
 import time
+from datetime import datetime
 
 import paho.mqtt.client as mqtt
 import serial
@@ -20,6 +21,50 @@ TOPIC_EVENT = "h3c/esp32-s3-eth/event"
 TOPIC_ACTION = "h3c/esp32-s3-eth/action"
 TOPIC_UNLOCK = "h3c/esp32-s3-eth/cmd/unlock"
 DEVICE_OFFLINE_TIMEOUT = 15.0
+
+# H3C HDM event codes and message text are based on the official H3C server
+# HDM alarm log reference. The trailing event/status fields are the local USB
+# adapter fields consumed by the ESP32 BDI parser.
+H3C_HDM_EVENTS = {
+    "HEARTBEAT": {
+        "code": "-",
+        "type": "HEALTH",
+        "sensor": "System_Health",
+        "severity": "Info",
+        "message": "System health is normal",
+    },
+    "THERMAL": {
+        "code": "0x071000de",
+        "sensor": "CPU1_Temp",
+        "severity": "Critical",
+        "message": "CPU Critical Temperature",
+    },
+    "FAN_FAILURE": {
+        "code": "0x04600014",
+        "sensor": "FAN",
+        "severity": "Major",
+        "message": "Transition to Degraded",
+    },
+    "PSU_FAILURE": {
+        "code": "0x083000de",
+        "sensor": "PSU",
+        "severity": "Major",
+        "message": "Power Supply input lost (AC/DC)",
+    },
+    "AUTH_LOCKED": {
+        "code": "-",
+        "type": "AUDIT",
+        "sensor": "User",
+        "severity": "Warning",
+        "message": "User locked after five login failures",
+    },
+    "RECOVERY": {
+        "code": "0x1800000e",
+        "sensor": "System_Health",
+        "severity": "Info",
+        "message": "Transition to OK",
+    },
+}
 
 
 class UsbMqttGateway:
@@ -225,9 +270,15 @@ class UsbMqttGateway:
 
     def publish_log(self, level: str, event: str, status: str, extra: str = "") -> None:
         self.sequence += 1
+        hdm_event = H3C_HDM_EVENTS[event]
+        occurred_at = datetime.now().astimezone().isoformat(timespec="seconds")
         payload = (
-            f"H3C LOG seq={self.sequence} level={level} "
-            f"event={event} status={status}"
+            f"H3C LOG seq={self.sequence} time={occurred_at} "
+            f"host=R4900-G5-01 src=HDM "
+            f"type={hdm_event.get('type', 'EVENT')} "
+            f"event_code={hdm_event['code']} sensor={hdm_event['sensor']} "
+            f"severity={hdm_event['severity']} message=\"{hdm_event['message']}\" "
+            f"level={level} event={event} status={status}"
         )
         if extra:
             payload += " " + extra
