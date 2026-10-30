@@ -15,6 +15,10 @@ Python simulator.
   Syslog receiver.
 - `logs/samples.log` — synthetic instances of official Comware message formats.
 - `logs/catalog.json` — initial BDI-oriented normalization catalog.
+- `simulator/fake_ssh_server.py` — local SSHv2 fake switch with Comware command
+  responses and a dynamic log buffer.
+- `test/s5120v2_ssh_client.py` — repository-level automated SSH command and
+  interactive-shell test client.
 
 ## Before using on a real switch
 
