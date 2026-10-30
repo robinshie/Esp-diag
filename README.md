@@ -232,7 +232,9 @@ docker exec -it esp-mosquitto \
 
 | 主题 | 方向 | 内容 |
 | --- | --- | --- |
-| `h3c/server/sim-01/log` | Python → MQTT | 输入 ESP32 的模拟日志副本 |
+| `h3c/server/sim-01/log` | Python → MQTT | 仅故障原始日志，正常心跳不逐条上报 |
+| `h3c/esp32-s3-eth/availability` | 网关 → MQTT | 保留的在线/离线状态，仅变化时上报 |
+| `h3c/esp32-s3-eth/health` | 网关 → MQTT | 保留的 NORMAL/FAULT 状态，仅变化时上报 |
 | `h3c/esp32-s3-eth/status` | ESP32/网关 → MQTT | 推理循环与 USB 状态 |
 | `h3c/esp32-s3-eth/event` | ESP32/网关 → MQTT | BDI 信念变化 |
 | `h3c/esp32-s3-eth/action` | ESP32/网关 → MQTT | BDI 动作与 ACK 结果 |
@@ -283,6 +285,10 @@ server_locked
 
 `RECOVERY` 会把 `server_critical` 设为 `false`、把
 `server_healthy` 设为 `true`，但不会修复真实服务器。
+
+MQTT 默认采用“状态与异常”模式：正常心跳仍通过 USB 送入 BDI，但不会逐条
+发布到 MQTT。在线和健康状态使用 retained 消息，只在启动、离线、故障和恢复
+时更新；原始故障日志、BDI 告警、解锁请求与结果仍实时上报。
 
 ## 9. 正式部署方案
 

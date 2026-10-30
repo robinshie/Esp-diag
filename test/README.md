@@ -20,11 +20,20 @@ python3 test/h3c_server_sim.py \
 
 MQTT topics:
 
-- `h3c/server/sim-01/log`: simulated server logs to ESP32
+- `h3c/server/sim-01/log`: fault logs only; normal heartbeats stay on USB
 - `h3c/server/sim-01/ack`: simulated unlock acknowledgements to ESP32
+- `h3c/esp32-s3-eth/availability`: retained online/offline state changes
+- `h3c/esp32-s3-eth/health`: retained normal/fault state changes
 - `h3c/esp32-s3-eth/status`: retained agent/network status
 - `h3c/esp32-s3-eth/event`: BDI belief changes
 - `h3c/esp32-s3-eth/action`: BDI actions and results
 - `h3c/esp32-s3-eth/cmd/unlock`: simulated unlock requests
 
 Unlock is only a test protocol. It does not access or bypass a real server.
+
+The gateway uses state-and-exception reporting: normal USB heartbeats are not
+published one by one. Faults, lock events, BDI decisions, unlock results, and
+recovery state changes remain visible in MQTT.
+
+`gateway.sh start` skips the deterministic startup fault cycle. Run
+`h3c_server_sim.py` directly when you want the full smoke test.

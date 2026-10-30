@@ -104,6 +104,7 @@ function createDevice(id, kind = "manual") {
     enabled: meta.enabled ?? true,
     manuallyAdded: meta.manuallyAdded ?? false,
     lastSeen: null,
+    availability: null,
     health: "unknown",
     locked: false,
     transport: "—",
@@ -138,11 +139,13 @@ function ensureDevice(id, kind) {
 function severityFor(payload, fields) {
   if (
     fields.level === "CRITICAL" || fields.status === "ALARM" ||
+    fields.state === "FAULT" ||
     (fields.belief === "server_critical" && fields.value === "true") ||
     payload.includes("result=FAILED")
   ) return "critical";
   if (
     fields.level === "WARN" || fields.status === "LOCKED" ||
+    fields.state === "OFFLINE" ||
     fields.event === "AUTH_LOCKED" || payload.includes("UNLOCK")
   ) return "warning";
   return "info";
@@ -163,6 +166,15 @@ function applyMessage(topic, payload) {
   if (fields.uptime_ms) device.uptimeMs = Number(fields.uptime_ms);
   if (fields.cpu_pct) device.cpu = Number(fields.cpu_pct);
   if (fields.temp_c) device.temp = Number(fields.temp_c);
+  if (info.channel === "availability" && fields.state) {
+    device.availability = fields.state;
+  }
+  if (info.channel === "health" && fields.state === "NORMAL") {
+    device.health = "healthy";
+  }
+  if (info.channel === "health" && fields.state === "FAULT") {
+    device.health = "critical";
+  }
 
   if (severity === "critical") {
     device.health = "critical";
@@ -218,6 +230,7 @@ function applyMessage(topic, payload) {
 }
 
 function isOnline(device) {
+  if (device.availability !== null) return device.availability === "ONLINE";
   return Boolean(device.lastSeen && Date.now() - device.lastSeen < ONLINE_WINDOW_MS);
 }
 

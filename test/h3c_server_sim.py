@@ -14,9 +14,12 @@ import serial
 
 TOPIC_LOG = "h3c/server/sim-01/log"
 TOPIC_STATUS = "h3c/esp32-s3-eth/status"
+TOPIC_AVAILABILITY = "h3c/esp32-s3-eth/availability"
+TOPIC_HEALTH = "h3c/esp32-s3-eth/health"
 TOPIC_EVENT = "h3c/esp32-s3-eth/event"
 TOPIC_ACTION = "h3c/esp32-s3-eth/action"
 TOPIC_UNLOCK = "h3c/esp32-s3-eth/cmd/unlock"
+DEVICE_OFFLINE_TIMEOUT = 15.0
 
 
 class UsbMqttGateway:
@@ -30,6 +33,10 @@ class UsbMqttGateway:
         self.mqtt_reports = 0
         self.unlock_acks = 0
         self.serial_lock = threading.Lock()
+        self.last_health_state: str | None = None
+        self.last_health_payload: str | None = None
+        self.last_device_seen: float | None = None
+        self.device_online = False
 
         self.serial = serial.Serial(port=None, baudrate=args.baud, timeout=0.2)
         self.serial.dtr = True
@@ -41,6 +48,12 @@ class UsbMqttGateway:
             client_id="h3c-usb-mqtt-gateway",
         )
         self.mqtt.username_pw_set(args.user, args.password)
+        self.mqtt.will_set(
+            TOPIC_AVAILABILITY,
+            payload="state=OFFLINE reason=GATEWAY_DISCONNECTED",
+            qos=1,
+            retain=True,
+        )
         self.mqtt.on_connect = self._on_mqtt_connect
         self.mqtt.on_disconnect = self._on_mqtt_disconnect
         self.mqtt.reconnect_delay_set(min_delay=1, max_delay=10)
@@ -50,6 +63,29 @@ class UsbMqttGateway:
         if reason_code == 0:
             print(f"MQTT connected: {self.args.host}:{self.args.mqtt_port}")
             self.mqtt_connected.set()
+            recently_seen = (
+                self.last_device_seen is not None
+                and time.monotonic() - self.last_device_seen < DEVICE_OFFLINE_TIMEOUT
+            )
+            self._publish_availability(
+                "ONLINE" if recently_seen else "OFFLINE",
+                "USB_ACTIVE" if recently_seen else "WAITING_FOR_USB",
+                force=True,
+                wait=False,
+            )
+            self.mqtt.publish(
+                TOPIC_STATUS,
+                "gateway=ONLINE transport=USB mqtt_mode=STATE_AND_EXCEPTIONS",
+                qos=1,
+                retain=True,
+            )
+            if self.last_health_payload is not None:
+                self.mqtt.publish(
+                    TOPIC_HEALTH,
+                    self.last_health_payload,
+                    qos=1,
+                    retain=True,
+                )
         else:
             print(f"MQTT connection rejected: {reason_code}")
 
@@ -57,6 +93,7 @@ class UsbMqttGateway:
         self, client, userdata, disconnect_flags, reason_code, properties
     ) -> None:
         self.mqtt_connected.clear()
+        self.device_online = False
         if not self.stop_event.is_set():
             print(f"MQTT disconnected: {reason_code}; reconnecting...")
 
@@ -73,6 +110,8 @@ class UsbMqttGateway:
         self.reader.join(timeout=1)
         if self.serial.is_open:
             self.serial.close()
+        if self.mqtt_connected.is_set():
+            self._publish_availability("OFFLINE", "GATEWAY_STOPPED", force=True)
         self.mqtt.disconnect()
         self.mqtt.loop_stop()
 
@@ -82,38 +121,89 @@ class UsbMqttGateway:
             self.serial.write((line + "\n").encode())
             self.serial.flush()
 
-    def publish_mqtt(self, topic: str, payload: str, retain: bool = False) -> None:
+    def publish_mqtt(
+        self, topic: str, payload: str, retain: bool = False, wait: bool = True
+    ) -> None:
         if not self.mqtt_connected.is_set():
             print(f"MQTT DROP [{topic}] {payload}")
             return
         result = self.mqtt.publish(topic, payload, qos=1, retain=retain)
-        result.wait_for_publish(timeout=3)
+        if wait:
+            result.wait_for_publish(timeout=3)
         self.mqtt_reports += 1
         print(f"MQTT -> [{topic}] {payload}")
+
+    def _publish_availability(
+        self, state: str, reason: str, force: bool = False, wait: bool = True
+    ) -> None:
+        online = state == "ONLINE"
+        if not force and self.device_online == online:
+            return
+        self.device_online = online
+        self.publish_mqtt(
+            TOPIC_AVAILABILITY,
+            f"state={state} reason={reason} transport=USB",
+            retain=True,
+            wait=wait,
+        )
+
+    def _mark_device_seen(self) -> None:
+        self.last_device_seen = time.monotonic()
+        if self.mqtt_connected.is_set() and not self.device_online:
+            self._publish_availability("ONLINE", "USB_ACTIVE")
+
+    def _check_device_timeout(self) -> None:
+        if (
+            self.device_online
+            and self.last_device_seen is not None
+            and time.monotonic() - self.last_device_seen >= DEVICE_OFFLINE_TIMEOUT
+        ):
+            self._publish_availability("OFFLINE", "USB_STATUS_TIMEOUT")
+
+    def publish_health(self, state: str, event: str, status: str) -> None:
+        if state == self.last_health_state:
+            return
+        previous = self.last_health_state or "UNKNOWN"
+        self.last_health_state = state
+        self.last_health_payload = (
+            f"state={state} previous={previous} event={event} status={status}"
+        )
+        self.publish_mqtt(
+            TOPIC_HEALTH,
+            self.last_health_payload,
+            retain=True,
+        )
 
     def _serial_reader(self) -> None:
         while not self.stop_event.is_set():
             raw = self.serial.readline()
             if not raw:
+                self._check_device_timeout()
                 continue
             line = raw.decode(errors="replace").strip()
             if not line:
                 continue
+            self._mark_device_seen()
             print(f"ESP  -> USB  {line}")
 
             if line.startswith("H3C PONG"):
                 self.pong_seen.set()
-                topic = TOPIC_STATUS
+                topic = None
             elif line.startswith("[BDI][EVENT]"):
                 topic = TOPIC_EVENT
             elif line.startswith("[BDI][CMD] UNLOCK"):
                 topic = TOPIC_UNLOCK
             elif line.startswith("[BDI][STATUS]"):
-                topic = TOPIC_STATUS
+                topic = None
+            elif line.startswith("[BDI][RX][USB]"):
+                topic = None
+            elif line.startswith("[BDI][ACTION] server health accepted"):
+                topic = None
             else:
                 topic = TOPIC_ACTION
 
-            self.publish_mqtt(topic, line, retain=topic == TOPIC_STATUS)
+            if topic is not None:
+                self.publish_mqtt(topic, line, retain=topic == TOPIC_STATUS)
 
             if line.startswith("[BDI][CMD] UNLOCK"):
                 request_id = self._field(line, "request_id")
@@ -141,7 +231,12 @@ class UsbMqttGateway:
         )
         if extra:
             payload += " " + extra
-        self.publish_mqtt(TOPIC_LOG, payload)
+        is_fault = level in {"WARN", "CRITICAL"} or status in {"ALARM", "LOCKED"}
+        if is_fault:
+            self.publish_health("FAULT", event, status)
+            self.publish_mqtt(TOPIC_LOG, payload)
+        elif event in {"HEARTBEAT", "RECOVERY"} and status == "OK":
+            self.publish_health("NORMAL", event, status)
         self.send_usb(payload)
         self.logs_sent += 1
 
