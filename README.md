@@ -194,6 +194,23 @@ python3 test/h3c_server_sim.py \
   --min-interval 1 --max-interval 3 --fault-rate 0.5
 ```
 
+### S5120V2-LI 自动控制闭环
+
+完成烧录后，一条命令运行本地假交换机、USB BDI 决策、SSH 恢复和 MQTT
+监控验证：
+
+```bash
+./test/full_bdi_test.sh
+```
+
+成功时最后显示：
+
+```text
+PASS: SSH fault detected -> USB -> ESP32 BDI -> SSH recovery -> interface UP -> MQTT monitored
+```
+
+该流程只控制 `127.0.0.1:2222` 上的假 H3C 交换机，不会连接或修改真实机台。
+
 ## 5. 后台测试管理
 
 在用户自己的终端中运行：

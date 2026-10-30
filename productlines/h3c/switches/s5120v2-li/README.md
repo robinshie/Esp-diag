@@ -19,6 +19,8 @@ Python simulator.
   responses and a dynamic log buffer.
 - `test/s5120v2_ssh_client.py` — repository-level automated SSH command and
   interactive-shell test client.
+- `test/s5120v2_bdi_e2e.py` — complete simulated SSH fault monitoring,
+  ESP32 BDI decision, automatic interface recovery, and MQTT verification.
 
 ## Before using on a real switch
 

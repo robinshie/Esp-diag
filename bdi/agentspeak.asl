@@ -9,3 +9,5 @@
 +server_critical <- report_critical.
 
 +server_locked <- request_unlock.
+
++switch_link_fault <- recover_interface.

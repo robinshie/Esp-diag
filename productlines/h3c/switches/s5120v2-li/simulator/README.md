@@ -24,6 +24,17 @@ Run the automated client in another terminal:
 python3 test/s5120v2_ssh_client.py
 ```
 
+After flashing the ESP32 firmware, run the complete simulated control loop:
+
+```bash
+python3 test/s5120v2_bdi_e2e.py
+```
+
+This test injects an interface-down event, sends the normalized event to the
+ESP32 over USB, waits for the BDI recovery command, applies `undo shutdown`
+over SSH, verifies the interface is up, and publishes the lifecycle to MQTT.
+It controls only this local fake switch.
+
 The default bind address is `127.0.0.1`. Do not expose the simulator to an
 external interface. The credentials, device information, responses, and log
 records are synthetic.

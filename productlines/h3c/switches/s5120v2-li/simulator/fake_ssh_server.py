@@ -26,13 +26,46 @@ class FakeComwareSwitch:
         self.sysname = sysname
         self.lock = threading.Lock()
         self.logs: deque[str] = deque(maxlen=200)
+        self.interface_up = True
         sample_path = PRODUCT_ROOT / "logs" / "samples.log"
         for line in sample_path.read_text(encoding="utf-8").splitlines():
             if line and not line.startswith("#"):
                 self.logs.append(line)
 
     def prompt(self, view: str) -> str:
+        if view == "interface":
+            return f"[{self.sysname}-GigabitEthernet1/0/1]"
         return f"[{self.sysname}]" if view == "system" else f"<{self.sysname}>"
+
+    def _event_log(self, module: str, severity: int, mnemonic: str, content: str) -> str:
+        now = datetime.now().astimezone()
+        timestamp = now.strftime("%b %d %H:%M:%S:") + f"{now.microsecond // 1000:03d} " + now.strftime("%Y")
+        line = f"%{timestamp} {self.sysname} {module}/{severity}/{mnemonic}: {content}"
+        with self.lock:
+            self.logs.append(line)
+        return line
+
+    def set_interface_state(self, is_up: bool) -> list[str]:
+        with self.lock:
+            changed = self.interface_up != is_up
+            self.interface_up = is_up
+        if not changed:
+            return []
+        state = "up" if is_up else "down"
+        return [
+            self._event_log(
+                "IFNET",
+                3,
+                "PHY_UPDOWN",
+                f"Physical state on the GigabitEthernet1/0/1 changed to {state}.",
+            ),
+            self._event_log(
+                "IFNET",
+                5,
+                "LINK_UPDOWN",
+                f"Line protocol state on the interface GigabitEthernet1/0/1 changed to {state}.",
+            ),
+        ]
 
     def _audit(self, command: str, username: str, source_ip: str) -> None:
         now = datetime.now().astimezone()
@@ -59,6 +92,8 @@ class FakeComwareSwitch:
         lowered = " ".join(command.lower().split())
 
         if lowered in {"quit", "exit"}:
+            if view == "interface":
+                return "", "system", False, 0
             if view == "system":
                 return "", "user", False, 0
             return "", "user", True, 0
@@ -66,6 +101,17 @@ class FakeComwareSwitch:
             return "", "user", False, 0
         if lowered == "system-view":
             return "System View: return to User View with Ctrl+Z.", "system", False, 0
+        if lowered == "interface gigabitethernet1/0/1" and view == "system":
+            return "", "interface", False, 0
+        if lowered == "shutdown" and view == "interface":
+            logs = self.set_interface_state(False)
+            return "\r\n".join(logs), view, False, 0
+        if lowered == "undo shutdown" and view == "interface":
+            logs = self.set_interface_state(True)
+            return "\r\n".join(logs), view, False, 0
+        if lowered == "simulate interface-down gigabitethernet1/0/1":
+            logs = self.set_interface_state(False)
+            return "SIMULATED FAULT INJECTED\r\n" + "\r\n".join(logs), view, False, 0
 
         responses = {
             "display version": self._version,
@@ -137,16 +183,16 @@ Slot  Sensor  Temperature  Lower  Warning  Alarm  Shutdown
 Slot  Total      Used       Free       FreeRatio
 1     524288     173016     351272     67.0%"""
 
-    @staticmethod
-    def _interfaces() -> str:
-        return """Brief information on interfaces in route mode:
+    def _interfaces(self) -> str:
+        state = "UP" if self.interface_up else "DOWN"
+        return f"""Brief information on interfaces in route mode:
 Link: ADM - administratively down; Stby - standby
 Interface            Link Protocol Primary IP      Description
 Vlan1                UP   UP       192.0.2.2       SIMULATED-MGMT
 
 Brief information on interfaces in bridge mode:
 Interface            Link Speed   Duplex Type PVID Description
-GE1/0/1              UP   1G      F      A    10   USER-ACCESS
+GE1/0/1              {state:<4} 1G      F      A    10   USER-ACCESS
 GE1/0/24             UP   1G      F      T    1    UPLINK"""
 
     @staticmethod

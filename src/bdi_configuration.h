@@ -12,17 +12,19 @@ enum BdiProposition : uint8_t {
   SERVER_LOCKED = 0,
   SERVER_CRITICAL = 1,
   SERVER_HEALTHY = 2,
-  START_GOAL = 3,
-  ANNOUNCE_READY_ACTION = 4,
-  REQUEST_UNLOCK_ACTION = 5,
-  REPORT_CRITICAL_ACTION = 6,
-  REPORT_HEALTHY_ACTION = 7,
+  SWITCH_LINK_FAULT = 3,
+  START_GOAL = 4,
+  ANNOUNCE_READY_ACTION = 5,
+  REQUEST_UNLOCK_ACTION = 6,
+  REPORT_CRITICAL_ACTION = 7,
+  REPORT_HEALTHY_ACTION = 8,
+  RECOVER_INTERFACE_ACTION = 9,
 };
 
 class AgentSettings {
  private:
-  Body bodies_[4];
-  Context contexts_[4];
+  Body bodies_[5];
+  Context contexts_[5];
   BeliefBase belief_base_;
   EventBase event_base_;
   PlanBase plan_base_;
@@ -43,14 +45,15 @@ class AgentSettings {
 
  public:
   AgentSettings() {
-    belief_base_ = BeliefBase(3);
-    event_base_ = EventBase(12);
-    plan_base_ = PlanBase(4);
-    intention_base_ = IntentionBase(8, 4);
+    belief_base_ = BeliefBase(4);
+    event_base_ = EventBase(16);
+    plan_base_ = PlanBase(5);
+    intention_base_ = IntentionBase(10, 4);
 
     belief_base_.add_belief(Belief(SERVER_LOCKED, nullptr, false));
     belief_base_.add_belief(Belief(SERVER_CRITICAL, nullptr, false));
     belief_base_.add_belief(Belief(SERVER_HEALTHY, nullptr, false));
+    belief_base_.add_belief(Belief(SWITCH_LINK_FAULT, nullptr, false));
 
     event_base_.add_event(Event(EventOperator::GOAL_ADDITION, START_GOAL));
 
@@ -62,6 +65,8 @@ class AgentSettings {
                     REPORT_CRITICAL_ACTION, action_report_critical);
     add_action_plan(3, EventOperator::BELIEF_ADDITION, SERVER_HEALTHY,
                     REPORT_HEALTHY_ACTION, action_report_healthy);
+    add_action_plan(4, EventOperator::BELIEF_ADDITION, SWITCH_LINK_FAULT,
+                    RECOVER_INTERFACE_ACTION, action_recover_interface);
   }
 
   bool set_belief(BdiProposition proposition, bool state) {

@@ -53,6 +53,22 @@ void handle_h3c_line(String line) {
     return;
   }
 
+  if (line.startsWith("H3C ACK") &&
+      has_field(line, "action=RECOVER_INTERFACE")) {
+    String request_id = field_value(line, "request_id");
+    if (has_field(line, "status=OK")) {
+      publish_belief(SWITCH_LINK_FAULT, false, "switch_link_fault");
+      Serial.printf(
+          "[BDI][ACK] recover_interface request_id=%s result=SUCCESS\r\n",
+          request_id.c_str());
+    } else {
+      Serial.printf(
+          "[BDI][ACK] recover_interface request_id=%s result=FAILED\r\n",
+          request_id.c_str());
+    }
+    return;
+  }
+
   if (!line.startsWith("H3C LOG")) {
     Serial.printf("[BDI][WARN] unsupported_input=%s\r\n", line.c_str());
     return;
@@ -74,6 +90,17 @@ void handle_h3c_line(String line) {
       has_field(line, "status=LOCKED")) {
     publish_belief(SERVER_LOCKED, true, "server_locked");
   }
+  if (has_field(line, "event=LINK_DOWN") &&
+      has_field(line, "status=ALARM")) {
+    publish_belief(SERVER_HEALTHY, false, "server_healthy");
+    publish_belief(SERVER_CRITICAL, true, "server_critical");
+    publish_belief(SWITCH_LINK_FAULT, true, "switch_link_fault");
+  }
+  if (has_field(line, "event=LINK_UP") && has_field(line, "status=OK")) {
+    publish_belief(SWITCH_LINK_FAULT, false, "switch_link_fault");
+    publish_belief(SERVER_CRITICAL, false, "server_critical");
+    publish_belief(SERVER_HEALTHY, true, "server_healthy");
+  }
 }
 
 void poll_usb_transport() {
@@ -90,6 +117,7 @@ void poll_usb_transport() {
 }  // namespace
 
 uint32_t bdi_unlock_request_id = 0;
+uint32_t bdi_recover_request_id = 0;
 bool bdi_agent_ready = false;
 
 void setup() {

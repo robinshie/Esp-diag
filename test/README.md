@@ -40,3 +40,21 @@ recovery state changes remain visible in MQTT.
 `gateway.sh start` skips the deterministic startup fault cycle. Run
 `h3c_server_sim.py` directly when you want the full smoke test. Tune
 `--fault-rate` between `0.0` and `1.0` when testing a specific workload.
+
+## S5120V2-LI automatic recovery loop
+
+Flash the ESP32 first, then run the complete test with one command:
+
+```bash
+./flash.sh
+./test/full_bdi_test.sh
+```
+
+The test starts the local MQTT broker and fake H3C SSH switch, injects a
+`GigabitEthernet1/0/1` link-down event, sends it to the ESP32 over USB, waits
+for the Embedded-BDI recovery intention, applies `undo shutdown` over SSH,
+verifies that the interface is UP, and confirms the MQTT monitoring topics.
+
+This is a safe local proof: the SSH action controls only the fake switch on
+`127.0.0.1:2222`. Configure and authorize a real switch separately before
+using the same controller against production equipment.

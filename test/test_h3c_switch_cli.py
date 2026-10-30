@@ -52,6 +52,25 @@ class FakeComwareSwitchTest(unittest.TestCase):
         self.assertIn("SHELL/6/SHELL_CMD", output)
         self.assertIn("Command is display environment", output)
 
+    def test_interface_fault_and_recovery(self) -> None:
+        output, view, _, _ = self.switch.execute(
+            "simulate interface-down GigabitEthernet1/0/1"
+        )
+        self.assertIn("PHY_UPDOWN", output)
+        self.assertIn("changed to down", output)
+        status, _, _, _ = self.switch.execute("display interface brief")
+        self.assertIn("GE1/0/1              DOWN", status)
+
+        _, view, _, _ = self.switch.execute("system-view", view=view)
+        _, view, _, _ = self.switch.execute(
+            "interface GigabitEthernet1/0/1", view=view
+        )
+        self.assertEqual(view, "interface")
+        output, view, _, _ = self.switch.execute("undo shutdown", view=view)
+        self.assertIn("changed to up", output)
+        status, _, _, _ = self.switch.execute("display interface brief")
+        self.assertIn("GE1/0/1              UP", status)
+
 
 if __name__ == "__main__":
     unittest.main()
