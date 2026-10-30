@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "identity": "MODULE/severity/MNEMONIC",
+  "events": [
+    {
+      "key": "IFNET/3/PHY_UPDOWN",
+      "category": "interface",
+      "fault_when": "state=down",
+      "clear_when": "state=up",
+      "bdi_belief": "link_fault"
+    },
+    {
+      "key": "IFNET/5/LINK_UPDOWN",
+      "category": "interface_protocol",
+      "fault_when": "state=down",
+      "clear_when": "state=up",
+      "bdi_belief": "link_protocol_fault"
+    },
+    {
+      "key": "STP/4/STP_LOOP_PROTECTION",
+      "category": "loop_prevention",
+      "fault_when": "always",
+      "bdi_belief": "loop_risk"
+    },
+    {
+      "key": "DEV/4/TEMPERATURE_WARNING",
+      "category": "temperature",
+      "fault_when": "always",
+      "bdi_belief": "device_overtemperature"
+    },
+    {
+      "key": "DIAG/4/CPU_MINOR_THRESHOLD",
+      "category": "resource",
+      "fault_when": "always",
+      "clear_key": "DIAG/5/CPU_MINOR_RECOVERY",
+      "bdi_belief": "cpu_pressure"
+    },
+    {
+      "key": "DEV/5/CHASSIS_REBOOT",
+      "category": "lifecycle",
+      "fault_when": "unexpected",
+      "bdi_belief": "unexpected_reboot"
+    },
+    {
+      "key": "SHELL/5/SHELL_LOGIN",
+      "category": "audit",
+      "fault_when": "never",
+      "bdi_belief": "management_session_active"
+    }
+  ]
+}

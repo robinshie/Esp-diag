@@ -57,11 +57,17 @@ ESP32 负责解析服务器事件、维护 BDI 信念、选择计划并产生动
 ├── src/bdi_functions.h         # BDI 动作函数
 ├── test/h3c_server_sim.py      # 随机日志模拟器和 USB-MQTT 网关
 ├── test/gateway.sh             # 测试进程管理脚本
+├── productlines/               # 按厂商/设备类型/系列组织的命令与日志资料
 ├── frontend/                   # MQTT 实时设备管理控制台
 ├── mqtt/compose.yaml           # Mosquitto Docker 配置
 ├── flash.sh                    # 一键烧录
 └── platformio.ini              # ESP32-S3 PlatformIO 配置
 ```
+
+新增产品资料必须放入 `productlines/<vendor>/<device-type>/<product-line>/`，
+不要把交换机 Comware 日志混入现有 UniServer/HDM 服务器模拟器。当前已加入
+`H3C S5120V2-LI` 的官方文档索引、巡检命令、Syslog 配置模板和日志样本；
+现有服务器测试代码保持不变。
 
 ## 环境要求
 

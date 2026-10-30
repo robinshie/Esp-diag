@@ -12,6 +12,7 @@ venv/
 test/.runtime/
 *.log
 *.pid
+!productlines/**/logs/*.log
 
 # Local configuration and secrets
 .env

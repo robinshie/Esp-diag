@@ -1,0 +1,12 @@
+# SYNTHETIC SAMPLES — official H3C Comware message formats with test values.
+%Oct 30 11:00:01:120 2026 ACCESS-SW-01 SHELL/5/SHELL_LOGIN: VTY logged in from 192.0.2.20.
+%Oct 30 11:01:15:304 2026 ACCESS-SW-01 IFNET/3/PHY_UPDOWN: Physical state on the GigabitEthernet1/0/1 changed to down.
+%Oct 30 11:01:15:315 2026 ACCESS-SW-01 IFNET/5/LINK_UPDOWN: Line protocol state on the interface GigabitEthernet1/0/1 changed to down.
+%Oct 30 11:02:02:017 2026 ACCESS-SW-01 STP/4/STP_LOOP_PROTECTION: Instance 0's LOOP-Protection port GigabitEthernet1/0/24 failed to receive configuration BPDUs.
+%Oct 30 11:03:43:881 2026 ACCESS-SW-01 DEV/4/TEMPERATURE_WARNING: Temperature is greater than the high-temperature warning threshold on slot 1 sensor inflow 1.
+%Oct 30 11:04:30:092 2026 ACCESS-SW-01 DIAG/4/CPU_MINOR_THRESHOLD: CPU usage is in minor alarm state.
+%Oct 30 11:05:30:093 2026 ACCESS-SW-01 DIAG/5/CPU_MINOR_RECOVERY: CPU usage recovered to normal state.
+%Oct 30 11:06:11:441 2026 ACCESS-SW-01 DEV/5/CHASSIS_REBOOT: Chassis 1 is rebooting now.
+%Oct 30 11:10:24:507 2026 ACCESS-SW-01 STP/6/STP_FORWARDING: Instance 0's port GigabitEthernet1/0/24 has been set to forwarding state.
+%Oct 30 11:10:25:618 2026 ACCESS-SW-01 IFNET/3/PHY_UPDOWN: Physical state on the GigabitEthernet1/0/1 changed to up.
+%Oct 30 11:10:25:629 2026 ACCESS-SW-01 IFNET/5/LINK_UPDOWN: Line protocol state on the interface GigabitEthernet1/0/1 changed to up.

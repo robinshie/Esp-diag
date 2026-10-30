@@ -1,0 +1,42 @@
+# H3C S5120V2-LI read-only collection commands
+# Run one command at a time in user view (<Sysname>).
+
+# Identity and software
+display version
+display device
+display device manuinfo
+display startup
+
+# Resource and hardware health (availability depends on exact model)
+display cpu-usage
+display memory
+display environment
+display fan
+display power
+
+# Interfaces and Layer 2
+display interface brief
+display link-aggregation verbose
+display stp brief
+display lldp neighbor-information list
+display mac-address
+display vlan all
+
+# Layer 3, when enabled on the model/release
+display arp
+display ip routing-table
+
+# Logs and information center
+display info-center
+display logbuffer summary
+display logbuffer reverse
+display trapbuffer
+display logfile summary
+display logfile buffer
+
+# Configuration collection (remove passwords, keys, communities, IPs, and SNs)
+display current-configuration
+display saved-configuration
+
+# Large output; run only when a complete support bundle is needed
+display diagnostic-information

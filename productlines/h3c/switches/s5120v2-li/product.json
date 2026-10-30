@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "vendor": "H3C",
+  "device_type": "switch",
+  "product_line": "S5120V2-LI",
+  "operating_system": "Comware 7",
+  "models": [
+    "S5120V2-10P-LI",
+    "S5120V2-20P-LI",
+    "S5120V2-28P-LI",
+    "S5120V2-52P-LI",
+    "S5120V2-10P-PWR-LI",
+    "S5120V2-28P-PWR-LI",
+    "S5120V2-28P-HPWR-LI",
+    "S5120V2-52P-PWR-LI"
+  ],
+  "software_families": [
+    "CMW710 R611x",
+    "CMW710 R612x",
+    "CMW710 R63xx"
+  ],
+  "log_protocol": "H3C Comware system log",
+  "log_message_format": "Prefix Timestamp Sysname MODULE/severity/MNEMONIC: CONTENT",
+  "status": "knowledge-base-only"
+}

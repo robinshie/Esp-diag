@@ -1,0 +1,22 @@
+# H3C S5120V2-LI remote Syslog template
+# STATE-CHANGING: review the release-specific command reference first.
+# Replace 192.0.2.10 with the actual log receiver IP.
+
+system-view
+info-center enable
+info-center source default loghost level informational
+info-center timestamp loghost date
+info-center loghost 192.0.2.10 port 514 facility local7
+quit
+
+# Verify before saving
+display info-center
+display current-configuration | include info-center
+
+# Save only after reception and rollback have been verified
+# save force
+
+# Rollback example
+# system-view
+# undo info-center loghost 192.0.2.10
+# quit
