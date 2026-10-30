@@ -1,0 +1,49 @@
+# Eclipse IDE workspace folder
+/.metadata/
+
+# Eclipse IDE generated folders for each project
+lib/Debug
+lib/.settings
+
+src/Debug
+src/.settings
+
+test/Debug
+test/.settings
+
+valgrind/Debug
+valgrind/.settings
+
+###################################################
+
+#VS Code
+.vscode
+
+###################################################
+
+# Make build folder
+build/
+
+###################################################
+
+# AgentSpeak translator
+### Python
+config/configuration.h
+
+### Java
+*.out
+*.class
+
+###################################################
+
+# Doxygen
+docs/html
+docs/latex
+docs/.settings
+
+###################################################
+
+# OSX
+.DS_Store
+/.project
+lib/parser/test/configuration.h

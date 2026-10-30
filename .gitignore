@@ -1,0 +1,28 @@
+# PlatformIO build products and locally downloaded toolchains
+.pio/
+.pio-core/
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Runtime state and logs
+test/.runtime/
+*.log
+*.pid
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+
+# Local Mosquitto persistence
+mqtt/data/
+mqtt/log/

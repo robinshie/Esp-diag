@@ -1,0 +1,11 @@
+{
+  "name": "EmbeddedBDI",
+  "version": "1.0.0",
+  "description": "Embedded-BDI runtime for deliberative agents on embedded systems",
+  "license": "GPL-3.0",
+  "build": {
+    "srcDir": "lib",
+    "includeDir": "lib",
+    "srcFilter": ["+<**/*.cpp>"]
+  }
+}
