@@ -261,16 +261,18 @@ class UsbMqttGateway:
         return True
 
     def random_event(self) -> None:
-        event = random.choices(
-            ["heartbeat", "thermal", "fan", "power", "auth_locked"],
-            weights=[45, 15, 15, 10, 15],
-            k=1,
-        )[0]
-        if event == "heartbeat":
+        if random.random() >= self.args.fault_rate:
             self.publish_log(
                 "INFO", "HEARTBEAT", "OK", f"cpu_pct={random.randint(8, 74)}"
             )
-        elif event == "thermal":
+            return
+
+        event = random.choices(
+            ["thermal", "fan", "power", "auth_locked"],
+            weights=[35, 30, 20, 15],
+            k=1,
+        )[0]
+        if event == "thermal":
             self.publish_log(
                 "CRITICAL", "THERMAL", "ALARM", f"temp_c={random.randint(86, 103)}"
             )
@@ -330,12 +332,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mqtt-port", type=int, default=1883)
     parser.add_argument("--user", default="esp32")
     parser.add_argument("--password", default="esp32-bdi-test")
-    parser.add_argument("--min-interval", type=float, default=2.0)
-    parser.add_argument("--max-interval", type=float, default=6.0)
+    parser.add_argument("--min-interval", type=float, default=20.0)
+    parser.add_argument("--max-interval", type=float, default=60.0)
+    parser.add_argument(
+        "--fault-rate",
+        type=float,
+        default=0.05,
+        help="fault probability per sample, from 0.0 to 1.0 (default: 0.05)",
+    )
     parser.add_argument("--duration", type=float, default=0.0)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--skip-smoke", action="store_true")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.min_interval <= 0:
+        parser.error("--min-interval must be greater than 0")
+    if args.max_interval < args.min_interval:
+        parser.error("--max-interval must be greater than or equal to --min-interval")
+    if not 0.0 <= args.fault_rate <= 1.0:
+        parser.error("--fault-rate must be between 0.0 and 1.0")
+    return args
 
 
 def main() -> int:

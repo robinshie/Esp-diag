@@ -171,11 +171,21 @@ python3 test/h3c_server_sim.py
 - 电源故障
 - 账户锁定
 
-按 `Ctrl+C` 停止。限定测试时间的示例：
+按 `Ctrl+C` 停止。启动冒烟测试完成后，连续随机阶段按真实模式运行：
+20–60 秒采样一次，每次 5% 故障概率。后台启动会跳过启动冒烟测试。
+限定运行 5 分钟的示例：
 
 ```bash
 python3 test/h3c_server_sim.py \
-  --duration 300 --min-interval 1 --max-interval 3
+  --skip-smoke --duration 300
+```
+
+需要快速压力测试时再提高频率和故障率：
+
+```bash
+python3 test/h3c_server_sim.py \
+  --skip-smoke --duration 60 \
+  --min-interval 1 --max-interval 3 --fault-rate 0.5
 ```
 
 ## 5. 后台测试管理

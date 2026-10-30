@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import unittest
+from types import SimpleNamespace
 
 from h3c_server_sim import TOPIC_HEALTH, TOPIC_LOG, UsbMqttGateway
 
@@ -32,6 +33,14 @@ class ReportingPolicyTest(unittest.TestCase):
             self.published,
             [(TOPIC_HEALTH, "state=NORMAL previous=UNKNOWN event=HEARTBEAT status=OK", True)],
         )
+
+    def test_zero_fault_rate_generates_heartbeat(self) -> None:
+        self.gateway.args = SimpleNamespace(fault_rate=0.0)
+
+        self.gateway.random_event()
+
+        self.assertEqual(len(self.usb_lines), 1)
+        self.assertIn("event=HEARTBEAT status=OK", self.usb_lines[0])
 
     def test_faults_publish_and_recovery_updates_state_once(self) -> None:
         self.gateway.publish_log("INFO", "HEARTBEAT", "OK")

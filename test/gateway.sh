@@ -31,7 +31,8 @@ case "${1:-status}" in
       echo "测试已运行，PID=$(cat "$PID_FILE")"
       exit 0
     fi
-    nohup "$PYTHON" -u "$SCRIPT" --skip-smoke --min-interval 1 --max-interval 3 \
+    nohup "$PYTHON" -u "$SCRIPT" --skip-smoke \
+      --min-interval 20 --max-interval 60 --fault-rate 0.05 \
       >"$LOG_FILE" 2>&1 &
     echo "$!" >"$PID_FILE"
     sleep 1
