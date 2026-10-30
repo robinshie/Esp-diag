@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="ESP32-S3 Embedded-BDI MQTT 设备监控与管理控制台"
+    />
+    <title>ESP-DIAG · 设备控制台</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="ESP-DIAG 首页">
+          <span class="brand-mark" aria-hidden="true">ED</span>
+          <span>
+            <strong>ESP-DIAG</strong>
+            <small>Embedded-BDI Operations</small>
+          </span>
+        </a>
+
+        <div class="connection-cluster">
+          <div id="connectionState" class="connection-state is-offline" role="status" aria-live="polite">
+            <span class="status-dot"></span>
+            <span id="connectionLabel">未连接</span>
+          </div>
+          <button id="connectionSettingsButton" class="button button-quiet" type="button">
+            连接设置
+          </button>
+          <button id="connectButton" class="button button-primary" type="button">
+            连接 MQTT
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero-row" aria-labelledby="pageTitle">
+          <div>
+            <p class="eyebrow">实时运行态势</p>
+            <h1 id="pageTitle">设备与智能体监控</h1>
+            <p class="hero-copy">观察 USB → BDI → MQTT 全链路，快速定位故障与解锁意图。</p>
+          </div>
+          <div class="clock-panel">
+            <span>本地时间</span>
+            <strong id="clock">--:--:--</strong>
+            <small id="clockDate">----</small>
+          </div>
+        </section>
+
+        <section class="metrics-grid" aria-label="设备摘要">
+          <article class="metric-card metric-online">
+            <span class="metric-icon" aria-hidden="true">●</span>
+            <div><small>在线设备</small><strong id="onlineMetric">0</strong></div>
+            <span id="totalDeviceMetric" class="metric-note">共 0 台</span>
+          </article>
+          <article class="metric-card metric-critical">
+            <span class="metric-icon" aria-hidden="true">!</span>
+            <div><small>严重告警</small><strong id="criticalMetric">0</strong></div>
+            <span class="metric-note">当前状态</span>
+          </article>
+          <article class="metric-card metric-locked">
+            <span class="metric-icon" aria-hidden="true">⌁</span>
+            <div><small>账户锁定</small><strong id="lockedMetric">0</strong></div>
+            <span class="metric-note">BDI 信念</span>
+          </article>
+          <article class="metric-card metric-traffic">
+            <span class="metric-icon" aria-hidden="true">↕</span>
+            <div><small>MQTT 消息</small><strong id="messageMetric">0</strong></div>
+            <span class="metric-note">本次会话</span>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <article class="panel device-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Inventory</p>
+                <h2>设备管理</h2>
+              </div>
+              <button id="addDeviceButton" class="button button-secondary" type="button">+ 添加设备</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>设备</th>
+                    <th>连接</th>
+                    <th>健康</th>
+                    <th>最近上报</th>
+                    <th><span class="sr-only">操作</span></th>
+                  </tr>
+                </thead>
+                <tbody id="deviceTableBody"></tbody>
+              </table>
+              <div id="emptyDevices" class="empty-state">
+                <strong>等待设备上报</strong>
+                <span>连接 MQTT 后，设备会根据主题自动发现。</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="panel detail-panel" aria-labelledby="detailTitle">
+            <div id="detailEmpty" class="detail-empty">
+              <span class="radar" aria-hidden="true"></span>
+              <strong>选择一台设备</strong>
+              <p>查看状态、BDI 信念和最新遥测。</p>
+            </div>
+            <div id="detailContent" class="detail-content" hidden>
+              <div class="detail-heading">
+                <div>
+                  <p id="detailKind" class="eyebrow">DEVICE</p>
+                  <h2 id="detailTitle">—</h2>
+                  <span id="detailId" class="mono">—</span>
+                </div>
+                <button id="editDeviceButton" class="icon-button" type="button" aria-label="编辑设备">✎</button>
+              </div>
+              <div id="detailBadges" class="badge-row"></div>
+              <dl class="detail-list">
+                <div><dt>位置</dt><dd id="detailLocation">—</dd></div>
+                <div><dt>最后在线</dt><dd id="detailLastSeen">—</dd></div>
+                <div><dt>传输</dt><dd id="detailTransport">—</dd></div>
+                <div><dt>运行时间</dt><dd id="detailUptime">—</dd></div>
+                <div><dt>CPU</dt><dd id="detailCpu">—</dd></div>
+                <div><dt>温度</dt><dd id="detailTemp">—</dd></div>
+                <div><dt>消息计数</dt><dd id="detailMessages">0</dd></div>
+                <div><dt>故障计数</dt><dd id="detailFaults">0</dd></div>
+              </dl>
+              <div class="belief-block">
+                <div class="subheading"><span>BDI 信念</span><small>实时</small></div>
+                <div id="beliefList" class="belief-list"></div>
+              </div>
+              <div class="last-event-block">
+                <span>最近事件</span>
+                <p id="detailLastEvent" class="mono">尚无数据</p>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="panel events-panel">
+          <div class="panel-heading events-heading">
+            <div>
+              <p class="eyebrow">Live stream</p>
+              <h2>MQTT 实时消息</h2>
+            </div>
+            <div class="event-controls">
+              <label>
+                <span class="sr-only">按级别筛选</span>
+                <select id="severityFilter">
+                  <option value="all">全部级别</option>
+                  <option value="critical">严重</option>
+                  <option value="warning">警告</option>
+                  <option value="info">信息</option>
+                </select>
+              </label>
+              <label class="search-field">
+                <span aria-hidden="true">⌕</span>
+                <input id="eventSearch" type="search" placeholder="搜索主题或内容" />
+              </label>
+              <button id="pauseButton" class="button button-quiet" type="button">暂停</button>
+              <button id="clearButton" class="button button-quiet" type="button">清空</button>
+            </div>
+          </div>
+          <div class="event-table-wrap">
+            <table class="event-table">
+              <thead>
+                <tr><th>时间</th><th>级别</th><th>设备</th><th>主题</th><th>内容</th></tr>
+              </thead>
+              <tbody id="eventTableBody"></tbody>
+            </table>
+            <div id="emptyEvents" class="empty-state compact">
+              <strong>尚无 MQTT 消息</strong>
+              <span>连接后订阅 <code>h3c/#</code>。</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="connectionDialog">
+      <form id="connectionForm" method="dialog" class="dialog-card">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">MQTT WebSocket</p><h2>连接设置</h2></div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <div class="form-grid">
+          <label>协议<select id="mqttProtocol"><option value="ws">ws</option><option value="wss">wss</option></select></label>
+          <label>主机<input id="mqttHost" required autocomplete="off" /></label>
+          <label>端口<input id="mqttPort" type="number" min="1" max="65535" required /></label>
+          <label>路径<input id="mqttPath" required autocomplete="off" /></label>
+          <label>用户名<input id="mqttUsername" autocomplete="username" /></label>
+          <label>密码<input id="mqttPassword" type="password" autocomplete="current-password" /></label>
+        </div>
+        <label class="checkbox-row"><input id="autoConnect" type="checkbox" /> 下次打开自动连接</label>
+        <p class="form-note">测试配置默认连接本机 9001 端口。生产环境请使用 WSS、独立账号与 ACL。</p>
+        <div class="dialog-actions">
+          <button class="button button-quiet" value="cancel" formnovalidate>取消</button>
+          <button id="saveConnectionButton" class="button button-primary" value="default">保存并连接</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="deviceDialog">
+      <form id="deviceForm" method="dialog" class="dialog-card">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">Device profile</p><h2 id="deviceDialogTitle">添加设备</h2></div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="关闭">×</button>
+        </div>
+        <div class="form-stack">
+          <label>设备 ID<input id="deviceIdInput" required pattern="[A-Za-z0-9._-]+" placeholder="例如 server-01" /></label>
+          <label>显示名称<input id="deviceNameInput" required maxlength="40" placeholder="例如 华三测试服务器" /></label>
+          <label>位置<input id="deviceLocationInput" maxlength="60" placeholder="例如 实验室 A-03" /></label>
+          <label class="checkbox-row"><input id="deviceEnabledInput" type="checkbox" checked /> 纳入监控与告警统计</label>
+        </div>
+        <div class="dialog-actions split-actions">
+          <button id="deleteDeviceButton" class="button button-danger" type="button" hidden>删除</button>
+          <span></span>
+          <button class="button button-quiet" value="cancel" formnovalidate>取消</button>
+          <button id="saveDeviceButton" class="button button-primary" value="default">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

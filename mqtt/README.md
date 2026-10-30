@@ -9,6 +9,7 @@ docker compose logs -f
 ```
 
 Broker URL from this Mac: `mqtt://localhost:1883`
+Browser WebSocket URL: `ws://localhost:9001/mqtt`
 
 Development credentials are `esp32` / `esp32-bdi-test`. The broker rejects
 anonymous clients. The port is bound to localhost because Python acts as the

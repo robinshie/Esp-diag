@@ -57,6 +57,7 @@ ESP32 负责解析服务器事件、维护 BDI 信念、选择计划并产生动
 ├── src/bdi_functions.h         # BDI 动作函数
 ├── test/h3c_server_sim.py      # 随机日志模拟器和 USB-MQTT 网关
 ├── test/gateway.sh             # 测试进程管理脚本
+├── frontend/                   # MQTT 实时设备管理控制台
 ├── mqtt/compose.yaml           # Mosquitto Docker 配置
 ├── flash.sh                    # 一键烧录
 └── platformio.ini              # ESP32-S3 PlatformIO 配置
@@ -236,6 +237,21 @@ docker exec -it esp-mosquitto \
 | `h3c/esp32-s3-eth/event` | ESP32/网关 → MQTT | BDI 信念变化 |
 | `h3c/esp32-s3-eth/action` | ESP32/网关 → MQTT | BDI 动作与 ACK 结果 |
 | `h3c/esp32-s3-eth/cmd/unlock` | ESP32/网关 → MQTT | 模拟解锁请求 |
+
+### Web 设备控制台
+
+Mosquitto 同时在本机 `9001` 端口提供 MQTT WebSocket。启动前端：
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+打开 <http://127.0.0.1:4173>。控制台会订阅 `h3c/#`，显示设备在线状态、
+健康度、告警、账户锁定、BDI 信念和实时消息。设备名称、位置和监控启停配置
+仅保存在当前浏览器中。`sim-01` 只是模拟日志来源，会归并到物理设备
+`esp32-s3-eth`，不会计为第二台设备。详细说明见 `frontend/README.md`。
 
 ## 8. 当前 BDI 行为
 

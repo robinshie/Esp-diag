@@ -3,11 +3,20 @@ services:
     image: eclipse-mosquitto:2
     container_name: esp-mosquitto
     restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - >-
+        cp /mosquitto/config/passwd.source /tmp/mosquitto.passwd &&
+        chown mosquitto:mosquitto /tmp/mosquitto.passwd &&
+        chmod 0600 /tmp/mosquitto.passwd &&
+        exec mosquitto -c /mosquitto/config/mosquitto.conf
     ports:
       - "127.0.0.1:1883:1883"
+      - "127.0.0.1:9001:9001"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./passwd:/mosquitto/config/passwd:ro
+      - ./passwd:/mosquitto/config/passwd.source:ro
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
 
