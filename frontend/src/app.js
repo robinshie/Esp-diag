@@ -78,12 +78,12 @@ function topicInfo(topic) {
   if (parts[0] !== "h3c") {
     return { id: "unknown", kind: "unknown", channel: parts.at(-1), sourceId: null };
   }
-  if (parts[1] === "server") {
+  if (parts[1] === "server" || parts[1] === "switch") {
     return {
       id: DEFAULT_DEVICE_ID,
       kind: "agent",
       channel: parts[3] || "log",
-      sourceId: parts[2] || "server"
+      sourceId: parts[2] || parts[1]
     };
   }
   return {
@@ -118,7 +118,8 @@ function createDevice(id, kind = "manual") {
     beliefs: {
       server_healthy: null,
       server_critical: null,
-      server_locked: null
+      server_locked: null,
+      switch_link_fault: null
     }
   };
 }
@@ -178,7 +179,10 @@ function applyMessage(topic, payload) {
 
   if (severity === "critical") {
     device.health = "critical";
-    if (info.channel === "log") device.faults += 1;
+    if (
+      info.channel === "log" ||
+      (info.channel === "health" && fields.state === "FAULT")
+    ) device.faults += 1;
   }
   if (
     fields.event === "HEARTBEAT" && fields.status === "OK" &&
