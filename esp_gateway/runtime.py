@@ -19,6 +19,7 @@ def transport_args(config):
     simulation = config.get("simulation", {})
     return SimpleNamespace(
         state_db=config["storage"]["state_db"], port=config["serial"]["port"], baud=config["serial"]["baud"],
+        serial_number=config["serial"].get("serial_number"),
         host=config["mqtt"]["host"], mqtt_port=config["mqtt"]["port"], user=config["mqtt"]["username"],
         password=credential(config["mqtt"]), gateway_id=config["mqtt"]["client_id"], tls=config["mqtt"]["tls"],
         agent_id=config["agent"]["id"], topic_root=config["agent"]["topic_root"], serial_log=True,

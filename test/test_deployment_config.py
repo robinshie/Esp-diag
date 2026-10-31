@@ -57,6 +57,16 @@ class DeploymentConfigTest(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True), self.assertRaises(ConfigError):
             self.load()
 
+    def test_usb_identity_is_validated_and_passed_to_transport(self):
+        from esp_gateway.runtime import transport_args
+        self.config["serial"]["serial_number"] = "90:70:69:F4:98:4C"
+        self.assertEqual(transport_args(self.load()).serial_number, "90:70:69:F4:98:4C")
+        for invalid in (None, "", " ", 123, "bad\nidentity"):
+            with self.subTest(invalid=invalid):
+                self.config["serial"]["serial_number"] = invalid
+                with self.assertRaises(ConfigError):
+                    self.load()
+
     def test_real_mode_cannot_enable_a_simulator(self):
         self.config["simulation"] = {"action_mode": "success"}
         with self.assertRaises(ConfigError):

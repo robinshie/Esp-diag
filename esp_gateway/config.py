@@ -92,9 +92,13 @@ def load_config(path, *, require_credentials=True):
     if config["agent"]["id"] in {"server", "switch", "service"}:
         raise ConfigError("agent.id conflicts with a reserved source namespace")
     _identifier(config["agent"]["topic_root"], "agent.topic_root")
-    _object(config["serial"], {"port", "baud"}, {"port", "baud"}, "serial")
+    _object(config["serial"], {"port", "baud", "serial_number"}, {"port", "baud"}, "serial")
     if not isinstance(config["serial"]["port"], str) or not config["serial"]["port"]:
         raise ConfigError("serial.port is required")
+    if "serial_number" in config["serial"]:
+        value = config["serial"]["serial_number"]
+        if not isinstance(value, str) or not value.strip() or len(value) > 128 or any(ord(c) < 32 for c in value):
+            raise ConfigError("serial.serial_number must be a nonempty USB identity")
     _integer(config["serial"]["baud"], 9600, 2000000, "serial.baud")
     _object(config["storage"], {"state_db"}, {"state_db"}, "storage")
     if not isinstance(config["storage"]["state_db"], str) or not config["storage"]["state_db"]:

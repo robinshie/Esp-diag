@@ -35,6 +35,9 @@ chmod 600 deploy/gateway.env
 
 - `agent.id`、`mqtt.client_id` 每块板/网关唯一；`web.agent_ids` 与之对应。
 - `serial.port` 为实际 USB 路径；Linux 推荐 `/dev/serial/by-id/...`。
+- USB 端口可能因换插口而重新编号。可额外填写 `serial.serial_number`（USB 序列号，
+  不是客户设备编号）；网关每次重连都按该身份重新查找串口。目标缺失或存在多个匹配时
+  保持等待，不会连接其他板。未填写则继续严格使用 `serial.port`。
 - `storage.state_db` 为可写持久路径，生产与演示分开，重启后保留。
 - `mqtt` 为真实 Broker、写入账号、TLS 与证书；`web` 为实际 `wss` 地址和只读账号。
 - `devices` 为 SSH 主机、认证、信任文件、轮询周期、采集命令与解析规则。

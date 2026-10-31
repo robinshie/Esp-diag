@@ -7,8 +7,9 @@
     "name": "ESP32-S3 BDI Agent"
   },
   "serial": {
-    "port": "/dev/cu.usbmodem101",
-    "baud": 115200
+    "port": "/dev/cu.usbmodem1201",
+    "baud": 115200,
+    "serial_number": "90:70:69:F4:98:4C"
   },
   "storage": {
     "state_db": "../test/.runtime/live-demo/single-server.sqlite3"

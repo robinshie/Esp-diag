@@ -17,6 +17,7 @@ import paho.mqtt.client as mqtt
 import serial
 from .store import Store, fields
 from .topology import Topology
+from .serial_device import resolve_port
 
 TOPIC_LOG = "h3c/server/sim-01/log"  # legacy import only; runtime topics use device identity
 TOPIC_HEALTH = "h3c/server/sim-01/health"
@@ -156,9 +157,10 @@ class GatewayTransport:
         port.dtr = True
         port.rts = False
         port.exclusive = True
-        port.port = self.args.port
+        port.port = resolve_port(self.args.port, getattr(self.args, "serial_number", None))
         port.open()
         self.serial = port
+        print(f"[USB] connected port={port.port}", flush=True)
         # The simulator's deterministic seed must not reuse a USB connection
         # identity when the gateway process restarts.
         self.nonce = secrets.token_hex(16)
