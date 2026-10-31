@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>ESP32 · 历史查询</title></head>
+<body>
+  <div class="app-shell">
+    <header class="topbar"><a class="brand" href="/"><span class="brand-mark">ED</span><span><strong>ESP-DIAG</strong><small>历史查询</small></span></a>
+      <div class="connection-cluster"><a class="button button-quiet" href="/">实时仪表盘</a><a class="button button-quiet" href="/console.html">实时控制台</a></div></header>
+    <main>
+      <section class="hero-row"><div><p class="eyebrow">HISTORY</p><h1>上报历史查询</h1><p class="hero-copy">按设备与日期查询 MongoDB 中保存的完整上报，包含已删除设备及过去的连接。</p></div></section>
+      <section class="panel history-panel">
+        <form id="historyForm" class="history-filters">
+          <label>ESP32 ID<input id="historyAgent" type="text" placeholder="留空查询全部设备" maxlength="64" pattern="[A-Za-z0-9_.-]+"/></label>
+          <label>开始时间<input id="historyStart" type="datetime-local" step="1"/></label>
+          <label>结束时间<input id="historyEnd" type="datetime-local" step="1"/></label>
+          <button class="button button-primary" type="submit">查询</button><button id="allHistory" class="button button-quiet" type="button">全部历史</button>
+        </form>
+        <p id="historyState" role="status" class="history-state">正在加载历史记录…</p>
+        <div class="event-table-wrap"><table class="event-table"><thead><tr><th>上报时间</th><th>ESP32</th><th>级别</th><th>内容</th></tr></thead><tbody id="historyRows"></tbody></table></div>
+        <div class="history-pagination"><button id="historyPrevious" type="button" class="button button-quiet" disabled>上一页</button><span id="historyPage">第 1 页</span><button id="historyNext" type="button" class="button button-quiet" disabled>下一页</button></div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="/src/history.js"></script>
+</body></html>

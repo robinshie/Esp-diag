@@ -1,0 +1,11 @@
+# Set MONITOR_DOMAIN and MQTT_WS_UPSTREAM in the service environment.
+# MQTT broker must independently enforce the browser account's read-only ACL.
+{$MONITOR_DOMAIN} {
+    @mqtt path /mqtt
+    reverse_proxy @mqtt {$MQTT_WS_UPSTREAM:127.0.0.1:9001}
+    @api path /api/*
+    reverse_proxy @api {$ESP_API_UPSTREAM:127.0.0.1:8080}
+    root * /opt/esp-diag/frontend/dist
+    header /runtime-config.json Cache-Control "no-store"
+    file_server
+}

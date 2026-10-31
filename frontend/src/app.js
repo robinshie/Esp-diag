@@ -1,18 +1,21 @@
 import mqtt from "mqtt";
 import "./styles.css";
+import { parseFields, topicInfo, applyTelemetry, telemetryOnline, agentTopics } from "./telemetry.js";
+import { loadRuntimeConfig, connectionFields } from "./runtime-config.js";
+import {parseReport, ReportHistory, applyReport, reportSummary, reportSeverity} from "./reports.js";
+import {registryRequest, loadArchiveSnapshot, deviceMetadata as metadataFields} from "./registry.js";
 
 const STORAGE_CONNECTION = "esp-diag-connection-v1";
 const STORAGE_DEVICES = "esp-diag-devices-v1";
-const ONLINE_WINDOW_MS = 15_000;
 const MAX_EVENTS = 300;
-const DEFAULT_DEVICE_ID = "esp32-s3-eth";
 
 const elements = Object.fromEntries(
   [
     "connectionState", "connectionLabel", "connectionSettingsButton", "connectButton",
     "clock", "clockDate", "onlineMetric", "totalDeviceMetric", "criticalMetric",
-    "lockedMetric", "messageMetric", "deviceTableBody", "emptyDevices", "detailEmpty",
+    "lockedMetric", "messageMetric", "messageTitle", "messageScope", "deviceTableBody", "emptyDevices", "detailEmpty",
     "detailContent", "detailKind", "detailTitle", "detailId", "detailBadges",
+    "emptyDevicesTitle", "emptyDevicesHint", "eventsTitle", "emptyEventsTitle", "emptyEventsHint",
     "detailLocation", "detailLastSeen", "detailTransport", "detailUptime", "detailCpu",
     "detailTemp", "detailMessages", "detailFaults", "beliefList", "detailLastEvent",
     "editDeviceButton", "addDeviceButton", "eventTableBody", "emptyEvents",
@@ -34,14 +37,16 @@ const defaultConnection = {
 };
 
 let connection = { ...defaultConnection, ...readJson(STORAGE_CONNECTION, {}) };
+let runtime = null;
 let deviceMetadata = readJson(STORAGE_DEVICES, {});
 let client = null;
 let selectedDeviceId = null;
 let editingDeviceId = null;
 let paused = false;
-let messageCount = 0;
+let messageCount = null;
 let events = [];
 const devices = new Map();
+const reportHistory = new ReportHistory();
 
 function readJson(key, fallback) {
   try {
@@ -64,42 +69,12 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function parseFields(payload) {
-  const fields = {};
-  for (const token of payload.split(/\s+/)) {
-    const index = token.indexOf("=");
-    if (index > 0) fields[token.slice(0, index)] = token.slice(index + 1);
-  }
-  return fields;
-}
-
-function topicInfo(topic) {
-  const parts = topic.split("/");
-  if (parts[0] !== "h3c") {
-    return { id: "unknown", kind: "unknown", channel: parts.at(-1), sourceId: null };
-  }
-  if (parts[1] === "server" || parts[1] === "switch") {
-    return {
-      id: DEFAULT_DEVICE_ID,
-      kind: "agent",
-      channel: parts[3] || "log",
-      sourceId: parts[2] || parts[1]
-    };
-  }
-  return {
-    id: parts[1] || "unknown",
-    kind: "agent",
-    channel: parts[2] || "status",
-    sourceId: null
-  };
-}
-
 function createDevice(id, kind = "manual") {
   const meta = deviceMetadata[id] || {};
   return {
     id,
     kind,
-    name: meta.name || defaultDeviceName(id, kind),
+    name: meta.name || (runtime?.agentIds[0] === id ? runtime.agentName : defaultDeviceName(id, kind)),
     location: meta.location || "未设置",
     enabled: meta.enabled ?? true,
     manuallyAdded: meta.manuallyAdded ?? false,
@@ -111,7 +86,7 @@ function createDevice(id, kind = "manual") {
     uptimeMs: null,
     cpu: null,
     temp: null,
-    messages: 0,
+    messages: runtime?.api ? null : 0,
     faults: 0,
     lastEvent: "尚无数据",
     lastTopic: "—",
@@ -126,8 +101,7 @@ function createDevice(id, kind = "manual") {
 
 function defaultDeviceName(id, kind) {
   if (id === "esp32-s3-eth") return "ESP32-S3 BDI Agent";
-  if (id === "sim-01") return "H3C Server Simulator";
-  return kind === "server" ? `Server · ${id}` : `Device · ${id}`;
+  return `ESP32 · ${id}`;
 }
 
 function ensureDevice(id, kind) {
@@ -137,105 +111,44 @@ function ensureDevice(id, kind) {
   return device;
 }
 
-function severityFor(payload, fields) {
-  if (
-    fields.level === "CRITICAL" || fields.status === "ALARM" ||
-    fields.state === "FAULT" ||
-    (fields.belief === "server_critical" && fields.value === "true") ||
-    payload.includes("result=FAILED")
-  ) return "critical";
-  if (
-    fields.level === "WARN" || fields.status === "LOCKED" ||
-    fields.state === "OFFLINE" ||
-    fields.event === "AUTH_LOCKED" || payload.includes("UNLOCK")
-  ) return "warning";
-  return "info";
-}
-
-function applyMessage(topic, payload) {
-  const info = topicInfo(topic);
+function applyMessage(topic, payload, packet = {}) {
+  // With an archive configured, only committed database records update the view.
+  if (runtime?.api) return;
   const fields = parseFields(payload);
-  const severity = severityFor(payload, fields);
+  const info = topicInfo(topic, fields, runtime?.topicRoot);
+  if (info.kind !== "agent" || !runtime?.agentIds.includes(info.id)) return;
   const device = ensureDevice(info.id, info.kind);
+  if (info.channel === "availability") {
+    applyTelemetry(device, info, fields);
+    renderMetrics(); renderDevices(); renderDetail();
+    return;
+  }
+  if (info.channel !== "report") return;
+  let report;
+  try { report = parseReport(payload); } catch { return; }
+  if (!reportHistory.accept(`${info.id}/${report.report_id}`)) return;
   const now = Date.now();
-
-  device.lastSeen = now;
-  device.messages += 1;
-  device.lastEvent = payload;
+  if (report.sent_at_ms >= (device.lastReportAtMs || 0)) {
+    applyReport(device, report, now);
+    device.lastReportAtMs = report.sent_at_ms;
+  }
+  const summary = reportSummary(report);
+  device.lastEvent = summary;
   device.lastTopic = topic;
-  if (fields.transport) device.transport = fields.transport;
-  if (fields.uptime_ms) device.uptimeMs = Number(fields.uptime_ms);
-  if (fields.cpu_pct) device.cpu = Number(fields.cpu_pct);
-  if (fields.temp_c) device.temp = Number(fields.temp_c);
-  if (info.channel === "availability" && fields.state) {
-    device.availability = fields.state;
-  }
-  if (info.channel === "health" && fields.state === "NORMAL") {
-    device.health = "healthy";
-  }
-  if (info.channel === "health" && fields.state === "FAULT") {
-    device.health = "critical";
-  }
-
-  if (severity === "critical") {
-    device.health = "critical";
-    if (
-      info.channel === "log" ||
-      (info.channel === "health" && fields.state === "FAULT")
-    ) device.faults += 1;
-  }
-  if (
-    fields.event === "HEARTBEAT" && fields.status === "OK" &&
-    device.beliefs.server_critical !== true
-  ) device.health = "healthy";
-  if (fields.event === "RECOVERY" && fields.status === "OK") device.health = "healthy";
-  if (fields.event === "AUTH_LOCKED" || fields.status === "LOCKED") {
-    device.locked = true;
-    if (device.health !== "critical") device.health = "warning";
-  }
-  if (fields.belief && Object.hasOwn(device.beliefs, fields.belief)) {
-    const value = fields.value === "true";
-    device.beliefs[fields.belief] = value;
-    if (
-      fields.belief === "server_healthy" && value &&
-      device.beliefs.server_critical !== true
-    ) device.health = device.locked ? "warning" : "healthy";
-    if (fields.belief === "server_critical") {
-      device.health = value
-        ? "critical"
-        : device.locked
-          ? "warning"
-          : device.beliefs.server_healthy === true
-            ? "healthy"
-            : "unknown";
-    }
-    if (fields.belief === "server_locked") {
-      device.locked = value;
-      if (value && device.health !== "critical") device.health = "warning";
-      if (!value && device.beliefs.server_critical !== true && device.beliefs.server_healthy === true) {
-        device.health = "healthy";
-      }
-    }
-  }
-  if (/UNLOCK/i.test(payload) && payload.includes("result=SUCCESS")) device.locked = false;
-
-  messageCount += 1;
-  events.unshift({
-    timestamp: now,
-    topic,
-    payload,
-    severity,
-    deviceId: info.id,
-    sourceId: info.sourceId
-  });
-  if (events.length > MAX_EVENTS) events.length = MAX_EVENTS;
   if (!selectedDeviceId) selectedDeviceId = info.id;
+  if (packet.retain) { render(); return; }
+  if (!runtime.api) {
+    device.messages += 1;
+    messageCount += 1;
+  }
+  events.unshift({timestamp: now, topic, payload: summary, raw: report.lines.map(line => line.text).join("\n"),
+    severity: reportSeverity(report), deviceId: info.id, sourceId: null});
+  if (events.length > MAX_EVENTS) events.length = MAX_EVENTS;
   render();
 }
 
 function isOnline(device) {
-  if (device.availability !== null) return device.availability === "ONLINE";
-  return Boolean(device.lastSeen && Date.now() - device.lastSeen < ONLINE_WINDOW_MS);
+  return telemetryOnline(device, client?.connected);
 }
 
 function statusBadge(label, className) {
@@ -264,25 +177,25 @@ function renderMetrics() {
   const managed = [...devices.values()].filter((device) => device.enabled);
   elements.onlineMetric.textContent = managed.filter(isOnline).length;
   elements.totalDeviceMetric.textContent = `共 ${managed.length} 台`;
-  elements.criticalMetric.textContent = managed.filter((device) => device.health === "critical").length;
+  elements.criticalMetric.textContent = managed.filter((device) => isOnline(device) && device.beliefs.server_critical === true).length;
   elements.lockedMetric.textContent = managed.filter((device) => device.locked).length;
-  elements.messageMetric.textContent = messageCount.toLocaleString("zh-CN");
+  elements.messageMetric.textContent = messageCount?.toLocaleString("zh-CN") ?? "—";
 }
 
 function renderDevices() {
   const list = [...devices.values()].sort((a, b) => {
-    if (a.enabled !== b.enabled) return a.enabled ? -1 : 1;
-    return (b.lastSeen || 0) - (a.lastSeen || 0);
+    // Keep rows in place while incoming messages update their status.
+    return Number(a.kind === "agent") - Number(b.kind === "agent") || a.id.localeCompare(b.id);
   });
   elements.emptyDevices.hidden = list.length > 0;
   elements.deviceTableBody.innerHTML = list.map((device) => {
     const online = isOnline(device);
-    const healthLabel = { healthy: "健康", warning: "注意", critical: "严重", unknown: "未知" }[device.health];
+    const healthLabel = { healthy: "健康", warning: "注意", critical: "严重", unknown: "未知" }[online ? device.health : "unknown"];
     return `
       <tr data-device-id="${escapeHtml(device.id)}" class="${selectedDeviceId === device.id ? "is-selected" : ""}">
         <td><span class="device-name">${escapeHtml(device.name)}</span><span class="device-id">${escapeHtml(device.id)} · ${escapeHtml(device.location)}</span></td>
         <td>${device.enabled ? statusBadge(online ? "在线" : "离线", online ? "online" : "offline") : statusBadge("已停用", "disabled")}</td>
-        <td>${statusBadge(healthLabel, device.health)}</td>
+        <td>${statusBadge(healthLabel, online ? device.health : "unknown")}</td>
         <td class="mono">${formatAgo(device.lastSeen)}</td>
         <td><div class="row-actions"><button class="icon-button" data-action="edit" aria-label="编辑 ${escapeHtml(device.name)}">✎</button></div></td>
       </tr>`;
@@ -296,7 +209,7 @@ function renderDetail() {
   if (!device) return;
 
   const online = isOnline(device);
-  elements.detailKind.textContent = device.kind === "server" ? "SERVER" : device.kind === "agent" ? "BDI AGENT" : "MANAGED DEVICE";
+  elements.detailKind.textContent = "BDI AGENT";
   elements.detailTitle.textContent = device.name;
   elements.detailId.textContent = device.id;
   elements.detailLocation.textContent = device.location;
@@ -305,13 +218,13 @@ function renderDetail() {
   elements.detailUptime.textContent = formatUptime(device.uptimeMs);
   elements.detailCpu.textContent = Number.isFinite(device.cpu) ? `${device.cpu}%` : "—";
   elements.detailTemp.textContent = Number.isFinite(device.temp) ? `${device.temp}°C` : "—";
-  elements.detailMessages.textContent = device.messages.toLocaleString("zh-CN");
+  elements.detailMessages.textContent = device.messages?.toLocaleString("zh-CN") ?? "—";
   elements.detailFaults.textContent = device.faults.toLocaleString("zh-CN");
   elements.detailLastEvent.textContent = device.lastEvent;
   elements.detailBadges.innerHTML = [
     statusBadge(device.enabled ? (online ? "在线" : "离线") : "已停用", device.enabled ? (online ? "online" : "offline") : "disabled"),
-    statusBadge({ healthy: "健康", warning: "注意", critical: "严重", unknown: "未知" }[device.health], device.health),
-    ...(device.locked ? [statusBadge("已锁定", "locked")] : [])
+    statusBadge({ healthy: "健康", warning: "注意", critical: "严重", unknown: "未知" }[online ? device.health : "unknown"], online ? device.health : "unknown"),
+    ...(device.locked ? [statusBadge("监测到锁定", "locked")] : [])
   ].join("");
   elements.beliefList.innerHTML = Object.entries(device.beliefs).map(([name, value]) =>
     `<span class="belief ${value === true ? "is-true" : ""}">${escapeHtml(name)} = ${value === null ? "?" : value}</span>`
@@ -323,18 +236,19 @@ function renderEvents() {
   const query = elements.eventSearch.value.trim().toLowerCase();
   const filtered = events.filter((event) => {
     const severityMatches = severity === "all" || event.severity === severity;
-    const queryMatches = !query || `${event.topic} ${event.payload} ${event.deviceId} ${event.sourceId || ""}`.toLowerCase().includes(query);
+    const queryMatches = !query || `${event.topic} ${event.payload} ${event.raw || ""} ${event.deviceId} ${event.sourceId || ""}`.toLowerCase().includes(query);
     return severityMatches && queryMatches;
   });
   elements.emptyEvents.hidden = filtered.length > 0;
   if (paused) return;
+  const opened = new Set([...elements.eventTableBody.querySelectorAll("details[open]")].map(detail => detail.dataset.time));
   elements.eventTableBody.innerHTML = filtered.slice(0, 100).map((event) => `
     <tr>
       <td>${new Date(event.timestamp).toLocaleTimeString("zh-CN", { hour12: false })}</td>
       <td>${statusBadge(event.severity === "critical" ? "严重" : event.severity === "warning" ? "警告" : "信息", event.severity)}</td>
-      <td>${escapeHtml(event.deviceId)}${event.sourceId ? `<span class="device-id">来源 ${escapeHtml(event.sourceId)}</span>` : ""}</td>
+      <td>${escapeHtml(event.deviceId)}${event.sourceId ? `<span class="device-id">监测对象 ${escapeHtml(event.sourceId)}</span>` : ""}</td>
       <td title="${escapeHtml(event.topic)}">${escapeHtml(event.topic)}</td>
-      <td class="event-payload" title="${escapeHtml(event.payload)}">${escapeHtml(event.payload)}</td>
+      <td class="event-payload"><details data-time="${event.timestamp}" ${opened.has(String(event.timestamp)) ? "open" : ""}><summary title="${escapeHtml(event.payload)}">${escapeHtml(event.payload)}</summary><pre>${escapeHtml(event.raw)}</pre></details></td>
     </tr>`).join("");
 }
 
@@ -353,7 +267,8 @@ function setConnectionState(state, label) {
 
 function connectMqtt() {
   if (client) disconnectMqtt();
-  const password = elements.mqttPassword.value || "esp32-bdi-test";
+  if (!runtime) return;
+  const password = elements.mqttPassword.value;
   const url = `${connection.protocol}://${connection.host}:${connection.port}${connection.path}`;
   setConnectionState("connecting", "连接中");
   client = mqtt.connect(url, {
@@ -367,12 +282,12 @@ function connectMqtt() {
   });
   client.on("connect", () => {
     setConnectionState("online", "已连接");
-    client.subscribe("h3c/#", { qos: 1 }, (error) => {
+    client.subscribe(agentTopics(runtime.topicRoot, runtime.agentIds), { qos: 1 }, (error) => {
       if (error) showToast(`订阅失败：${error.message}`);
-      else showToast("已订阅 h3c/#");
+      else showToast("已订阅 ESP32 上报数据");
     });
   });
-  client.on("message", (topic, buffer) => applyMessage(topic, buffer.toString()));
+  client.on("message", (topic, buffer, packet) => applyMessage(topic, buffer.toString(), packet));
   client.on("reconnect", () => setConnectionState("connecting", "重连中"));
   client.on("offline", () => setConnectionState("offline", "连接中断"));
   client.on("error", (error) => {
@@ -397,7 +312,7 @@ function fillConnectionForm() {
   elements.mqttPort.value = connection.port;
   elements.mqttPath.value = connection.path;
   elements.mqttUsername.value = connection.username;
-  elements.mqttPassword.value = "esp32-bdi-test";
+  elements.mqttPassword.value = runtime?.password || "";
   elements.autoConnect.checked = connection.autoConnect;
 }
 
@@ -429,36 +344,92 @@ function openDeviceDialog(id = null) {
   setTimeout(() => (device ? elements.deviceNameInput : elements.deviceIdInput).focus(), 0);
 }
 
-function saveDevice() {
+async function saveDevice() {
   const id = (editingDeviceId || elements.deviceIdInput.value).trim();
   const name = elements.deviceNameInput.value.trim();
-  if (!id || !name || !/^[A-Za-z0-9._-]+$/.test(id)) return;
-  const existing = ensureDevice(id, editingDeviceId ? devices.get(id)?.kind : "manual");
+  if (!id || !name || !/^[A-Za-z0-9._-]{1,64}$/.test(id) || ["server", "switch", "service"].includes(id)) return;
   const metadata = {
+    kind: "agent",
     name,
     location: elements.deviceLocationInput.value.trim() || "未设置",
     enabled: elements.deviceEnabledInput.checked,
-    manuallyAdded: existing.manuallyAdded || !editingDeviceId
+    manuallyAdded: devices.get(id)?.manuallyAdded || !editingDeviceId
   };
+  if (runtime?.api) {
+    try { await registryRequest(runtime.api, `/devices/${encodeURIComponent(id)}`, "PUT", metadataFields(metadata)); }
+    catch (error) { showToast(error.message); return; }
+  }
+  subscribeAgent(id);
+  const existing = ensureDevice(id, "agent");
   deviceMetadata[id] = metadata;
   Object.assign(existing, metadata);
   writeJson(STORAGE_DEVICES, deviceMetadata);
   selectedDeviceId = id;
   elements.deviceDialog.close();
   render();
-  showToast(editingDeviceId ? "设备信息已更新" : "设备已添加");
+  showToast(runtime?.api ? "设备信息已保存到数据库" : (editingDeviceId ? "设备信息已更新" : "设备已添加"));
 }
 
-function deleteDevice() {
+async function deleteDevice() {
   const id = editingDeviceId;
   if (!id) return;
+  if (runtime?.api) {
+    try { await registryRequest(runtime.api, `/devices/${encodeURIComponent(id)}`, "DELETE"); }
+    catch (error) { showToast(error.message); return; }
+  }
   delete deviceMetadata[id];
   devices.delete(id);
   writeJson(STORAGE_DEVICES, deviceMetadata);
   if (selectedDeviceId === id) selectedDeviceId = devices.keys().next().value || null;
   elements.deviceDialog.close();
   render();
-  showToast("设备已从当前浏览器移除；再次上报时会自动发现");
+  showToast(runtime?.api ? "设备已移除，历史保留；重新连接硬件或手动添加后恢复" : "设备已从当前浏览器移除；再次上报时会自动发现");
+}
+
+function subscribeAgent(id) {
+  if (runtime.agentIds.includes(id)) return;
+  runtime.agentIds.push(id);
+  if (client?.connected) client.subscribe(agentTopics(runtime.topicRoot, [id]), {qos: 1});
+}
+
+let registrySyncing = false;
+async function syncRegistry() {
+  if (!runtime?.api || registrySyncing) return;
+  registrySyncing = true;
+  try {
+    const {registry: saved, history} = await loadArchiveSnapshot(runtime.api);
+    const ids = new Set(saved.devices.map(row => row.id));
+    for (const id of devices.keys()) if (!ids.has(id)) devices.delete(id);
+    deviceMetadata = {};
+    for (const row of saved.devices) {
+      subscribeAgent(row.id);
+      deviceMetadata[row.id] = {...metadataFields(row), manuallyAdded: row.manuallyAdded, kind: "agent"};
+      const device = createDevice(row.id, "agent");
+      devices.set(row.id, device);
+      Object.assign(device, deviceMetadata[row.id]);
+      device.messages = row.report_count;
+      if (row.latest_report) {
+        const report = parseReport(JSON.stringify(row.latest_report));
+        applyReport(device, report);
+        device.lastReportAtMs = report.sent_at_ms;
+        device.lastEvent = reportSummary(report);
+        device.lastTopic = `${runtime.topicRoot}/${row.id}/report`;
+      }
+      if (row.availability && row.availability_at_ms > (device.availabilityAtMs || 0)) {
+        applyTelemetry(device, {channel: "availability"}, {state: row.availability}, row.availability_at_ms);
+      }
+    }
+    if (!devices.has(selectedDeviceId)) selectedDeviceId = devices.keys().next().value || null;
+    messageCount = saved.devices.reduce((total, row) => total + row.report_count, 0);
+    elements.messageScope.textContent = "当前连接 · 数据库";
+    events = history.map(item => {
+        const report = item.report;
+        return {timestamp: report.sent_at_ms, topic: `${runtime.topicRoot}/${item.agent_id}/report`,
+          payload: reportSummary(report), raw: report.lines.map(line => line.text).join("\n"),
+          severity: reportSeverity(report), deviceId: item.agent_id, sourceId: null};
+    }).sort((a, b) => b.timestamp - a.timestamp).slice(0, MAX_EVENTS);
+    render();
+  } finally { registrySyncing = false; }
 }
 
 let toastTimer;
@@ -477,7 +448,8 @@ function updateClock() {
 
 function loadManagedDevices() {
   for (const [id, metadata] of Object.entries(deviceMetadata)) {
-    const device = createDevice(id, "manual");
+    if (!runtime?.agentIds.includes(id)) continue;
+    const device = createDevice(id, "agent");
     Object.assign(device, metadata);
     devices.set(id, device);
   }
@@ -527,14 +499,42 @@ elements.clearButton.addEventListener("click", () => {
   renderEvents();
 });
 
-loadManagedDevices();
-fillConnectionForm();
-updateClock();
-render();
+async function boot() {
+  try {
+    runtime = await loadRuntimeConfig();
+    connection = {...connectionFields(runtime), ...(runtime.configured ? {} : readJson(STORAGE_CONNECTION, {}))};
+    if (runtime.api) {
+      elements.messageTitle.textContent = "实时上报";
+      elements.messageMetric.title = "当前 USB 连接的已入库上报数；刷新不清零，重新连接另起计数。";
+      elements.emptyDevicesTitle.textContent = "暂无管理设备";
+      elements.emptyDevicesHint.textContent = "连接 ESP32 后自动发现；已移除设备可重新插入或手动添加。";
+      elements.eventsTitle.textContent = "实时上报记录";
+      elements.emptyEventsTitle.textContent = "暂无设备上报记录";
+      elements.emptyEventsHint.textContent = "等待当前连接的上报；以往记录可在历史查询中查看。";
+      try { await syncRegistry(); }
+      catch (error) { showToast(error.message); }
+      setInterval(() => syncRegistry().catch(() => {
+        elements.messageScope.textContent = "数据库暂不可用，自动重试";
+      }), 5_000);
+    } else {
+      messageCount = 0;
+      elements.messageTitle.textContent = "MQTT 消息";
+      elements.messageScope.textContent = "本次会话";
+      loadManagedDevices();
+    }
+    fillConnectionForm();
+    updateClock();
+    render();
+    if (connection.autoConnect) connectMqtt();
+  } catch (error) {
+    setConnectionState("offline", "配置未就绪");
+    showToast(error.message);
+  }
+}
+boot();
 setInterval(() => {
   updateClock();
   renderMetrics();
   renderDevices();
   renderDetail();
 }, 1_000);
-if (connection.autoConnect) connectMqtt();

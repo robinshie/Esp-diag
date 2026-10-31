@@ -30,7 +30,7 @@ After flashing the ESP32 firmware, run the complete simulated control loop:
 python3 test/s5120v2_bdi_e2e.py
 ```
 
-This test injects an interface-down event, sends the normalized event to the
+This test injects an administrative-down event, sends the normalized event to the
 ESP32 over USB, waits for the BDI recovery command, applies `undo shutdown`
 over SSH, verifies the interface is up, and publishes the lifecycle to MQTT.
 It controls only this local fake switch.
@@ -41,3 +41,10 @@ records are synthetic.
 
 Do not replace `test/h3c_server_sim.py`: that script remains the separate
 UniServer/HDM server proof of concept.
+
+The command engine tracks 24 independent ports and separates administrative
+state from cable state. `simulate admin-down GigabitEthernet1/0/2` can be repaired
+with `undo shutdown`; `simulate interface-down GigabitEthernet1/0/2` represents a
+cable loss and remains DOWN until `simulate cable-up GigabitEthernet1/0/2`.
+Protocol 2 events and ACKs include device and component identities. Recovery
+requires a matching observation and the firmware stabilization window.

@@ -54,22 +54,33 @@ class FakeComwareSwitchTest(unittest.TestCase):
 
     def test_interface_fault_and_recovery(self) -> None:
         output, view, _, _ = self.switch.execute(
-            "simulate interface-down GigabitEthernet1/0/1"
+            "simulate admin-down GigabitEthernet1/0/1"
         )
         self.assertIn("PHY_UPDOWN", output)
         self.assertIn("changed to down", output)
         status, _, _, _ = self.switch.execute("display interface brief")
-        self.assertIn("GE1/0/1              DOWN", status)
+        self.assertIn("GE1/0/1              ADM", status)
 
         _, view, _, _ = self.switch.execute("system-view", view=view)
         _, view, _, _ = self.switch.execute(
             "interface GigabitEthernet1/0/1", view=view
         )
-        self.assertEqual(view, "interface")
+        self.assertEqual(view, "interface:GigabitEthernet1/0/1")
         output, view, _, _ = self.switch.execute("undo shutdown", view=view)
         self.assertIn("changed to up", output)
         status, _, _, _ = self.switch.execute("display interface brief")
         self.assertIn("GE1/0/1              UP", status)
+
+    def test_cable_fault_cannot_be_repaired_by_undo_shutdown(self):
+        self.switch.execute("simulate interface-down GigabitEthernet1/0/2")
+        _, view, _, _ = self.switch.execute("interface GigabitEthernet1/0/2", view="system")
+        self.switch.execute("undo shutdown", view=view)
+        output, _, _, _ = self.switch.execute("display interface brief")
+        self.assertIn("GE1/0/2              DOWN", output)
+        self.assertIn("GE1/0/1              UP", output)
+        self.switch.execute("simulate cable-up GigabitEthernet1/0/2")
+        output, _, _, _ = self.switch.execute("display interface brief")
+        self.assertIn("GE1/0/2              UP", output)
 
 
 if __name__ == "__main__":

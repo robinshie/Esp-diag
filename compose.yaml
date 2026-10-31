@@ -1,0 +1,78 @@
+name: esp-diag
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MQTT_PORT:-18883}:1883"
+      - "127.0.0.1:${MQTT_WS_PORT:-9001}:9001"
+    entrypoint: ["/bin/sh", "/esp/mosquitto-entrypoint.sh"]
+    environment:
+      MQTT_USERNAME: ${MQTT_USERNAME:-esp32}
+      MQTT_PASSWORD: ${ESP_DEMO_MQTT_PASSWORD:?Run deploy/init_mongodb_env.py}
+      MQTT_TOPIC_ROOT: ${MQTT_TOPIC_ROOT:-h3c}
+    volumes:
+      - ./deploy/mosquitto-entrypoint.sh:/esp/mosquitto-entrypoint.sh:ro
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt_data:/mosquitto/data
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h 127.0.0.1 -p 1883 -u \"$$MQTT_USERNAME\" -P \"$$MQTT_PASSWORD\" -t \"$$MQTT_TOPIC_ROOT/_health\" -E -W 3"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+    stop_grace_period: 20s
+  mongodb:
+    image: mongo:8.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Set MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-esp_diag}
+      ESP_MONGO_USERNAME: ${MONGO_USERNAME:?Set MONGO_USERNAME}
+      ESP_MONGO_PASSWORD: ${MONGO_PASSWORD:?Set MONGO_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+      - ./deploy/mongo-init.js:/docker-entrypoint-initdb.d/01-app-user.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.getSiblingDB('admin').auth(process.env.MONGO_INITDB_ROOT_USERNAME, process.env.MONGO_INITDB_ROOT_PASSWORD); quit(db.adminCommand({ping:1}).ok === 1 ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+  mongo-express:
+    image: mongo-express:1.0.2-20-alpine3.19
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${MONGO_EXPRESS_PORT:-8081}:8081"
+    entrypoint: ["/sbin/tini", "--", "/bin/sh", "/esp/mongo-express-entrypoint.sh"]
+    environment:
+      ESP_MONGO_DATABASE: ${MONGO_DATABASE:-esp_diag}
+      ESP_MONGO_USERNAME: ${MONGO_USERNAME:?Set MONGO_USERNAME}
+      ESP_MONGO_PASSWORD: ${MONGO_PASSWORD:?Set MONGO_PASSWORD}
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "false"
+      ME_CONFIG_BASICAUTH: "true"
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:?Run deploy/init_mongodb_env.py}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:?Run deploy/init_mongodb_env.py}
+      ME_CONFIG_SITE_COOKIESECRET: ${MONGO_EXPRESS_COOKIESECRET:?Run deploy/init_mongodb_env.py}
+      ME_CONFIG_SITE_SESSIONSECRET: ${MONGO_EXPRESS_SESSIONSECRET:?Run deploy/init_mongodb_env.py}
+      ME_CONFIG_OPTIONS_CONFIRM_DELETE: "true"
+      ME_CONFIG_REQUEST_SIZE: "10mb"
+      ME_CONFIG_DOCUMENTS_PER_PAGE: "20"
+    volumes:
+      - ./deploy/mongo-express-entrypoint.sh:/esp/mongo-express-entrypoint.sh:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http=require('http'),e=process.env;http.get({host:'127.0.0.1',port:8081,path:'/',auth:e.ME_CONFIG_BASICAUTH_USERNAME+':'+e.ME_CONFIG_BASICAUTH_PASSWORD},r=>{r.resume();process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+volumes:
+  mongo_data:
+  mqtt_data:

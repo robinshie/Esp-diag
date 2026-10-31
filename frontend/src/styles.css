@@ -199,6 +199,8 @@ select:focus, input:focus { border-color: rgba(84, 214, 182, 0.58); box-shadow: 
 .event-table th:nth-child(4) { width: 245px; }
 .event-table td { padding-top: 11px; padding-bottom: 11px; font-family: "IBM Plex Mono", monospace; font-size: 10px; }
 .event-payload { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #9aa7aa; }
+.event-payload summary { cursor: pointer; overflow: hidden; text-overflow: ellipsis; }
+.event-payload pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.7; }
 
 dialog { width: min(560px, calc(100% - 28px)); padding: 0; border: 1px solid var(--line); border-radius: 14px; color: var(--text); background: #0d1417; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65); }
 dialog::backdrop { background: rgba(0, 0, 0, 0.66); backdrop-filter: blur(4px); }

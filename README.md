@@ -1,281 +1,174 @@
-# ESP32-S3 Embedded-BDI 华三日志监控 PoC
+# ESP32-S3 Embedded-BDI 监测网关
 
-本项目验证以下链路：
+主链路：配置驱动 SSH 采集 → USB → ESP32 Embedded-BDI → 授权动作与实际状态验证 →
+持久化网关 → MQTT → Web 控制台。前端只展示 ESP32 及其监测结果，不直连服务器。
 
-```text
-Python 华三日志模拟器
-        │ USB CDC
-        ▼
-ESP32-S3 Embedded-BDI
-        │ USB CDC
-        ▼
-Python USB-to-MQTT 网关
-        │ MQTT
-        ▼
-Mosquitto / MQTTX
-```
+真实环境入口：`python -m esp_gateway run --config config/local.json`。
+复制 [SSH 配置模板](config/ssh.example.json)，配置串口、地址、账号、命令、解析规则、
+MQTT 与前端参数即可切换 SSH 环境。生产包不依赖测试目录，真实模式不会启用模拟器。
+先阅读 [项目架构](docs/architecture.md) 与 [配置部署指南](docs/deployment.md)。
+设备档案与上报历史使用 Docker MongoDB，安装与启动见 [数据库指南](docs/database.md)。
+本机数据库管理界面为 `http://127.0.0.1:8081/db/esp_diag`（mongo-express 容器），
+登录信息由初始化脚本生成到私有文件 `deploy/mongo-express-login.txt`。
+`check` 校验配置，`probe` 核验采集，`export-web` 导出前端运行时配置。
+旧固件需更新一次；此后时间参数也从配置下发，无需因环境变化重新编译。
 
-ESP32 负责解析服务器事件、维护 BDI 信念、选择计划并产生动作。Python
-负责模拟日志、回复模拟解锁 ACK，并把输入、BDI 状态和动作转发到 MQTT。
-当前方案不需要 Wi-Fi 天线或以太网线。
+当前版本采用 **protocol 2**。升级时必须同时更新固件、网关及前端；旧版没有
+设备身份的 `H3C LOG` / `ACK` 不再接受。服务器/交换机保留在 ESP32 的监测上下文中。
 
-## 当前验证结论
+本轮实测结果见 [验收记录](docs/cluster-validation.md)，帧格式见
+[USB 协议](docs/usb-protocol-v2.md)。
 
-这条技术路线已经完成端到端 PoC 验证：
+## 已实现的覆盖
 
-1. USB `PING/PONG` 双向回环成功。
-2. ESP32 能收到健康、温度、风扇、电源和账户锁定事件。
-3. Embedded-BDI 能更新 `server_healthy`、`server_critical` 和
-   `server_locked` 信念。
-4. 严重事件能触发告警动作。
-5. 锁定事件能触发带 `request_id` 的解锁意图。
-6. Python 能返回模拟 ACK，ESP32 能将 `server_locked` 恢复为 `false`。
-7. Python 能把原始日志、信念、动作、状态和解锁命令发布到 MQTT。
-8. Mosquitto 和 MQTTX 能收到 `h3c/#` 下的实时消息。
-
-已验证的代表性输出：
-
-```text
-[BDI][EVENT] belief=server_locked value=true
-[BDI][CMD] UNLOCK request_id=1 target=SIMULATED_H3C_CONSOLE reason=SERVER_LOCKED
-[BDI][EVENT] belief=server_locked value=false
-[BDI][ACK] unlock request_id=1 result=SUCCESS
-```
-
-这证明“感知 → BDI 决策 → 动作请求 → 结果确认 → MQTT 上报”链路可行。
-目前的告警、恢复和解锁动作仍是模拟动作，不代表已经具备操作真实服务器的
-生产能力。
-
-## 项目结构
-
-```text
-.
-├── bdi/agentspeak.asl          # BDI 规则源文件
-├── lib/EmbeddedBDI/            # Embedded-BDI 官方运行时
-├── src/main.cpp                # USB 协议、日志解析和推理循环
-├── src/bdi_configuration.h     # AgentSpeak 对应的 C++ 配置
-├── src/bdi_functions.h         # BDI 动作函数
-├── test/h3c_server_sim.py      # 随机日志模拟器和 USB-MQTT 网关
-├── test/gateway.sh             # 测试进程管理脚本
-├── productlines/               # 按厂商/设备类型/系列组织的命令与日志资料
-├── frontend/                   # MQTT 实时设备管理控制台
-├── mqtt/compose.yaml           # Mosquitto Docker 配置
-├── flash.sh                    # 一键烧录
-└── platformio.ini              # ESP32-S3 PlatformIO 配置
-```
-
-新增产品资料必须放入 `productlines/<vendor>/<device-type>/<product-line>/`，
-不要把交换机 Comware 日志混入现有 UniServer/HDM 服务器模拟器。当前已加入
-`H3C S5120V2-LI` 的官方文档索引、巡检命令、Syslog 配置模板和日志样本；
-现有服务器测试代码保持不变。
-
-## 环境要求
-
-- macOS
-- ESP32-S3-ETH，通过原生 USB 连接
-- Docker Desktop
-- PlatformIO CLI：`pio`，也可通过 `PIO_BIN` 指定
-- Python 3：`python3`，也可通过 `PYTHON_BIN` 指定
-- MQTTX，可选但推荐
-
-## 1. 手动烧录
-
-### 一键烧录
-
-```bash
-git clone https://github.com/robinshie/Esp-diag.git
-cd Esp-diag
-./flash.sh
-```
-
-脚本会自动查找 `/dev/cu.usbmodem*`、编译、烧录并校验 Flash。
-
-### 完全清理后烧录
-
-```bash
-cd Esp-diag
-
-PLATFORMIO_CORE_DIR=.pio-core \
-PLATFORMIO_SETTING_ENABLE_TELEMETRY=no \
-pio run --target clean
-
-./flash.sh
-```
-
-成功标志：
-
-```text
-Hash of data verified.
-[SUCCESS]
-烧录完成。
-```
-
-如果提示串口被占用，先停止 Python 网关或 PlatformIO Monitor：
-
-```bash
-./test/gateway.sh stop
-```
-
-## 2. 启动 MQTT Broker
-
-```bash
-cd Esp-diag/mqtt
-docker compose up -d
-docker compose ps
-```
-
-开发环境连接参数：
-
-```text
-Host: 127.0.0.1
-Port: 1883
-Username: esp32
-Password: esp32-bdi-test
-TLS: off
-```
-
-Broker 只绑定本机地址，ESP32 不直接连接 Broker；Python 是 USB-MQTT
-网关。
-
-查看 Broker 日志：
-
-```bash
-cd Esp-diag/mqtt
-docker compose logs -f
-```
-
-## 3. 安装测试依赖
-
-```bash
-cd Esp-diag
-python3 -m pip install -r test/requirements.txt
-```
-
-## 4. 前台功能测试
-
-确保没有 PlatformIO Monitor 或其他程序占用串口，然后运行：
-
-```bash
-cd Esp-diag
-python3 test/h3c_server_sim.py
-```
-
-脚本启动时先执行固定冒烟测试：
-
-1. USB `PING/PONG`。
-2. 健康心跳。
-3. 温度严重告警。
-4. 故障恢复。
-5. 账户锁定。
-6. BDI 解锁请求和模拟 ACK。
-
-之后持续随机产生：
-
-- 正常心跳
-- 温度过高和恢复
-- 风扇故障
-- 电源故障
-- 账户锁定
-
-按 `Ctrl+C` 停止。启动冒烟测试完成后，连续随机阶段按真实模式运行：
-20–60 秒采样一次，每次 5% 故障概率。后台启动会跳过启动冒烟测试。
-限定运行 5 分钟的示例：
-
-```bash
-python3 test/h3c_server_sim.py \
-  --skip-smoke --duration 300
-```
-
-需要快速压力测试时再提高频率和故障率：
-
-```bash
-python3 test/h3c_server_sim.py \
-  --skip-smoke --duration 60 \
-  --min-interval 1 --max-interval 3 --fault-rate 0.5
-```
-
-### S5120V2-LI 自动控制闭环
-
-完成烧录后，一条命令运行本地假交换机、USB BDI 决策、SSH 恢复和 MQTT
-监控验证：
-
-```bash
-./test/full_bdi_test.sh
-```
-
-成功时最后显示：
-
-```text
-PASS: SSH fault detected -> USB -> ESP32 BDI -> SSH recovery -> interface UP -> MQTT monitored
-```
-
-该流程只控制 `127.0.0.1:2222` 上的假 H3C 交换机，不会连接或修改真实机台。
-
-## 5. 后台测试管理
-
-在用户自己的终端中运行：
-
-```bash
-cd Esp-diag
-
-./test/gateway.sh start
-./test/gateway.sh status
-./test/gateway.sh logs
-./test/gateway.sh stop
-```
-
-后台日志位于：
-
-```text
-test/.runtime/gateway.log
-```
-
-同一时间只能有一个程序打开 `/dev/cu.usbmodem101`。
-
-## 6. MQTTX 验证
-
-在 MQTTX 中创建连接：
-
-```text
-Name: ESP32 BDI
-Protocol: mqtt://
-Host: 127.0.0.1
-Port: 1883
-Username: esp32
-Password: esp32-bdi-test
-SSL/TLS: off
-```
-
-连接后订阅：
-
-```text
-h3c/#
-```
-
-也可以使用命令行客户端：
-
-```bash
-docker exec -it esp-mosquitto \
-  mosquitto_sub -h localhost \
-  -u esp32 -P esp32-bdi-test \
-  -t 'h3c/#' -v
-```
-
-## 7. MQTT 主题
-
-| 主题 | 方向 | 内容 |
+| 优先级 | 实现 | 验收入口 |
 | --- | --- | --- |
-| `h3c/server/sim-01/log` | Python → MQTT | 仅故障原始日志，正常心跳不逐条上报 |
-| `h3c/esp32-s3-eth/availability` | 网关 → MQTT | 保留的在线/离线状态，仅变化时上报 |
-| `h3c/esp32-s3-eth/health` | 网关 → MQTT | 保留的 NORMAL/FAULT 状态，仅变化时上报 |
-| `h3c/esp32-s3-eth/status` | ESP32/网关 → MQTT | 推理循环与 USB 状态 |
-| `h3c/esp32-s3-eth/event` | ESP32/网关 → MQTT | BDI 信念变化 |
-| `h3c/esp32-s3-eth/action` | ESP32/网关 → MQTT | BDI 动作与 ACK 结果 |
-| `h3c/esp32-s3-eth/cmd/unlock` | ESP32/网关 → MQTT | 模拟解锁请求 |
+| P0 | 每设备独立 BDI、按部件和故障记账、部分恢复、降级状态 | `test_cluster_scenarios.py` |
+| P0 | 心跳不清故障；设备失联与网关在线分开 | 原生场景及前端测试 |
+| P0 | 启动唯一请求 ID、ACK 匹配、幂等账本、有限重试、恢复验证 | 动作场景及 MQTT 集成 |
+| P1 | 持续故障、级联、恢复观察期、抖动、重复与乱序消息 | 原生场景 |
+| P1 | USB 接收确认与重发、串口重连、重启快照恢复 | PTY 与实机 USB 验收 |
+| P1 | SQLite MQTT 队列、PUBACK 后出队、Broker 重启补发 | `mqtt_acceptance.py` |
+| P2 | 机架供电、共享上联、共享存储、节点退出、滚动重启 | 集群场景与 `cluster_demo.py` |
+| P2 | 拓扑依赖、业务最小健康成员数、疑似共同故障域 | `cluster_topology.py` |
+| P2 | 32 设备 / 10,000 事件突发、显式容量溢出、128 设备主机模型 | 原生场景及实机容量验收 |
 
-### Web 设备控制台
+这覆盖了集群模拟的主要正确性与故障路径。HDM/Redfish/SNMP/Syslog
+采集适配、超出已有 SSH 能力的动作及业务探针、生产 HA、24–72 小时硬件耐久测试
+仍属于真实环境接入验收，不能由模拟通过代替。共享故障域只报告 `SUSPECTED`，
+不会据此批量修复设备；业务仲裁是拓扑与设备状态的模型，不等于数据库自身的选举协议。
 
-Mosquitto 同时在本机 `9001` 端口提供 MQTT WebSocket。启动前端：
+## 快速运行：无需开发板
+
+使用 Python 3.11+ 和 C++11 编译器（默认 `clang++`）：
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r test/requirements.txt
+.venv/bin/python test/cluster_suite.py --sanitize
+```
+
+测试编译并运行 **与固件相同的 C++ 状态模型及 Embedded-BDI**，使用虚拟时钟
+验证 90 秒失联、2 秒恢复观察和动作超时；不需要等实际时间，也不会连接服务器。
+结果写入 `test/.runtime/cluster-report.json`。不支持 sanitizer 的编译环境可省略参数。
+
+运行可重复的场景并导出每阶段设备、业务与关联结果：
+
+```bash
+.venv/bin/python test/cluster_demo.py --scenario rack-power
+.venv/bin/python test/cluster_demo.py --scenario uplink
+.venv/bin/python test/cluster_demo.py --scenario storage
+.venv/bin/python test/cluster_demo.py --scenario rolling
+.venv/bin/python test/cluster_demo.py --scenario cascade
+```
+
+默认拓扑为三台服务器、两个上联交换机、一个共享存储，数据库要求至少两台
+健康成员。配置见 `test/scenarios/topology.json`；可使用 `--topology` 指定文件。
+默认结果为 `test/.runtime/cluster-demo.json`。
+
+## 真实 MQTT 集成验收
+
+```bash
+.venv/bin/python -m pip install -r test/requirements-integration.txt
+.venv/bin/python test/mqtt_acceptance.py
+```
+
+该测试自行启动并重启只监听 `127.0.0.1:18884` 的临时 MQTT Broker，使用真实
+pyserial PTY 字节流和原生 C++/BDI。覆盖补发、网关重开状态库、固件重启重建、
+动作确认及部分恢复，结束后清理进程。可通过 `--mqtt-port` 修改测试端口。
+报告写入 `test/.runtime/mqtt-integration-report.json`。这是网络集成测试，ESP32
+由同源码原生进程代替；物理 USB 验收见下节。
+
+Docker 依赖（MongoDB、数据库管理、MQTT）统一使用根目录 [compose.yaml](compose.yaml)，
+一键启动与配置见 [Docker 依赖指南](docs/docker.md)。
+
+## ESP32 与持续模拟
+
+安装 PlatformIO，将 ESP32-S3 接入原生 USB：
+
+```bash
+./flash.sh
+.venv/bin/python test/usb_cluster_acceptance.py
+```
+
+USB 验收要求刚复位的固件，测试独立设备、部分恢复、错误 ACK、重复输入、
+32 台设备上限、超长帧重新同步，报告写入 `test/.runtime/usb-cluster-report.json`。
+验收会占满本轮启动的设备槽位；之后复位或重新烧录，再运行网关。
+
+启动 Mosquitto 与持续模拟：
+
+```bash
+./deploy/dependencies.sh up -d --wait
+.venv/bin/python test/h3c_server_sim.py --mqtt-port 18883 --devices 3 --seed 42
+```
+
+默认每 20–60 秒对所有设备采样一次，每台每轮 5% 故障概率。故障会持续存在；
+随机修复只针对一个部件。故障仍存在时，健康心跳不会把设备变绿。
+
+```bash
+# 快速故障测试，限定 60 秒
+.venv/bin/python test/h3c_server_sim.py --mqtt-port 18883 --skip-smoke --duration 60 \
+  --devices 8 --min-interval 1 --max-interval 3 --fault-rate 0.5 --seed 42
+
+# 注入动作失败、丢失 ACK 或命令成功但未恢复
+.venv/bin/python test/h3c_server_sim.py --mqtt-port 18883 --action-mode failed
+.venv/bin/python test/h3c_server_sim.py --mqtt-port 18883 --action-mode timeout
+.venv/bin/python test/h3c_server_sim.py --mqtt-port 18883 --action-mode partial
+
+# 按拓扑生成设备，并计算业务健康及故障域关联
+.venv/bin/python test/h3c_server_sim.py --topology test/scenarios/topology.json
+```
+
+`--action-mode success` 为默认值。账本按故障 incident 持久化执行结果，重试与
+ESP 重启不会产生新的同故障操作；切换模式测试请使用不同的 `--state-db`。
+`--topology` 提供后，设备取自拓扑，代替 `--devices`。相关性故障注入使用
+`cluster_demo.py` 的确定性场景，持续网关模式产生独立随机故障。
+
+后台管理沿用 `./test/gateway.sh start|status|logs|stop`；可用 `PYTHON_BIN` 指定
+Python。网关使用文件锁防止同一状态库多实例；不同网关必须使用不同串口、
+`--state-db`、`--gateway-id` 和 MQTT 主题部署边界。
+
+## 可靠性及容量约定
+
+- 固件默认最多 32 设备、每设备 32 个活跃故障、全局 128 个活跃故障。
+  容量不足会输出明确告警；丢失故障信息的设备进入 `UNKNOWN/incomplete`，
+  不会报告正常。此保护标志需修复源快照后重启重建，避免猜测被拒绝的故障。
+- `NORMAL`：在线且没有活跃故障；`DEGRADED`：只有 WARN 故障；`FAULT`：有
+  CRITICAL 故障；`UNKNOWN`：90 秒未收到设备数据，或状态不完整。
+- 恢复必须包含 `device + component + fault`。收到恢复后观察 2 秒，期间再次
+  报警取消恢复；离线及过期恢复信息不会清除故障。
+- 动作状态为 `WAIT_ACK → VERIFY → DONE` 或 `FAILED`。ACK 等待 3 秒，同一
+  请求最多尝试 3 次；成功 ACK 后等实际恢复，10 秒未验证则失败，不无限重试。
+  失败熔断保持到该故障恢复；再次发生的新 incident 才可产生新请求。
+- 固件启动生成随机 boot ID，请求 ID 带 boot 前缀。ACK 必须匹配设备、部件、
+  动作及当前请求；旧、错误、重复、迟到 ACK 不清故障。
+- 只有 `cause=ADMIN_DOWN` 的接口故障允许申请 `RECOVER_INTERFACE`；断线
+  只告警。`demo` 使用模拟执行器；`ssh` 只运行配置中显式开启的白名单动作。
+- USB 输入上限 511 字节（不含换行），4096 字节接收缓冲。网关逐条等待
+  `RECEIPT`，丢确认时重发同一序号；被固件拒绝时停止并保留队列。设备输出
+  支持分片重组，最大 8192 字节；超长帧整行丢弃并告警。
+- SQLite 同时保存 MQTT 队列、USB 队列、源快照与动作账本。MQTT 以 QoS 1
+  顺序补发，收到 PUBACK 后出队，可能重复投递。USB 重连按当前故障快照
+  重建，不对断线期间已经结束的历史故障重新执行动作。
+- 每个队列最多 50,000 条；溢出报错并停止接收，不静默丢消息。数据位于
+  `test/.runtime/gateway.sqlite3`，删除它会丢失历史与幂等账本。
+- 128 设备测试仅代表主机上的模型扩展验证，不代表 ESP32 的生产承载能力。
+
+## MQTT 与控制台
+
+Mosquitto 本机参数：`127.0.0.1:18883`，WebSocket `127.0.0.1:9001/mqtt`，
+测试用户 `esp32`，密码 `esp32-bdi-test`。订阅 `h3c/#`。
+
+| 主题 | 内容 |
+| --- | --- |
+| `h3c/esp32-s3-eth/report` | 单包 JSON：ESP32 运行状态、全部监测快照、本批 USB 原文；retained |
+| `h3c/esp32-s3-eth/availability` | 网关/USB 在线状态，包含 MQTT Last Will |
+
+配置入口只发布 ESP32 命名空间，主题根与 Agent ID 均可配置。旧测试脚本还可发布
+`h3c/server/...`、`h3c/switch/...`、`h3c/service/...` 作为验收输出，前端不订阅。
+正常状态默认每 5 秒合为一包，故障/动作/恢复在 250 毫秒窗口内合并后及时发送。
+页面每包新增一行，展开可查看 USB 原文；不会将同一输出再按 serial/状态/确认分成多行。
+`reporting.interval_ms` 与 `reporting.batch_ms` 可配置，USB 确认和动作执行不等待打包。
 
 ```bash
 cd frontend
@@ -283,148 +176,51 @@ npm install
 npm run dev
 ```
 
-打开 <http://127.0.0.1:4173>。控制台会订阅 `h3c/#`，显示设备在线状态、
-健康度、告警、账户锁定、BDI 信念和实时消息。设备名称、位置和监控启停配置
-仅保存在当前浏览器中。`sim-01` 只是模拟日志来源，会归并到物理设备
-`esp32-s3-eth`，不会计为第二台设备。详细说明见 `frontend/README.md`。
-
-## 8. 当前 BDI 行为
-
-当前信念：
-
-```text
-server_healthy
-server_critical
-server_locked
-```
-
-当前 AgentSpeak 规则：
-
-```agentspeak
-!start.
-
-+!start <- announce_ready.
-+server_healthy <- report_healthy.
-+server_critical <- report_critical.
-+server_locked <- request_unlock.
-```
-
-当前动作实现：
-
-- `announce_ready`：打印智能体就绪状态。
-- `report_healthy`：打印健康确认。
-- `report_critical`：打印严重告警决策。
-- `request_unlock`：输出带唯一 `request_id` 的模拟解锁命令。
-
-`RECOVERY` 会把 `server_critical` 设为 `false`、把
-`server_healthy` 设为 `true`，但不会修复真实服务器。
-
-MQTT 默认采用“状态与异常”模式：正常心跳仍通过 USB 送入 BDI，但不会逐条
-发布到 MQTT。在线和健康状态使用 retained 消息，只在启动、离线、故障和恢复
-时更新；原始故障日志、BDI 告警、解锁请求与结果仍实时上报。
-
-## 9. 正式部署方案
-
-当前版本适合 PoC 和联调。正式部署应按以下顺序推进。
-
-### 9.1 固化真实输入协议
-
-- 确认华三服务器实际输出来源：串口、COM、Redfish、SNMP、Syslog 或其他
-  管理接口。
-- 保存脱敏后的真实日志样本，建立解析测试集。
-- 为每类事件定义唯一代码、严重级别、设备 ID、时间戳和恢复条件。
-- 不要依赖自由文本包含判断作为最终生产解析器。
-
-### 9.2 实现真实动作适配器
-
-把 `src/bdi_functions.h` 中的打印动作替换为经过授权的动作适配器，例如：
-
-- 发送告警到运维平台。
-- 调用经过认证的 Redfish 管理操作。
-- 通过受控 COM 协议执行允许的恢复命令。
-- 创建人工审批任务，而不是直接执行高风险操作。
-
-真实解锁必须具备：
-
-- 设备白名单
-- 操作白名单
-- 身份认证与最小权限账号
-- 请求签名、防重放 nonce 和超时
-- 人工审批或双人授权
-- `request_id` 幂等处理
-- 完整审计日志
-- 最大重试次数与熔断
-
-不得使用本 PoC 绕过服务器认证或安全控制。
-
-### 9.3 生产 MQTT
-
-- 将测试账号和密码移出仓库，使用密钥管理系统注入。
-- 开启 TLS，并验证 Broker 证书。
-- 为日志、状态、动作和命令分别配置 ACL。
-- 使用唯一设备证书或唯一账号，不要让多台设备共享凭据。
-- 设置消息保留、QoS、过期时间和离线队列策略。
-- 为 Broker 配置持久化、备份、资源限制和监控。
-
-### 9.4 网关服务化
-
-- 将 Python 网关部署为 `launchd`、systemd 或容器化服务。
-- 配置自动重启、单实例锁和串口重连。
-- 记录结构化 JSON 日志，并限制日志大小。
-- 提供 `/health` 或等价健康检查。
-- MQTT 断线时应本地缓存关键事件，恢复后按顺序重放。
-
-### 9.5 固件可靠性
-
-- 启用 ESP32 看门狗和异常复位计数。
-- 对 USB 输入设置长度、格式和速率限制。
-- 为事件队列、意图队列溢出增加可观测告警。
-- 增加配置版本和固件版本上报。
-- 保留已验证的上一版本固件和回滚步骤。
-
-### 9.6 上线门槛
-
-正式接入真实服务器前至少完成：
-
-1. 24–72 小时连续随机压力测试，无崩溃、内存异常或串口死锁。
-2. 拔插 USB、重启 Broker、重启网关后的自动恢复测试。
-3. 重复消息、乱序消息、超长消息和错误 ACK 测试。
-4. 真实日志回放测试，并核对误报和漏报。
-5. 解锁动作在隔离测试环境完成授权、幂等、超时和审计验证。
-6. 安全评审通过后，才允许从模拟 ACK 切换到真实动作。
-
-## 10. 故障排查
-
-### 串口被占用
+打开 <http://127.0.0.1:4173>。控制台只展示 ESP32，监测对象作为其上报上下文；
+不凭心跳原文或动作 ACK 清除告警。retained 消息保留源采样时间，
+浏览器重连不会刷新旧数据的寿命。网关在线不代表服务器在线。
+配置数据库后，首页默认展示当前 USB 连接的状态与入库计数，刷新不归零。
+[历史查询](http://127.0.0.1:4173/history.html) 可按设备和日期查看过去连接的上报；
+历史默认长期保存，30 天以前也可查，详见 [数据库指南](docs/database.md)。
 
 ```bash
-lsof /dev/cu.usbmodem101
-./test/gateway.sh stop
+node --test frontend/test/*.test.js
+npm --prefix frontend run build
 ```
 
-不要同时运行 Python 网关和 PlatformIO Monitor。
-
-### 没有 ESP32 输出
-
-按一下开发板 `RESET`，不要按 `BOOT`，然后重新运行测试脚本。
-
-### MQTT 无消息
+## 假交换机完整闭环
 
 ```bash
-cd Esp-diag/mqtt
-docker compose ps
-docker compose logs --tail=100
+./flash.sh
+./test/full_bdi_test.sh
+
+# 无 Docker 时，先安装 integration 依赖，再使用仅回环监听的测试 Broker
+MQTT_BACKEND=local ./test/full_bdi_test.sh
+
+# 使用自行启动的 Broker
+MQTT_BACKEND=external ./test/full_bdi_test.sh --mqtt-port 18883
 ```
 
-确认 MQTTX 使用 `127.0.0.1:1883`、用户名 `esp32`，并订阅
-`h3c/#`。
+流程注入固定端口的**管理性关闭**，通过 ESP32 决策、SSH `undo shutdown`、
+接口状态核验和恢复观察期确认，再核验 MQTT。假交换机支持 24 个独立端口，
+`simulate interface-down` 模拟断线，`simulate admin-down` 模拟管理关闭，
+`simulate cable-up` 模拟插回网线；`undo shutdown` 不会修复断线。
+只控制本机 `127.0.0.1:2222` 的假交换机。
 
-### MQTT 客户端反复断线
+## 代码导航与接入边界
 
-确保没有同时运行多个 `h3c_server_sim.py`。多个实例使用同一 client ID，
-Broker 会让旧连接下线。
+- `src/cluster_model.h`：协议解析、设备/故障/请求状态机、时间与容量边界。
+- `src/cluster_runtime.h`：每设备独立 Embedded-BDI 与动作上下文。
+- `src/main.cpp`：有界 USB 帧处理及固件计时。
+- `esp_gateway/transport.py`：共享 USB、MQTT、握手与可靠转发。
+- `esp_gateway/store.py`：SQLite 队列、快照、动作账本和部署身份。
+- `esp_gateway/runtime.py`、`ssh.py`：生产 SSH 采集、配置规则和动作执行。
+- `esp_gateway/simulation.py`：隔离的演示源；`test/h3c_server_sim.py` 是兼容入口。
+- `esp_gateway/topology.py`：依赖、故障域和业务模型。
+- `productlines/`：按厂商、设备类型、系列隔离的产品资料、日志与模拟器。
 
-## 许可证
-
-Embedded-BDI 上游代码使用 GPL-3.0。正式分发固件或衍生代码前，应确认并
-履行相应开源许可证义务。
+本版本输入是本项目定义的归一化协议，不能直接把厂商原始日志接入固件。
+SSH 接入已提供配置驱动采集/解析和授权动作；上线需用真实样本核验命令与规则。
+其他采集协议需要相应适配器。MQTT 的证书、ACL 和 Broker HA 按现场部署。
+Embedded-BDI 上游采用 GPL-3.0，分发时
+遵守对应许可证。

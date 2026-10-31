@@ -27,3 +27,13 @@ test/.runtime/
 # Local Mosquitto persistence
 mqtt/data/
 mqtt/log/
+
+# Per-environment runtime state, generated browser settings and private deployment config
+var/
+config/local.json
+config/known_hosts
+frontend/public/runtime-config.json
+deploy/gateway.env
+deploy/mongodb.env
+deploy/mongo-express-login.txt
+/esp-diag.archive

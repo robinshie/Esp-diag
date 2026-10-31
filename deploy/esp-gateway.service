@@ -1,0 +1,22 @@
+[Unit]
+Description=ESP32 BDI SSH gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=esp-gateway
+Group=esp-gateway
+SupplementaryGroups=dialout
+WorkingDirectory=/opt/esp-diag
+EnvironmentFile=/etc/esp-diag/gateway.env
+ExecStartPre=/opt/esp-diag/.venv/bin/python -m esp_gateway check --config /etc/esp-diag/gateway.json
+ExecStart=/opt/esp-diag/.venv/bin/python -u -m esp_gateway run --config /etc/esp-diag/gateway.json
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

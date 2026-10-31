@@ -1,147 +1,54 @@
 #include <Arduino.h>
+#include <esp_system.h>
+#include "cluster_runtime.h"
 
-#include "agent/agent.h"
-#include "bdi_configuration.h"
-
+std::string bdi_device;
+std::function<void(const std::string&)> bdi_output;
+std::function<void()> bdi_request_action;
 namespace {
-Agent* bdi_agent = nullptr;
-AgentSettings* bdi_settings = nullptr;
-String usb_line;
-
-bool has_field(const String& line, const char* field) {
-  return line.indexOf(field) >= 0;
+ClusterRuntime* runtime;
+std::string usb_line;
+bool discard_frame = false;
+uint64_t monotonic_ms = 0;
+uint32_t previous_ms = 0;
 }
-
-String field_value(const String& line, const char* key) {
-  String prefix = String(key) + "=";
-  int start = line.indexOf(prefix);
-  if (start < 0) return "";
-  start += prefix.length();
-  int end = line.indexOf(' ', start);
-  if (end < 0) end = line.length();
-  return line.substring(start, end);
-}
-
-void publish_belief(BdiProposition proposition, bool state,
-                    const char* name) {
-  if (bdi_settings->set_belief(proposition, state)) {
-    Serial.printf("[BDI][EVENT] belief=%s value=%s\r\n", name,
-                  state ? "true" : "false");
-  }
-}
-
-void handle_h3c_line(String line) {
-  line.trim();
-  if (line.isEmpty()) return;
-
-  if (line.startsWith("H3C PING")) {
-    Serial.printf("H3C PONG nonce=%s transport=USB\r\n",
-                  field_value(line, "nonce").c_str());
-    return;
-  }
-
-  if (line.startsWith("H3C ACK") && has_field(line, "action=UNLOCK")) {
-    String request_id = field_value(line, "request_id");
-    if (has_field(line, "status=OK")) {
-      publish_belief(SERVER_LOCKED, false, "server_locked");
-      Serial.printf("[BDI][ACK] unlock request_id=%s result=SUCCESS\r\n",
-                    request_id.c_str());
-    } else {
-      Serial.printf("[BDI][ACK] unlock request_id=%s result=FAILED\r\n",
-                    request_id.c_str());
-    }
-    return;
-  }
-
-  if (line.startsWith("H3C ACK") &&
-      has_field(line, "action=RECOVER_INTERFACE")) {
-    String request_id = field_value(line, "request_id");
-    if (has_field(line, "status=OK")) {
-      publish_belief(SWITCH_LINK_FAULT, false, "switch_link_fault");
-      Serial.printf(
-          "[BDI][ACK] recover_interface request_id=%s result=SUCCESS\r\n",
-          request_id.c_str());
-    } else {
-      Serial.printf(
-          "[BDI][ACK] recover_interface request_id=%s result=FAILED\r\n",
-          request_id.c_str());
-    }
-    return;
-  }
-
-  if (!line.startsWith("H3C LOG")) {
-    Serial.printf("[BDI][WARN] unsupported_input=%s\r\n", line.c_str());
-    return;
-  }
-
-  Serial.printf("[BDI][RX][USB] %s\r\n", line.c_str());
-  if (has_field(line, "event=HEARTBEAT") && has_field(line, "status=OK")) {
-    publish_belief(SERVER_HEALTHY, true, "server_healthy");
-  }
-  if (has_field(line, "status=ALARM") || has_field(line, "level=CRITICAL")) {
-    publish_belief(SERVER_HEALTHY, false, "server_healthy");
-    publish_belief(SERVER_CRITICAL, true, "server_critical");
-  }
-  if (has_field(line, "event=RECOVERY") && has_field(line, "status=OK")) {
-    publish_belief(SERVER_CRITICAL, false, "server_critical");
-    publish_belief(SERVER_HEALTHY, true, "server_healthy");
-  }
-  if (has_field(line, "event=AUTH_LOCKED") ||
-      has_field(line, "status=LOCKED")) {
-    publish_belief(SERVER_LOCKED, true, "server_locked");
-  }
-  if (has_field(line, "event=LINK_DOWN") &&
-      has_field(line, "status=ALARM")) {
-    publish_belief(SERVER_HEALTHY, false, "server_healthy");
-    publish_belief(SERVER_CRITICAL, true, "server_critical");
-    publish_belief(SWITCH_LINK_FAULT, true, "switch_link_fault");
-  }
-  if (has_field(line, "event=LINK_UP") && has_field(line, "status=OK")) {
-    publish_belief(SWITCH_LINK_FAULT, false, "switch_link_fault");
-    publish_belief(SERVER_CRITICAL, false, "server_critical");
-    publish_belief(SERVER_HEALTHY, true, "server_healthy");
-  }
-}
-
-void poll_usb_transport() {
-  while (Serial.available()) {
-    char value = static_cast<char>(Serial.read());
-    if (value == '\n') {
-      handle_h3c_line(usb_line);
-      usb_line = "";
-    } else if (value != '\r' && usb_line.length() < 512) {
-      usb_line += value;
-    }
-  }
-}
-}  // namespace
-
-uint32_t bdi_unlock_request_id = 0;
-uint32_t bdi_recover_request_id = 0;
-bool bdi_agent_ready = false;
-
 void setup() {
+  Serial.setRxBufferSize(4096);
   Serial.begin(115200);
   delay(3000);
-
-  static AgentSettings settings;
-  static Agent agent(settings.get_belief_base(), settings.get_event_base(),
-                     settings.get_plan_base(), settings.get_intention_base());
-  bdi_settings = &settings;
-  bdi_agent = &agent;
+  char boot[33];
+  snprintf(boot, sizeof(boot), "%08lx%08lx%08lx%08lx",
+           (unsigned long)esp_random(), (unsigned long)esp_random(),
+           (unsigned long)esp_random(), (unsigned long)esp_random());
+  bdi_output = [](const std::string& s) { Serial.println(s.c_str()); };
+  runtime = new ClusterRuntime(boot);
+  runtime->model.output = bdi_output;
+  bdi_output("[BDI][BOOT] boot=" + std::string(boot) + " protocol=2 max_devices=32");
 }
-
 void loop() {
-  poll_usb_transport();
-  bdi_agent->run();
-
-  static unsigned long last_status_ms = 0;
-  if (bdi_agent_ready && millis() - last_status_ms >= 5000) {
-    last_status_ms = millis();
-    Serial.printf(
-        "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=%lu\r\n",
-        static_cast<unsigned long>(millis()));
+  uint32_t current = millis();
+  monotonic_ms += static_cast<uint32_t>(current - previous_ms);
+  previous_ms = current;
+  runtime->model.tick(monotonic_ms);
+  // Bound bytes per iteration so a continuous event stream cannot starve timers.
+  for (unsigned count = 0; count < 1024 && Serial.available(); ++count) {
+    char value = static_cast<char>(Serial.read());
+    if (value == '\n') {
+      if (!discard_frame) runtime->model.receive(usb_line);
+      usb_line.clear(); discard_frame = false;
+    } else if (value != '\r' && !discard_frame) {
+      if (usb_line.size() >= 511) {
+        usb_line.clear(); discard_frame = true;
+        runtime->model.reject("FRAME_TOO_LONG");
+      } else usb_line += value;
+    }
   }
-
+  static uint64_t last_status = 0;
+  if (monotonic_ms - last_status >= 5000) {
+    last_status = monotonic_ms;
+    Serial.printf("[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=%llu devices=%u rejected=%u free_heap=%u\r\n",
+        (unsigned long long)monotonic_ms, (unsigned)runtime->model.devices.size(),
+        runtime->model.rejected, (unsigned)ESP.getFreeHeap());
+  }
   delay(1);
 }

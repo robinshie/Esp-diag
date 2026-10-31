@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "mode": "ssh",
+  "agent": {"id": "esp32-rack-a", "topic_root": "h3c", "name": "Rack A ESP32"},
+  "serial": {"port": "/dev/serial/by-id/REPLACE_WITH_ESP32", "baud": 115200},
+  "storage": {"state_db": "../var/rack-a/gateway.sqlite3"},
+  "protocol": {"stale_ms": 90000, "settle_ms": 2000, "ack_ms": 3000, "verify_ms": 60000},
+  "reporting": {"interval_ms": 5000, "batch_ms": 250},
+  "mqtt": {
+    "host": "mqtt.example.com", "port": 8883, "username": "gateway-rack-a", "password_env": "MQTT_GATEWAY_PASSWORD",
+    "client_id": "gateway-rack-a", "tls": {"enabled": true}
+  },
+  "web": {
+    "mqtt_url": "wss://monitor.example.com/mqtt", "username": "dashboard-readonly", "password_env": "MQTT_WEB_PASSWORD",
+    "agent_ids": ["esp32-rack-a"], "api_url": "/api", "api_token_env": "ESP_API_TOKEN"
+  },
+  "devices": [{
+    "id": "access-01", "kind": "switch", "rack": "rack-a", "poll_interval": 15,
+    "ssh": {
+      "host": "192.0.2.10", "port": 22, "username": "monitor-service", "password_env": "SSH_ACCESS01_PASSWORD",
+      "known_hosts": "known_hosts", "transport": "shell", "setup_commands": ["screen-length disable"],
+      "prompt_pattern": "(?m)^[<\\[][^\\r\\n]+[>\\]]\\s*$",
+      "connect_timeout": 5, "command_timeout": 5
+    },
+    "checks": [{
+      "command": "display interface brief", "component": "GigabitEthernet1/0/1", "event": "LINK_DOWN", "severity": "CRITICAL",
+      "alarm_pattern": "(?m)^GE1/0/1\\s+(?:ADM|DOWN)\\b",
+      "healthy_pattern": "(?m)^GE1/0/1\\s+UP\\b",
+      "cause": "PHYSICAL_DOWN", "action_when_pattern": "(?m)^GE1/0/1\\s+ADM\\b", "action_cause": "ADMIN_DOWN"
+    }],
+    "actions": {
+      "RECOVER_INTERFACE": {
+        "enabled": false, "allowed_components": ["GigabitEthernet1/0/1"],
+        "commands": ["system-view", "interface {component}", "undo shutdown", "return"]
+      }
+    }
+  }]
+}

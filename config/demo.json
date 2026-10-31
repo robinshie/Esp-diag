@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "mode": "demo",
+  "agent": {"id": "esp32-s3-eth", "topic_root": "h3c", "name": "ESP32-S3 BDI Agent"},
+  "serial": {"port": "/dev/cu.usbmodem101", "baud": 115200},
+  "storage": {"state_db": "../test/.runtime/live-demo/single-server.sqlite3"},
+  "mqtt": {
+    "host": "127.0.0.1", "port": 18883, "username": "esp32", "password_env": "ESP_DEMO_MQTT_PASSWORD",
+    "client_id": "esp-live-demo", "tls": {"enabled": false}
+  },
+  "web": {
+    "mqtt_url": "ws://127.0.0.1:9001/mqtt", "username": "esp32", "password_env": "ESP_DEMO_MQTT_PASSWORD",
+    "agent_ids": ["esp32-s3-eth"], "api_url": "/api", "api_token_env": "ESP_API_TOKEN"
+  },
+  "protocol": {"stale_ms": 90000, "settle_ms": 2000, "ack_ms": 3000, "verify_ms": 10000},
+  "reporting": {"interval_ms": 5000, "batch_ms": 250},
+  "simulation": {"devices": 1, "seed": 42, "min_interval": 3, "max_interval": 5, "fault_rate": 0.15, "action_mode": "realistic"}
+}

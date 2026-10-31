@@ -12,6 +12,7 @@ import uuid
 import paho.mqtt.client as mqtt
 import paramiko
 import serial
+from reliable_gateway import fields
 
 
 TOPIC_BASE = "h3c/switch/s5120v2-li"
@@ -122,7 +123,9 @@ def serial_read_until(
             continue
         lines.append(line)
         print(f"ESP -> USB  {line}")
-        if line.startswith("[BDI][EVENT]"):
+        if line.startswith("[BDI][STATE]"):
+            observer.publish(TOPIC_HEALTH, line + f" seen_at_ms={int(time.time() * 1000)}", retain=True)
+        elif line.startswith("[BDI][EVENT]"):
             observer.publish(TOPIC_EVENT, line)
         elif line.startswith("[BDI][CMD] RECOVER_INTERFACE"):
             observer.publish(TOPIC_COMMAND, line)
@@ -175,7 +178,7 @@ def run(args: argparse.Namespace) -> None:
 
         injected = ssh_exec(
             ssh_client,
-            "simulate interface-down GigabitEthernet1/0/1",
+            "simulate admin-down GigabitEthernet1/0/1",
         )
         if "changed to down" not in injected:
             raise AssertionError(injected)
@@ -191,16 +194,11 @@ def run(args: argparse.Namespace) -> None:
         if not fault_log:
             raise AssertionError("PHY_UPDOWN fault was not present in logbuffer")
         observer.publish(TOPIC_LOG, fault_log)
-        observer.publish(
-            TOPIC_HEALTH,
-            "state=FAULT event=LINK_DOWN interface=GigabitEthernet1/0/1",
-            retain=True,
-        )
 
         normalized_fault = (
-            "H3C LOG source=S5120V2-LI transport=SSH module=IFNET severity=3 "
+            f"H3C LOG device=s5120v2-li kind=switch epoch={time.time_ns() // 1000} seq=1 cause=ADMIN_DOWN "
             "mnemonic=PHY_UPDOWN level=CRITICAL event=LINK_DOWN status=ALARM "
-            "interface=GigabitEthernet1/0/1"
+            "component=GigabitEthernet1/0/1"
         )
         send_usb(port, normalized_fault)
         fault_lines = serial_read_until(
@@ -212,7 +210,7 @@ def run(args: argparse.Namespace) -> None:
         command_line = next(
             line for line in fault_lines if line.startswith("[BDI][CMD] RECOVER_INTERFACE")
         )
-        request_match = re.search(r"request_id=(\d+)", command_line)
+        request_match = re.search(r"request_id=([^ ]+)", command_line)
         if request_match is None:
             raise AssertionError(command_line)
         request_id = request_match.group(1)
@@ -229,19 +227,19 @@ def run(args: argparse.Namespace) -> None:
 
         send_usb(
             port,
-            f"H3C ACK action=RECOVER_INTERFACE request_id={request_id} "
+            f"H3C ACK action=RECOVER_INTERFACE request_id={request_id} device=s5120v2-li component=GigabitEthernet1/0/1 "
             "status=OK mode=SIMULATED_SSH",
         )
         normalized_recovery = (
-            "H3C LOG source=S5120V2-LI transport=SSH module=IFNET severity=5 "
+            f"H3C LOG device=s5120v2-li kind=switch epoch={time.time_ns() // 1000} seq=2 fault=LINK_DOWN "
             "mnemonic=LINK_UPDOWN level=INFO event=LINK_UP status=OK "
-            "interface=GigabitEthernet1/0/1"
+            "component=GigabitEthernet1/0/1"
         )
         send_usb(port, normalized_recovery)
         recovery_lines = serial_read_until(
             port,
             lambda line, lines: (
-                any("recover_interface" in item and "result=SUCCESS" in item for item in lines)
+                any("action=RECOVER_INTERFACE" in item and "result=SUCCESS" in item for item in lines)
                 and any("belief=server_critical value=false" in item for item in lines)
                 and any("belief=server_healthy value=true" in item for item in lines)
             ),
@@ -249,11 +247,6 @@ def run(args: argparse.Namespace) -> None:
             observer,
         )
         observer.publish(TOPIC_LOG, normalized_recovery)
-        observer.publish(
-            TOPIC_HEALTH,
-            "state=NORMAL event=LINK_UP interface=GigabitEthernet1/0/1",
-            retain=True,
-        )
 
         time.sleep(0.5)
         monitored_topics = {topic for topic, _ in observer.messages}

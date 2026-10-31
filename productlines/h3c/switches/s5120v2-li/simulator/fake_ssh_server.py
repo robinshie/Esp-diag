@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import queue
+import re
 import signal
 import socket
 import threading
@@ -26,15 +27,15 @@ class FakeComwareSwitch:
         self.sysname = sysname
         self.lock = threading.Lock()
         self.logs: deque[str] = deque(maxlen=200)
-        self.interface_up = True
+        self.interfaces = {f"GigabitEthernet1/0/{i}": {"admin": True, "cable": True} for i in range(1, 25)}
         sample_path = PRODUCT_ROOT / "logs" / "samples.log"
         for line in sample_path.read_text(encoding="utf-8").splitlines():
             if line and not line.startswith("#"):
                 self.logs.append(line)
 
     def prompt(self, view: str) -> str:
-        if view == "interface":
-            return f"[{self.sysname}-GigabitEthernet1/0/1]"
+        if view.startswith("interface:"):
+            return f"[{self.sysname}-{view.split(':', 1)[1]}]"
         return f"[{self.sysname}]" if view == "system" else f"<{self.sysname}>"
 
     def _event_log(self, module: str, severity: int, mnemonic: str, content: str) -> str:
@@ -45,27 +46,19 @@ class FakeComwareSwitch:
             self.logs.append(line)
         return line
 
-    def set_interface_state(self, is_up: bool) -> list[str]:
+    def set_interface_state(self, is_up: bool, interface="GigabitEthernet1/0/1", cause="admin") -> list[str]:
         with self.lock:
-            changed = self.interface_up != is_up
-            self.interface_up = is_up
-        if not changed:
+            state = self.interfaces[interface]
+            before = state["admin"] and state["cable"]
+            state[cause] = is_up
+            after = state["admin"] and state["cable"]
+        if before == after:
             return []
-        state = "up" if is_up else "down"
-        return [
-            self._event_log(
-                "IFNET",
-                3,
-                "PHY_UPDOWN",
-                f"Physical state on the GigabitEthernet1/0/1 changed to {state}.",
-            ),
-            self._event_log(
-                "IFNET",
-                5,
-                "LINK_UPDOWN",
-                f"Line protocol state on the interface GigabitEthernet1/0/1 changed to {state}.",
-            ),
-        ]
+        value = "up" if after else "down"
+        return [self._event_log("IFNET", 3, "PHY_UPDOWN",
+                               f"Physical state on the {interface} changed to {value}."),
+                self._event_log("IFNET", 5, "LINK_UPDOWN",
+                               f"Line protocol state on the interface {interface} changed to {value}.")]
 
     def _audit(self, command: str, username: str, source_ip: str) -> None:
         now = datetime.now().astimezone()
@@ -92,25 +85,28 @@ class FakeComwareSwitch:
         lowered = " ".join(command.lower().split())
 
         if lowered in {"quit", "exit"}:
-            if view == "interface":
+            if view.startswith("interface:"):
                 return "", "system", False, 0
             if view == "system":
                 return "", "user", False, 0
             return "", "user", True, 0
         if lowered == "return":
             return "", "user", False, 0
+        if lowered == "screen-length disable":
+            return "", view, False, 0
         if lowered == "system-view":
             return "System View: return to User View with Ctrl+Z.", "system", False, 0
-        if lowered == "interface gigabitethernet1/0/1" and view == "system":
-            return "", "interface", False, 0
-        if lowered == "shutdown" and view == "interface":
-            logs = self.set_interface_state(False)
+        match = re.fullmatch(r"interface gigabitethernet1/0/(\d+)", lowered)
+        if match and view == "system" and 1 <= int(match.group(1)) <= 24:
+            return "", "interface:GigabitEthernet1/0/" + str(int(match.group(1))), False, 0
+        if lowered in {"shutdown", "undo shutdown"} and view.startswith("interface:"):
+            logs = self.set_interface_state(lowered == "undo shutdown", view.split(":", 1)[1])
             return "\r\n".join(logs), view, False, 0
-        if lowered == "undo shutdown" and view == "interface":
-            logs = self.set_interface_state(True)
-            return "\r\n".join(logs), view, False, 0
-        if lowered == "simulate interface-down gigabitethernet1/0/1":
-            logs = self.set_interface_state(False)
+        match = re.fullmatch(r"simulate (interface-down|admin-down|cable-up) gigabitethernet1/0/(\d+)", lowered)
+        if match and 1 <= int(match.group(2)) <= 24:
+            operation, port = match.groups()
+            logs = self.set_interface_state(operation == "cable-up", "GigabitEthernet1/0/" + str(int(port)),
+                                            "admin" if operation == "admin-down" else "cable")
             return "SIMULATED FAULT INJECTED\r\n" + "\r\n".join(logs), view, False, 0
 
         responses = {
@@ -184,16 +180,14 @@ Slot  Total      Used       Free       FreeRatio
 1     524288     173016     351272     67.0%"""
 
     def _interfaces(self) -> str:
-        state = "UP" if self.interface_up else "DOWN"
-        return f"""Brief information on interfaces in route mode:
-Link: ADM - administratively down; Stby - standby
-Interface            Link Protocol Primary IP      Description
-Vlan1                UP   UP       192.0.2.2       SIMULATED-MGMT
-
-Brief information on interfaces in bridge mode:
-Interface            Link Speed   Duplex Type PVID Description
-GE1/0/1              {state:<4} 1G      F      A    10   USER-ACCESS
-GE1/0/24             UP   1G      F      T    1    UPLINK"""
+        output = "Brief information on interfaces in bridge mode:\nInterface            Link Speed   Duplex Type PVID Description"
+        with self.lock:
+            states = [(interface, dict(state)) for interface, state in self.interfaces.items()]
+        for interface, state in states:
+            status = "ADM" if not state["admin"] else "UP" if state["cable"] else "DOWN"
+            name = interface.replace("GigabitEthernet", "GE")
+            output += f"\n{name:<20} {status:<4} 1G      F      A    10   SIMULATED"
+        return output
 
     @staticmethod
     def _stp() -> str:

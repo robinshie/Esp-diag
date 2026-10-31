@@ -25,10 +25,12 @@ else
   PYTHON="python3"
 fi
 
-if [[ -e /dev/cu.usbmodem101 ]]; then
-  PORT="/dev/cu.usbmodem101"
+if [[ -n "${SERIAL_PORT:-}" ]]; then
+  PORT="$SERIAL_PORT"
+elif [[ -n "${ESP_CONFIG:-}" ]]; then
+  PORT="$("$PYTHON" -c 'import json,sys; print(json.load(open(sys.argv[1]))["serial"]["port"])' "$ESP_CONFIG")"
 else
-  PORT="$(find /dev -maxdepth 1 -name 'cu.usbmodem*' -print -quit 2>/dev/null || true)"
+  PORT="$("$PYTHON" -c 'from serial.tools.list_ports import comports; print(next((p.device for p in comports() if p.vid == 0x303A), ""))')"
 fi
 
 if [[ -z "$PORT" ]]; then
@@ -47,4 +49,4 @@ PLATFORMIO_SETTING_ENABLE_TELEMETRY=no \
 
 echo
 echo "烧录完成。"
-echo "运行 MQTT 测试：$PYTHON $PROJECT_DIR/test/h3c_server_sim.py"
+echo "启动网关：$PYTHON -m esp_gateway run --config ${ESP_CONFIG:-config/local.json}"

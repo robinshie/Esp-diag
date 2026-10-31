@@ -1,0 +1,10 @@
+# Adapt identities and namespaces to config/local.json.
+user gateway-rack-a
+topic write h3c/esp32-rack-a/#
+
+user dashboard-readonly
+topic read h3c/esp32-rack-a/#
+
+user archive-readonly
+topic read h3c/+/report
+topic read h3c/+/availability

@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    {"id": "a", "rack": "rack-1", "uplink": "tor-1", "storage": "san-1", "dependencies": ["tor-1", "san-1"]},
+    {"id": "b", "rack": "rack-1", "uplink": "tor-1", "storage": "san-1", "dependencies": ["tor-1", "san-1"]},
+    {"id": "c", "rack": "rack-2", "uplink": "tor-2", "storage": "san-1", "dependencies": ["tor-2", "san-1"]},
+    {"id": "tor-1", "kind": "switch"},
+    {"id": "tor-2", "kind": "switch"},
+    {"id": "san-1"}
+  ],
+  "services": [{"id": "database", "members": ["a", "b", "c"], "min_healthy": 2, "dependencies": ["san-1"]}]
+}

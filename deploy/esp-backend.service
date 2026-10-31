@@ -1,0 +1,20 @@
+[Unit]
+Description=ESP32 MongoDB registry and report archive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=esp-gateway
+Group=esp-gateway
+WorkingDirectory=/opt/esp-diag
+EnvironmentFile=/etc/esp-diag/mongodb.env
+ExecStart=/opt/esp-diag/.venv/bin/python -u -m esp_backend --config /etc/esp-diag/gateway.json --env-file /etc/esp-diag/mongodb.env
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

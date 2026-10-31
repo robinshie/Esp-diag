@@ -73,10 +73,13 @@ class AgentSettings {
     Proposition prop(proposition);
     if (belief_base_.get_belief_state(prop) == state) return false;
 
-    belief_base_.change_belief_state(prop, state);
     EventOperator op = state ? EventOperator::BELIEF_ADDITION
                              : EventOperator::BELIEF_DELETION;
-    event_base_.add_event(Event(op, prop));
+    if (!event_base_.add_event(Event(op, prop))) {
+      bdi_output("[BDI][WARN] device=" + bdi_device + " reason=BDI_EVENT_CAPACITY");
+      return false;
+    }
+    belief_base_.change_belief_state(prop, state);
     return true;
   }
 
