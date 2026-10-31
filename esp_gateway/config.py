@@ -78,7 +78,7 @@ def load_config(path, *, require_credentials=True):
     reporting.setdefault("batch_ms", 250)
     reporting.setdefault("interval_ms", 5000)
     _integer(reporting["batch_ms"], 50, 1000, "reporting.batch_ms")
-    _integer(reporting["interval_ms"], 1000, 5000, "reporting.interval_ms")
+    _integer(reporting["interval_ms"], 1000, 300000, "reporting.interval_ms")
 
     def local_file(section, key, *, must_exist=False):
         if section.get(key):
@@ -257,7 +257,7 @@ def load_config(path, *, require_credentials=True):
     if sum(len(device["checks"]) for device in devices) > 128:
         raise ConfigError("checks exceed the ESP32 global 128-fault capacity; split across agents")
     simulation = config.get("simulation", {})
-    _object(simulation, {"devices", "seed", "min_interval", "max_interval", "fault_rate", "action_mode"}, label="simulation")
+    _object(simulation, {"devices", "seed", "min_interval", "max_interval", "fault_rate", "action_mode", "workload", "normal_min", "normal_max"}, label="simulation")
     if config["mode"] == "demo":
         _integer(simulation.get("devices", 1), 1, 32, "simulation.devices")
         _number(simulation.get("min_interval", 3), 0.1, 60, "simulation.min_interval")
@@ -265,6 +265,13 @@ def load_config(path, *, require_credentials=True):
         _number(simulation.get("fault_rate", 0.15), 0, 1, "simulation.fault_rate")
         if simulation.get("action_mode", "realistic") not in {"success", "failed", "timeout", "partial", "realistic"}:
             raise ConfigError("invalid simulation.action_mode")
+        if simulation.get("workload", "standard") not in {"standard", "all_faults", "overnight"}:
+            raise ConfigError("invalid simulation.workload")
+        if simulation.get("workload") in {"all_faults", "overnight"} and simulation.get("action_mode", "realistic") != "realistic":
+            raise ConfigError("scenario workloads require realistic action mode")
+        _number(simulation.get("normal_min", 300), 60, 86400, "simulation.normal_min")
+        _number(simulation.get("normal_max", 900), simulation.get("normal_min", 300), 86400, "simulation.normal_max")
+    config["_config_path"] = str(path)
     return config
 
 
@@ -277,4 +284,5 @@ def browser_config(config):
             "serial_label": config["serial"]["port"]}
     if web.get("api_url"):
         public["api"] = {"url": web["api_url"], "token": credential(web, "api_token_env")}
+        public["reporting"] = {"agent_id": config["agent"]["id"], "interval_ms": config["reporting"]["interval_ms"]}
     return public

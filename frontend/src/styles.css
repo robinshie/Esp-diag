@@ -103,7 +103,7 @@ h2 { margin-bottom: 0; font-size: 18px; letter-spacing: -0.02em; }
 .clock-panel span, .clock-panel small { display: block; color: var(--muted); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
 .clock-panel strong { display: block; margin: 3px 0; font-size: 25px; font-weight: 500; letter-spacing: 0.04em; }
 
-.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
 .metric-card {
   min-height: 118px;
   padding: 20px;
@@ -144,7 +144,19 @@ tbody tr { transition: background 140ms ease; }
 tbody tr:hover { background: rgba(84, 214, 182, 0.03); }
 tbody tr.is-selected { background: rgba(84, 214, 182, 0.06); box-shadow: inset 2px 0 var(--teal); }
 .device-name { display: block; color: var(--text); font-weight: 600; }
+.device-number { padding: 4px 0; border: 0; color: var(--teal); background: transparent; font: 500 12px "IBM Plex Mono", monospace; white-space: nowrap; }
+.device-number:hover { text-decoration: underline; }
+.device-number-label { display: block; margin: 6px 0; color: var(--teal); font: 11px "IBM Plex Mono", monospace; }
 .device-id { display: block; margin-top: 4px; color: #65757a; font: 10px "IBM Plex Mono", monospace; }
+.device-report-count { white-space: nowrap; }
+.device-report-count strong { color: var(--blue); font-weight: 500; }
+.device-report-count small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+.device-report-metric { min-height: 104px; margin-bottom: 14px; }
+.reporting-settings { margin-bottom: 14px; }
+.reporting-settings label { color: var(--muted); font-size: 11px; }
+.reporting-settings > div { display: flex; gap: 8px; margin-top: 7px; }
+.reporting-settings input { width: 90px; min-width: 0; }
+.reporting-settings p { margin-bottom: 0; }
 .row-actions { display: flex; justify-content: flex-end; gap: 6px; }
 
 .badge { display: inline-flex; align-items: center; min-height: 23px; padding: 0 8px; border-radius: 999px; font: 600 9px "IBM Plex Mono", monospace; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -174,6 +186,7 @@ tbody tr.is-selected { background: rgba(84, 214, 182, 0.06); box-shadow: inset 2
 .detail-list div { padding: 12px; border-bottom: 1px solid var(--line-soft); }
 .detail-list div:nth-child(odd) { border-right: 1px solid var(--line-soft); }
 .detail-list div:nth-last-child(-n + 2) { border-bottom: 0; }
+.detail-list div:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; }
 .detail-list dt { color: #69787c; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; }
 .detail-list dd { margin: 5px 0 0; color: #d7dfe0; font: 500 11px "IBM Plex Mono", monospace; }
 .belief-block, .last-event-block { margin-top: 18px; }
@@ -248,3 +261,27 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.66); backdrop-filter: blur(4px); 
   .metric-card { min-height: 92px; }
   h1 { font-size: 30px; }
 }
+
+/* Device loop response observer */
+.device-loop-open { padding: 0; border: 0; background: none; color: var(--text); text-align: left; font: inherit; font-weight: 650; }
+.device-loop-open:hover { color: var(--teal); }
+.loop-dialog { width: min(1100px, calc(100vw - 32px)); max-width: 1100px; padding: 0; max-height: 90vh; overflow: auto; }
+.loop-card { padding: clamp(18px, 3vw, 32px); }
+.loop-card .dialog-heading { align-items: flex-start; }
+.loop-card h2 { margin-bottom: 8px; }
+.loop-notice, .loop-demo-notice { padding: 12px 16px; border: 1px solid var(--line); background: var(--surface-raised); border-radius: 8px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.loop-demo-notice { color: var(--amber); border-color: #705333; margin-bottom: 16px; }
+.loop-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 18px 0; color: var(--muted); font-size: 13px; }
+.loop-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; min-height: 300px; }
+.loop-incidents { display: flex; flex-direction: column; gap: 10px; }
+.loop-incident { display: grid; gap: 8px; padding: 16px; text-align: left; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-wrap: anywhere; }
+.loop-incident span, .loop-incident small { color: var(--muted); font-size: 12px; }
+.loop-incident.is-active { border-color: var(--teal); background: #102a24; }
+.loop-target { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+.loop-target small { color: var(--muted); }.loop-target h3 { margin: 8px 0; }.loop-target p { margin: 0; }
+.loop-steps { display: grid; grid-template-columns: repeat(5,1fr); list-style: none; padding: 0; gap: 6px; margin: 28px 0; }
+.loop-steps li { display: grid; gap: 10px; border-top: 2px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 12px; }
+.loop-steps li span { font-size: 16px; }.loop-steps li small { font-size: 10px; line-height: 1.5; }.loop-steps .is-done { border-color: var(--teal); color: var(--teal); }.loop-steps .is-current { border-color: var(--amber); color: var(--amber); }
+.loop-timeline { list-style: none; padding: 0; }.loop-timeline li { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 16px; padding: 16px 0; border-top: 1px solid var(--line-soft); font-size: 13px; }.loop-timeline time { color: var(--muted); }.loop-timeline p { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }.loop-timeline details { margin-top: 12px; color: var(--muted); }.loop-timeline pre { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; font-size: 11px; }
+.loop-empty { display: grid; justify-items: center; text-align: center; align-content: center; min-height: 300px; padding: 24px; color: var(--muted); }.loop-empty p { max-width: 390px; line-height: 1.8; font-size: 13px; }
+@media(max-width:700px) { .loop-layout { grid-template-columns: 1fr; }.loop-incidents { flex-direction: row; overflow: auto; }.loop-incident { min-width: 190px; }.loop-toolbar { align-items: flex-start; flex-direction: column; }.loop-steps { gap: 3px; }.loop-steps strong { font-size: 10px; } }

@@ -27,9 +27,12 @@ def transport_args(config):
         protocol=config["protocol"], publish_source_topics=False, handshake_timeout=0, worker_shutdown_timeout=120,
         batch_reports=True, report_batch_ms=config.get("reporting", {}).get("batch_ms", 250),
         report_interval_ms=config.get("reporting", {}).get("interval_ms", 5000),
+        reporting_config_path=config.get("_config_path"),
         duration=0, skip_smoke=True, topology=None, min_interval=simulation.get("min_interval", 3),
         max_interval=simulation.get("max_interval", 5), fault_rate=simulation.get("fault_rate", 0.15),
-        devices=simulation.get("devices", 1), seed=simulation.get("seed", 42), action_mode=simulation.get("action_mode", "realistic"))
+        devices=simulation.get("devices", 1), seed=simulation.get("seed", 42), action_mode=simulation.get("action_mode", "realistic"),
+        workload=simulation.get("workload", "standard"),
+        normal_min=simulation.get("normal_min", 300), normal_max=simulation.get("normal_max", 900))
 
 
 class SSHGateway(GatewayTransport):

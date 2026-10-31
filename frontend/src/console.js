@@ -1,5 +1,5 @@
 import mqtt from "mqtt";
-import { parseFields, agentTopics } from "./telemetry.js";
+import { parseFields, agentTopics, reportFreshnessMs } from "./telemetry.js";
 import { loadRuntimeConfig } from "./runtime-config.js";
 import {parseReport, ReportHistory, reportSummary, reportSeverity} from "./reports.js";
 import {loadArchiveSnapshot} from "./registry.js";
@@ -15,6 +15,7 @@ let agentId = "";
 let latestReportAt = 0;
 let archiveSyncing = false;
 let restoredRows = 0;
+let reportTtlMs = 15000;
 const reportHistory = new ReportHistory();
 function connection(label, good = false) {
   $("connection").textContent = label;
@@ -63,9 +64,8 @@ async function restoreArchive() {
     lastOfflineAt = 0;
     $("espStats").textContent = "数据库暂无 ESP32 运行状态";
     $("observations").textContent = "数据库暂无监测结果";
-    $("espName").textContent = device?.name || runtime.agentName;
+    $("espName").textContent = device ? `${device.device_number ? device.device_number + " · " : ""}${device.name}` : runtime.agentName;
     if (device) {
-      $("espName").textContent = device.name;
       if (device.availability === "OFFLINE") lastOfflineAt = Math.max(lastOfflineAt, device.availability_at_ms);
       if (device.latest_report) showReport(parseReport(JSON.stringify(device.latest_report)));
     }
@@ -130,6 +130,7 @@ function handleMessage(topic, raw, packet = {}) {
 function showReport(report) {
   if (report.sent_at_ms < latestReportAt) return;
   latestReportAt = report.sent_at_ms;
+  reportTtlMs = reportFreshnessMs(report.report_interval_ms);
   const fields = report.status;
   observed.esp = fields?.seen_at_ms && Number(fields.seen_at_ms) > lastOfflineAt ? Math.min(Date.now(), Number(fields.seen_at_ms)) : 0;
   $("espStats").textContent = fields ? `推理 ${fields.reasoning_cycle} · 运行 ${Math.floor(Number(fields.uptime_ms) / 1000)}s · 可用堆 ${fields.free_heap} B · 设备 ${fields.devices} · 拒绝 ${fields.rejected}` : "等待 ESP32 运行状态…";
@@ -139,7 +140,7 @@ function showReport(report) {
 function refresh() {
   for (const side of ["esp"]) {
     const age = observed[side] ? Math.floor((Date.now() - observed[side]) / 1000) : null;
-    const online = client?.connected && age !== null && age < 15;
+    const online = client?.connected && age !== null && age * 1000 < reportTtlMs;
     $(`${side}State`).textContent = online ? "在线 · 日志接收中" : "等待实时数据";
     $(`${side}State`).style.color = online ? "#9de1ba" : "#ffcf75";
     $(`${side}Last`).textContent = age === null ? "尚未收到实时日志" : `最近日志 ${age} 秒前`;

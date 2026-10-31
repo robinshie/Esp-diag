@@ -1,0 +1,942 @@
+[
+  {
+    "id": "IFNET/PHY_UPDOWN:link_down:0",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PHY_UPDOWN",
+    "family": "h3c:IFNET/PHY_UPDOWN",
+    "label": "link_down",
+    "body": "Interface {port} physical carrier became down",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PHY_UPDOWN:link_down:1",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PHY_UPDOWN",
+    "family": "h3c:IFNET/PHY_UPDOWN",
+    "label": "link_down",
+    "body": "The physical ethernet connection on {port} is unavailable",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PHY_UPDOWN:normal:0",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PHY_UPDOWN",
+    "family": "h3c:IFNET/PHY_UPDOWN",
+    "label": "normal",
+    "body": "Interface {port} physical carrier became up",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PHY_UPDOWN:normal:1",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PHY_UPDOWN",
+    "family": "h3c:IFNET/PHY_UPDOWN",
+    "label": "normal",
+    "body": "The physical ethernet connection on {port} is available",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/LINK_UPDOWN:link_down:0",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "LINK_UPDOWN",
+    "family": "h3c:IFNET/LINK_UPDOWN",
+    "label": "link_down",
+    "body": "Interface {port} line protocol became down",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/LINK_UPDOWN:link_down:1",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "LINK_UPDOWN",
+    "family": "h3c:IFNET/LINK_UPDOWN",
+    "label": "link_down",
+    "body": "Link layer protocol is unavailable at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/LINK_UPDOWN:normal:0",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "LINK_UPDOWN",
+    "family": "h3c:IFNET/LINK_UPDOWN",
+    "label": "normal",
+    "body": "Interface {port} line protocol became up",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/LINK_UPDOWN:normal:1",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "LINK_UPDOWN",
+    "family": "h3c:IFNET/LINK_UPDOWN",
+    "label": "normal",
+    "body": "Link layer protocol is available at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PROTOCOL_UPDOWN:link_down:0",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PROTOCOL_UPDOWN",
+    "family": "h3c:IFNET/PROTOCOL_UPDOWN",
+    "label": "link_down",
+    "body": "Network protocol on {port} transitioned down",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PROTOCOL_UPDOWN:link_down:1",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PROTOCOL_UPDOWN",
+    "family": "h3c:IFNET/PROTOCOL_UPDOWN",
+    "label": "link_down",
+    "body": "Protocol connectivity became unavailable at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PROTOCOL_UPDOWN:normal:0",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PROTOCOL_UPDOWN",
+    "family": "h3c:IFNET/PROTOCOL_UPDOWN",
+    "label": "normal",
+    "body": "Network protocol on {port} transitioned up",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "IFNET/PROTOCOL_UPDOWN:normal:1",
+    "source_id": "ifnet",
+    "module": "IFNET",
+    "mnemonic": "PROTOCOL_UPDOWN",
+    "family": "h3c:IFNET/PROTOCOL_UPDOWN",
+    "label": "normal",
+    "body": "Protocol connectivity became available at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "LPDT/LPDT_LOOPED:loop:0",
+    "source_id": "lpdt",
+    "module": "LPDT",
+    "mnemonic": "LPDT_LOOPED",
+    "family": "h3c:LPDT/LOOP",
+    "label": "loop",
+    "body": "Local loop detection reports a loop at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "LPDT/LPDT_LOOPED:loop:1",
+    "source_id": "lpdt",
+    "module": "LPDT",
+    "mnemonic": "LPDT_LOOPED",
+    "family": "h3c:LPDT/LOOP",
+    "label": "loop",
+    "body": "Port {port} received a loop detection indication",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "LPDT/LPDT_VLAN_LOOPED:loop:0",
+    "source_id": "lpdt",
+    "module": "LPDT",
+    "mnemonic": "LPDT_VLAN_LOOPED",
+    "family": "h3c:LPDT/LOOP",
+    "label": "loop",
+    "body": "VLAN {vlan} loop detection triggered at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "LPDT/LPDT_VLAN_LOOPED:loop:1",
+    "source_id": "lpdt",
+    "module": "LPDT",
+    "mnemonic": "LPDT_VLAN_LOOPED",
+    "family": "h3c:LPDT/LOOP",
+    "label": "loop",
+    "body": "Loop indication for VLAN {vlan} was observed at {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "LPDT/LPDT_RECOVERED:recovery_report:0",
+    "source_id": "lpdt",
+    "module": "LPDT",
+    "mnemonic": "LPDT_RECOVERED",
+    "family": "h3c:LPDT/LOOP",
+    "label": "recovery_report",
+    "body": "Port {port} reports loop detection cleared",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "LPDT/LPDT_RECOVERED:recovery_report:1",
+    "source_id": "lpdt",
+    "module": "LPDT",
+    "mnemonic": "LPDT_RECOVERED",
+    "family": "h3c:LPDT/LOOP",
+    "label": "recovery_report",
+    "body": "Loop detection recovery was reported for {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_LOOP_PROTECTION:stp_protection:0",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_LOOP_PROTECTION",
+    "family": "h3c:STP/STP_LOOP_PROTECTION",
+    "label": "stp_protection",
+    "body": "Loop guard on {port} missed configuration BPDU packets",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_LOOP_PROTECTION:stp_protection:1",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_LOOP_PROTECTION",
+    "family": "h3c:STP/STP_LOOP_PROTECTION",
+    "label": "stp_protection",
+    "body": "Configuration BPDUs stopped arriving on protected interface {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_LOOPBACK_PROTECTION:stp_protection:0",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_LOOPBACK_PROTECTION",
+    "family": "h3c:STP/STP_LOOPBACK_PROTECTION",
+    "label": "stp_protection",
+    "body": "STP interface {port} received a BPDU originating from itself",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_LOOPBACK_PROTECTION:stp_protection:1",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_LOOPBACK_PROTECTION",
+    "family": "h3c:STP/STP_LOOPBACK_PROTECTION",
+    "label": "stp_protection",
+    "body": "Own BPDU returned to spanning tree port {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_NOT_ROOT:stp_protection:0",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_NOT_ROOT",
+    "family": "h3c:STP/STP_NOT_ROOT",
+    "label": "stp_protection",
+    "body": "Switch lost root bridge role after a superior BPDU",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_NOT_ROOT:stp_protection:1",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_NOT_ROOT",
+    "family": "h3c:STP/STP_NOT_ROOT",
+    "label": "stp_protection",
+    "body": "A better BPDU changed the root bridge selection",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_FORWARDING:normal:0",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_FORWARDING",
+    "family": "h3c:STP/STP_FORWARDING",
+    "label": "normal",
+    "body": "Spanning tree selected forwarding for interface {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "STP/STP_FORWARDING:normal:1",
+    "source_id": "stp",
+    "module": "STP",
+    "mnemonic": "STP_FORWARDING",
+    "family": "h3c:STP/STP_FORWARDING",
+    "label": "normal",
+    "body": "STP forwarding state now applies to {port}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_FAILED:fan:0",
+    "source_id": "fan",
+    "module": "DEV",
+    "mnemonic": "FAN_FAILED",
+    "family": "h3c:DEV/FAN",
+    "label": "fan",
+    "body": "Cooling fan {slot} stopped unexpectedly",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_FAILED:fan:1",
+    "source_id": "fan",
+    "module": "DEV",
+    "mnemonic": "FAN_FAILED",
+    "family": "h3c:DEV/FAN",
+    "label": "fan",
+    "body": "Fan tray {slot} reports an operational fault",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_ABSENT:fan:0",
+    "source_id": "fan",
+    "module": "DEV",
+    "mnemonic": "FAN_ABSENT",
+    "family": "h3c:DEV/FAN",
+    "label": "fan",
+    "body": "Cooling tray {slot} is missing from its slot",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_ABSENT:fan:1",
+    "source_id": "fan",
+    "module": "DEV",
+    "mnemonic": "FAN_ABSENT",
+    "family": "h3c:DEV/FAN",
+    "label": "fan",
+    "body": "Fan presence check could not find tray {slot}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_DIRECTION_NOT_PREFERRED:fan:0",
+    "source_id": "fan",
+    "module": "DEV",
+    "mnemonic": "FAN_DIRECTION_NOT_PREFERRED",
+    "family": "h3c:DEV/FAN",
+    "label": "fan",
+    "body": "Fan {slot} airflow conflicts with the configured direction",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_DIRECTION_NOT_PREFERRED:fan:1",
+    "source_id": "fan",
+    "module": "DEV",
+    "mnemonic": "FAN_DIRECTION_NOT_PREFERRED",
+    "family": "h3c:DEV/FAN",
+    "label": "fan",
+    "body": "Cooling tray direction does not match the airflow setting",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_RECOVERED:recovery_report:0",
+    "source_id": "fan-clear",
+    "module": "DEV",
+    "mnemonic": "FAN_RECOVERED",
+    "family": "h3c:DEV/FAN",
+    "label": "recovery_report",
+    "body": "Fan tray {slot} reports normal operation again",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/FAN_RECOVERED:recovery_report:1",
+    "source_id": "fan-clear",
+    "module": "DEV",
+    "mnemonic": "FAN_RECOVERED",
+    "family": "h3c:DEV/FAN",
+    "label": "recovery_report",
+    "body": "Cooling fan {slot} returned to working state",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_FAILED:power:0",
+    "source_id": "dev",
+    "module": "DEV",
+    "mnemonic": "POWER_FAILED",
+    "family": "h3c:DEV/POWER",
+    "label": "power",
+    "body": "Power module {slot} reports failure",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_FAILED:power:1",
+    "source_id": "dev",
+    "module": "DEV",
+    "mnemonic": "POWER_FAILED",
+    "family": "h3c:DEV/POWER",
+    "label": "power",
+    "body": "Supply {slot} is not operating correctly",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_MONITOR_ABSENT:power:0",
+    "source_id": "dev",
+    "module": "DEV",
+    "mnemonic": "POWER_MONITOR_ABSENT",
+    "family": "h3c:DEV/POWER_MONITOR",
+    "label": "power",
+    "body": "Power monitoring module {slot} was not found",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_MONITOR_ABSENT:power:1",
+    "source_id": "dev",
+    "module": "DEV",
+    "mnemonic": "POWER_MONITOR_ABSENT",
+    "family": "h3c:DEV/POWER_MONITOR",
+    "label": "power",
+    "body": "Supply monitor {slot} presence is missing",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/TEMPERATURE_WARNING:thermal:0",
+    "source_id": "dev",
+    "module": "DEV",
+    "mnemonic": "TEMPERATURE_WARNING",
+    "family": "h3c:DEV/TEMPERATURE",
+    "label": "thermal",
+    "body": "Sensor {slot} temperature crossed the warning boundary",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/TEMPERATURE_WARNING:thermal:1",
+    "source_id": "dev",
+    "module": "DEV",
+    "mnemonic": "TEMPERATURE_WARNING",
+    "family": "h3c:DEV/TEMPERATURE",
+    "label": "thermal",
+    "body": "A high temperature warning applies to sensor {slot}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/TEMPERATURE_SHUTDOWN:thermal:0",
+    "source_id": "thermal",
+    "module": "DEV",
+    "mnemonic": "TEMPERATURE_SHUTDOWN",
+    "family": "h3c:DEV/TEMPERATURE",
+    "label": "thermal",
+    "body": "Sensor {slot} exceeded the thermal shutdown limit",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/TEMPERATURE_SHUTDOWN:thermal:1",
+    "source_id": "thermal",
+    "module": "DEV",
+    "mnemonic": "TEMPERATURE_SHUTDOWN",
+    "family": "h3c:DEV/TEMPERATURE",
+    "label": "thermal",
+    "body": "Overtemperature reached the automatic shutdown boundary",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/TEMPERATURE_NORMAL:recovery_report:0",
+    "source_id": "temp-clear",
+    "module": "DEV",
+    "mnemonic": "TEMPERATURE_NORMAL",
+    "family": "h3c:DEV/TEMPERATURE",
+    "label": "recovery_report",
+    "body": "Sensor {slot} temperature returned inside its normal interval",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/TEMPERATURE_NORMAL:recovery_report:1",
+    "source_id": "temp-clear",
+    "module": "DEV",
+    "mnemonic": "TEMPERATURE_NORMAL",
+    "family": "h3c:DEV/TEMPERATURE",
+    "label": "recovery_report",
+    "body": "Temperature recovery was reported by sensor {slot}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_ABSENT:power:0",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_ABSENT",
+    "family": "h3c:DEV/POWER",
+    "label": "power",
+    "body": "Supply module {slot} is no longer present",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_ABSENT:power:1",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_ABSENT",
+    "family": "h3c:DEV/POWER",
+    "label": "power",
+    "body": "Power supply presence check failed for module {slot}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_MONITOR_FAILED:power:0",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_MONITOR_FAILED",
+    "family": "h3c:DEV/POWER_MONITOR",
+    "label": "power",
+    "body": "Supply monitoring unit {slot} reports a fault",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_MONITOR_FAILED:power:1",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_MONITOR_FAILED",
+    "family": "h3c:DEV/POWER_MONITOR",
+    "label": "power",
+    "body": "Power monitor {slot} cannot operate correctly",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_MONITOR_RECOVERED:recovery_report:0",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_MONITOR_RECOVERED",
+    "family": "h3c:DEV/POWER_MONITOR",
+    "label": "recovery_report",
+    "body": "Supply monitoring unit {slot} reports recovery",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_MONITOR_RECOVERED:recovery_report:1",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_MONITOR_RECOVERED",
+    "family": "h3c:DEV/POWER_MONITOR",
+    "label": "recovery_report",
+    "body": "Power monitor {slot} is working again",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_RECOVERED:recovery_report:0",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_RECOVERED",
+    "family": "h3c:DEV/POWER",
+    "label": "recovery_report",
+    "body": "Supply module {slot} reports recovery",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DEV/POWER_RECOVERED:recovery_report:1",
+    "source_id": "power",
+    "module": "DEV",
+    "mnemonic": "POWER_RECOVERED",
+    "family": "h3c:DEV/POWER",
+    "label": "recovery_report",
+    "body": "Power supply {slot} returned to normal operation",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CPU_MINOR_THRESHOLD:resource_pressure:0",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "CPU_MINOR_THRESHOLD",
+    "family": "h3c:DIAG/CPU_MINOR",
+    "label": "resource_pressure",
+    "body": "CPU utilization crossed its minor alarm boundary",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CPU_MINOR_THRESHOLD:resource_pressure:1",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "CPU_MINOR_THRESHOLD",
+    "family": "h3c:DIAG/CPU_MINOR",
+    "label": "resource_pressure",
+    "body": "Processor usage has entered a minor alarm condition",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CPU_MINOR_RECOVERY:recovery_report:0",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "CPU_MINOR_RECOVERY",
+    "family": "h3c:DIAG/CPU_MINOR",
+    "label": "recovery_report",
+    "body": "CPU utilization fell into the recovery interval",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CPU_MINOR_RECOVERY:recovery_report:1",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "CPU_MINOR_RECOVERY",
+    "family": "h3c:DIAG/CPU_MINOR",
+    "label": "recovery_report",
+    "body": "Processor minor usage alarm was removed",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/MEM_EXCEED_THRESHOLD:resource_pressure:0",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "MEM_EXCEED_THRESHOLD",
+    "family": "h3c:DIAG/MEM",
+    "label": "resource_pressure",
+    "body": "Memory consumption crossed the configured alarm boundary",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/MEM_EXCEED_THRESHOLD:resource_pressure:1",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "MEM_EXCEED_THRESHOLD",
+    "family": "h3c:DIAG/MEM",
+    "label": "resource_pressure",
+    "body": "Memory resources reached a usage alarm threshold",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/MEM_BELOW_THRESHOLD:recovery_report:0",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "MEM_BELOW_THRESHOLD",
+    "family": "h3c:DIAG/MEM",
+    "label": "recovery_report",
+    "body": "Memory consumption returned below its recovery boundary",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/MEM_BELOW_THRESHOLD:recovery_report:1",
+    "source_id": "diag",
+    "module": "DIAG",
+    "mnemonic": "MEM_BELOW_THRESHOLD",
+    "family": "h3c:DIAG/MEM",
+    "label": "recovery_report",
+    "body": "Memory usage alarm was removed",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CORE_MINOR_THRESHOLD:resource_pressure:0",
+    "source_id": "core",
+    "module": "DIAG",
+    "mnemonic": "CORE_MINOR_THRESHOLD",
+    "family": "h3c:DIAG/CORE_MINOR",
+    "label": "resource_pressure",
+    "body": "CPU core {slot} utilization exceeded its warning boundary",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CORE_MINOR_THRESHOLD:resource_pressure:1",
+    "source_id": "core",
+    "module": "DIAG",
+    "mnemonic": "CORE_MINOR_THRESHOLD",
+    "family": "h3c:DIAG/CORE_MINOR",
+    "label": "resource_pressure",
+    "body": "Processor core {slot} usage entered a minor alarm condition",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CORE_MINOR_RECOVERY:recovery_report:0",
+    "source_id": "core",
+    "module": "DIAG",
+    "mnemonic": "CORE_MINOR_RECOVERY",
+    "family": "h3c:DIAG/CORE_MINOR",
+    "label": "recovery_report",
+    "body": "CPU core {slot} minor usage alarm was removed",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CORE_MINOR_RECOVERY:recovery_report:1",
+    "source_id": "core",
+    "module": "DIAG",
+    "mnemonic": "CORE_MINOR_RECOVERY",
+    "family": "h3c:DIAG/CORE_MINOR",
+    "label": "recovery_report",
+    "body": "Processor core {slot} utilization returned to recovery range",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CORE_RECOVERY:recovery_report:0",
+    "source_id": "core",
+    "module": "DIAG",
+    "mnemonic": "CORE_RECOVERY",
+    "family": "h3c:DIAG/CORE_RECOVERY",
+    "label": "recovery_report",
+    "body": "CPU core {slot} severe usage alarm was removed",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "DIAG/CORE_RECOVERY:recovery_report:1",
+    "source_id": "core",
+    "module": "DIAG",
+    "mnemonic": "CORE_RECOVERY",
+    "family": "h3c:DIAG/CORE_RECOVERY",
+    "label": "recovery_report",
+    "body": "Processor core {slot} reports usage recovery",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_LOGINFAIL:login_failure:0",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_LOGINFAIL",
+    "family": "h3c:SHELL/SHELL_LOGINFAIL",
+    "label": "login_failure",
+    "body": "Management user login attempt was unsuccessful",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_LOGINFAIL:login_failure:1",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_LOGINFAIL",
+    "family": "h3c:SHELL/SHELL_LOGINFAIL",
+    "label": "login_failure",
+    "body": "User authentication did not complete a management login",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_LOGIN:normal:0",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_LOGIN",
+    "family": "h3c:SHELL/SHELL_LOGIN",
+    "label": "normal",
+    "body": "Management session login completed successfully",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_LOGIN:normal:1",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_LOGIN",
+    "family": "h3c:SHELL/SHELL_LOGIN",
+    "label": "normal",
+    "body": "User established a management session",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_LOGOUT:normal:0",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_LOGOUT",
+    "family": "h3c:SHELL/SHELL_LOGOUT",
+    "label": "normal",
+    "body": "User ended a management session",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_LOGOUT:normal:1",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_LOGOUT",
+    "family": "h3c:SHELL/SHELL_LOGOUT",
+    "label": "normal",
+    "body": "Management session logout was recorded",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_CMD:normal:0",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_CMD",
+    "family": "h3c:SHELL/SHELL_CMD",
+    "label": "normal",
+    "body": "Administrative command audit record was created",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SHELL/SHELL_CMD:normal:1",
+    "source_id": "shell",
+    "module": "SHELL",
+    "mnemonic": "SHELL_CMD",
+    "family": "h3c:SHELL/SHELL_CMD",
+    "label": "normal",
+    "body": "A user command was recorded for auditing",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SSH/SSH_LOGIN:normal:0",
+    "source_id": "shell",
+    "module": "SSH",
+    "mnemonic": "SSH_LOGIN",
+    "family": "h3c:SSH/SSH_LOGIN",
+    "label": "normal",
+    "body": "SSH management login completed successfully",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SSH/SSH_LOGIN:normal:1",
+    "source_id": "shell",
+    "module": "SSH",
+    "mnemonic": "SSH_LOGIN",
+    "family": "h3c:SSH/SSH_LOGIN",
+    "label": "normal",
+    "body": "User established an SSH management session",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "AAA/AAA_FAILURE:login_failure:0",
+    "source_id": "aaa",
+    "module": "AAA",
+    "mnemonic": "AAA_FAILURE",
+    "family": "h3c:AAA/AAA_FAILURE",
+    "label": "login_failure",
+    "body": "AAA request did not pass authentication or authorization",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "AAA/AAA_FAILURE:login_failure:1",
+    "source_id": "aaa",
+    "module": "AAA",
+    "mnemonic": "AAA_FAILURE",
+    "family": "h3c:AAA/AAA_FAILURE",
+    "label": "login_failure",
+    "body": "AAA service rejected the requested user access",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "AAA/AAA_SUCCESS:normal:0",
+    "source_id": "aaa",
+    "module": "AAA",
+    "mnemonic": "AAA_SUCCESS",
+    "family": "h3c:AAA/AAA_SUCCESS",
+    "label": "normal",
+    "body": "AAA request passed access validation",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "AAA/AAA_SUCCESS:normal:1",
+    "source_id": "aaa",
+    "module": "AAA",
+    "mnemonic": "AAA_SUCCESS",
+    "family": "h3c:AAA/AAA_SUCCESS",
+    "label": "normal",
+    "body": "AAA service accepted the user request",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "AAA/AAA_LAUNCH:normal:0",
+    "source_id": "aaa",
+    "module": "AAA",
+    "mnemonic": "AAA_LAUNCH",
+    "family": "h3c:AAA/AAA_LAUNCH",
+    "label": "normal",
+    "body": "A user access request was submitted to AAA",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "AAA/AAA_LAUNCH:normal:1",
+    "source_id": "aaa",
+    "module": "AAA",
+    "mnemonic": "AAA_LAUNCH",
+    "family": "h3c:AAA/AAA_LAUNCH",
+    "label": "normal",
+    "body": "AAA processing started for a user request",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "MAC/MAC_FLAPPING:mac_move:0",
+    "source_id": "mac",
+    "module": "MAC",
+    "mnemonic": "MAC_FLAPPING",
+    "family": "h3c:MAC/MAC_FLAPPING",
+    "label": "mac_move",
+    "body": "A learned MAC address moved between ports {port} and {peer}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "MAC/MAC_FLAPPING:mac_move:1",
+    "source_id": "mac",
+    "module": "MAC",
+    "mnemonic": "MAC_FLAPPING",
+    "family": "h3c:MAC/MAC_FLAPPING",
+    "label": "mac_move",
+    "body": "MAC forwarding location changed within VLAN {vlan}",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_LOGFILE_FULL:record_gap:0",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_LOGFILE_FULL",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "The allocated log file capacity has been exhausted",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_LOGFILE_FULL:record_gap:1",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_LOGFILE_FULL",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "Journal file storage has reached its capacity limit",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_NO_SPACE:record_gap:0",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_NO_SPACE",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "Insufficient storage prevented saving device logs",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_NO_SPACE:record_gap:1",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_NO_SPACE",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "Log persistence could not continue because storage is exhausted",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_LOGBUFFER_FAILURE:record_gap:0",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_LOGBUFFER_FAILURE",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "Log buffer delivery failed after an internal communication timeout",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_LOGBUFFER_FAILURE:record_gap:1",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_LOGBUFFER_FAILURE",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "A timeout prevented recording logs in the device buffer",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_RTM_EVENT_BUFFER_FULL:record_gap:0",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_RTM_EVENT_BUFFER_FULL",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "A full event buffer prevented monitoring some log records",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_RTM_EVENT_BUFFER_FULL:record_gap:1",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_RTM_EVENT_BUFFER_FULL",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "record_gap",
+    "body": "Log monitoring missed records because its buffer filled",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_RESTART:normal:0",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_RESTART",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "normal",
+    "body": "The Comware system generated a restart notice",
+    "kind": "official_fact_authored_paraphrase"
+  },
+  {
+    "id": "SYSLOG/SYSLOG_RESTART:normal:1",
+    "source_id": "syslog",
+    "module": "SYSLOG",
+    "mnemonic": "SYSLOG_RESTART",
+    "family": "h3c:SYSLOG/SYSLOG",
+    "label": "normal",
+    "body": "System startup was recorded after a restart",
+    "kind": "official_fact_authored_paraphrase"
+  }
+]

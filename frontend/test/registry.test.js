@@ -11,11 +11,11 @@ test("registry mutations send only metadata and API credentials to the same orig
     assert.equal(url, "/api/devices/edge-1");
     assert.equal(options.method, "PUT");
     assert.equal(options.headers.Authorization, `Bearer ${api.token}`);
-    assert.deepEqual(JSON.parse(options.body), {name: "设备", location: "A", enabled: true});
+    assert.deepEqual(JSON.parse(options.body), {name: "设备", location: "A", enabled: true, device_number: "ESP-001"});
     return {ok: true, json: async () => ({id: "edge-1"})};
   };
   try {
-    const result = await registryRequest(api, "/devices/edge-1", "PUT", deviceMetadata({name: "设备", location: "A", enabled: true, kind: "agent", latest_report: {}}));
+    const result = await registryRequest(api, "/devices/edge-1", "PUT", deviceMetadata({name: "设备", device_number: "ESP-001", location: "A", enabled: true, kind: "agent", latest_report: {}}));
     assert.equal(result.id, "edge-1");
   } finally { globalThis.fetch = original; }
 });

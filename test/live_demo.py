@@ -67,6 +67,26 @@ def stop():
             trace("STOP", f"{role} pid={record['pid']}")
 
 
+def keep_awake():
+    """A task-owned idle sleep assertion; stop() releases it with the services."""
+    if sys.platform != "darwin":
+        return
+    config = demo_config()
+    if config.get("simulation", {}).get("workload") != "overnight":
+        return
+    records = json.loads(STATE.read_text()) if STATE.exists() else {}
+    if records.get("keep_awake") and alive(records["keep_awake"]["pid"]):
+        return
+    if not records.get("gateway") or not alive(records["gateway"]["pid"]):
+        raise RuntimeError("start the gateway before enabling overnight idle sleep prevention")
+    log_path = RUNTIME / "keep-awake.log"
+    with log_path.open("a") as log:
+        process = subprocess.Popen(["/usr/bin/caffeinate", "-i"], stdout=log, stderr=log, start_new_session=True)
+    records["keep_awake"] = {"pid": process.pid, "log": str(log_path)}
+    STATE.write_text(json.dumps(records, indent=2))
+    trace("READY", "overnight idle sleep prevention enabled; display may sleep, keep the lid open")
+
+
 def stop_gateway():
     records = json.loads(STATE.read_text())
     old = records["gateway"]["pid"]
@@ -188,6 +208,7 @@ def start():
             raise RuntimeError("partial demo still running; run live_demo.py stop before restarting")
         if config["web"].get("api_url"):
             start_backend()
+        keep_awake()
         return
     for port in (4173,):
         if listening(port):
@@ -227,6 +248,7 @@ def start():
         wait(frontend, 4173)
         if config["web"].get("api_url"):
             start_backend()
+        keep_awake()
         trace("READY", f"console=http://127.0.0.1:4173/console.html MQTT=127.0.0.1:{mqtt_port} WS={config['web']['mqtt_url']}")
         print(json.dumps(status(), indent=2))
     except Exception:
@@ -255,7 +277,10 @@ def gateway():
     agent.send_usb, agent._handle_line = send, receive
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, lambda *_: agent.stop_event.set())
-    trace("START", "realistic simulation -> real USB ESP32 Embedded-BDI -> MQTT; delayed verification, retries and policy cooldown")
+    simulation = config["simulation"]
+    trace("START", f"workload={simulation.get('workload', 'standard')} -> real USB ESP32 Embedded-BDI -> MQTT; "
+          f"healthy_interval={simulation.get('normal_min', 300)}-{simulation.get('normal_max', 900)}s; "
+          "delayed verification, retries and policy cooldown")
     agent.run()
 
 
@@ -278,7 +303,7 @@ def watch():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("role", choices=["start", "stop", "status", "stop-gateway", "restart-gateway", "start-backend", "restart-backend", "broker", "gateway", "watch"])
+    parser.add_argument("role", choices=["start", "stop", "status", "keep-awake", "stop-gateway", "restart-gateway", "start-backend", "restart-backend", "broker", "gateway", "watch"])
     role = parser.parse_args().role
     if role == "broker":
         import asyncio
@@ -298,5 +323,7 @@ if __name__ == "__main__":
         start_backend()
     elif role == "restart-backend":
         restart_backend()
+    elif role == "keep-awake":
+        keep_awake()
     else:
         globals()[role]()

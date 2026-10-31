@@ -19,6 +19,16 @@ MQTT 与前端参数即可切换 SSH 环境。生产包不依赖测试目录，�
 本轮实测结果见 [验收记录](docs/cluster-validation.md)，帧格式见
 [USB 协议](docs/usb-protocol-v2.md)。
 
+## 客户网口 IP 配置
+
+新增[网口 / 蓝牙配置说明](docs/network-setup.md)：网线直连后打开设备配置页，
+或在控制台点击“网口 / 蓝牙配置”通过蓝牙写入 IP、掩码、网关和 DNS。配置断电保留。
+当前构建已按 Waveshare ESP32-S3-ETH 的板载 W5500 引脚启用网口，同时支持蓝牙和配置存储。
+双击 BOOT 可单独打开 TF 记录只读网页（青灯每轮闪两下），连接 ESP-Logs 热点查看，无需重配网络；十分钟后自动关闭。配置入口默认关闭，按住 BOOT 三秒才开启；保存成功后绿灯亮三秒，随后关闭热点、蓝牙连接及 HTTP 配置服务。未保存时十分钟自动关闭。
+
+网口 MQTT 已新增[独立实验构建](docs/ethernet-mqtt-experiment.md)，默认关闭。
+本轮仅编译，未烧录、未连接 Broker；实验主题不进入生产后端归档。
+
 ## 已实现的覆盖
 
 | 优先级 | 实现 | 验收入口 |
@@ -128,6 +138,29 @@ ESP 重启不会产生新的同故障操作；切换模式测试请使用不同�
 Python。网关使用文件锁防止同一状态库多实例；不同网关必须使用不同串口、
 `--state-db`、`--gateway-id` 和 MQTT 主题部署边界。
 
+USB 联调提供 `simulation.workload=all_faults`，配合
+`action_mode=realistic` 密集轮换 12 个场景：账户锁定、过热、风扇故障、电源故障、
+管理关闭端口、物理断链、环路、STP 保护、MAC 漂移、CPU 高负载、内存高占用、
+登录失败。场景间隔约 12–18 秒，并错开发送恢复事件；每次采样保留心跳。
+账户解锁和管理关闭端口通过模拟执行器演示延迟确认、重试及策略冷却；其他
+恢复标记为模拟维护，环路场景不代表已实现真实交换机自动隔离。
+虚拟日志经过真实 USB ESP，再由网关转发其输出至 MQTT 和页面。
+运行 `.venv/bin/python test/live_demo.py restart-gateway` 可应用这一配置并保持
+现有前端、后端和 MQTT 服务运行；将 `workload` 改为 `standard` 可恢复原采样方式。
+
+当前 `config/demo.json` 使用 `workload=overnight` 长时间观察模式：每 8–12 秒
+发送健康心跳，启动及每次 ESP 确认恢复后随机正常运行 300–900 秒，然后才注入
+一个新故障；尚未确认恢复时不叠加新故障。CPU/内存、登录及链路瞬态的抽样权重
+高于风扇、电源故障，这些权重仅用于实验，不是 H3C 现场故障统计。普通模拟维护
+需要 20–60 秒，温度、风扇、电源需要 60–180 秒；账户解锁及管理关闭端口仍沿用
+独立命令确认和恢复观察，约 85% 正常延迟、12% 丢首个回执、3% 失败后等待策略
+到期或模拟维护。切换模式时已有告警正常走恢复确认，不清空历史或直接报绿。
+`simulation.normal_min/normal_max` 控制每次恢复后的正常时长；`fault_rate` 不控制
+这两个场景工作模式。运行不设自动结束时间，后端历史继续保存，TF 保持已有循环
+记录策略。macOS 启动器会在过夜模式创建本项目的 `caffeinate -i` 进程，阻止空闲
+休眠；屏幕可以熄灭，电脑需接电并保持开盖。`live_demo.py stop` 同时释放防休眠，
+不改变系统永久设置。已经运行时可使用 `live_demo.py keep-awake` 补开。
+
 ## 可靠性及容量约定
 
 - 固件默认最多 32 设备、每设备 32 个活跃故障、全局 128 个活跃故障。
@@ -166,7 +199,10 @@ Mosquitto 本机参数：`127.0.0.1:18883`，WebSocket `127.0.0.1:9001/mqtt`，
 
 配置入口只发布 ESP32 命名空间，主题根与 Agent ID 均可配置。旧测试脚本还可发布
 `h3c/server/...`、`h3c/switch/...`、`h3c/service/...` 作为验收输出，前端不订阅。
-正常状态默认每 5 秒合为一包，故障/动作/恢复在 250 毫秒窗口内合并后及时发送。
+当前演示的正常状态每 60 秒合为一包，故障/动作/恢复在 250 毫秒窗口内合并后及时发送。
+设备列表与设备详情分别显示每台 ESP 当前连接的上报数，顶部不累加该计数。
+在设备详情的“本设备上报间隔（秒）”中可设置 1–300 秒并保存，本机网关自动应用，
+不需重启；也可以修改对应网关配置的 `reporting.interval_ms`（毫秒）。
 页面每包新增一行，展开可查看 USB 原文；不会将同一输出再按 serial/状态/确认分成多行。
 `reporting.interval_ms` 与 `reporting.batch_ms` 可配置，USB 确认和动作执行不等待打包。
 
@@ -209,6 +245,12 @@ MQTT_BACKEND=external ./test/full_bdi_test.sh --mqtt-port 18883
 
 ## 代码导航与接入边界
 
+设备管理已按 MVC 拆分：前端 `models/` 保存设备状态，`views/` 负责呈现，
+`controllers/` 协调操作，`services/` 访问 API；后端分为参数 Model、路由 Controller 与
+Repository。新增管理字段和功能的步骤见 [设备管理 MVC](docs/management-mvc.md)。
+设备编号可在列表编号或铅笔按钮中设置，例如 `ESP-001`；编号独立于连接 ID，
+同一项目内非空编号唯一，修改后保留原连接计数与历史。
+
 - `src/cluster_model.h`：协议解析、设备/故障/请求状态机、时间与容量边界。
 - `src/cluster_runtime.h`：每设备独立 Embedded-BDI 与动作上下文。
 - `src/main.cpp`：有界 USB 帧处理及固件计时。
@@ -224,3 +266,9 @@ SSH 接入已提供配置驱动采集/解析和授权动作；上线需用真实
 其他采集协议需要相应适配器。MQTT 的证书、ACL 和 Broker HA 按现场部署。
 Embedded-BDI 上游采用 GPL-3.0，分发时
 遵守对应许可证。
+
+交换机 SSH / Telnet 连接参数的设备配置说明见 [交换机管理连接配置](docs/switch-connection.md)（当前为参数保存，ESP 直连客户端尚未接入）。
+
+TF 卡故障摘要、原始日志和处置过程的本地保存见 [TF 卡故障记录](docs/tf-fault-journal.md)。
+
+TF 日志页的小规模训练模型与 ESP 本地推理实验见 [离线日志解释模型](experiments/tiny_log_explainer/README.md)，仅用于显示解释。

@@ -100,6 +100,9 @@ MQTT 重投、补写或后端重启不会产生重复历史。迟到报告仍保
 “实时上报”和设备消息计数按当前 USB 连接 ID 与硬件 boot ID 统计，刷新或后端重启
 不归零；重新连接或硬件重新启动另起实时计数。日志显示当前连接最近 50 个上报包，
 保留原始上报时间。旧连接的记录仍保存在历史中，不混入实时计数。
+列表和设备详情分别展示本设备计数，顶部不再汇总所有设备的上报量。本机网关
+管理的 ESP 可在详情中配置常规上报间隔，默认演示为 60 秒；保存后约 2 秒自动
+应用，无需重启或清空历史。此配置只控制打包频率，不改变故障模拟或 ESP 推理频率。
 
 `/history.html` 是独立历史查询入口，默认查询最近 30 天，可点击“全部历史”，
 或选择更早的日期、ESP32 ID；每页 50 包，支持上一页、下一页和展开 USB 原文。
@@ -169,7 +172,12 @@ MongoDB Docker 仅绑定回环地址，根账号用于初始化管理，业务�
 API 业务接口均需 `Authorization: Bearer <ESP_API_TOKEN>`：
 
 - `GET /api/devices?scope=live`：当前连接的设备状态与计数；`scope=history` 查询全部历史计数。
-- `PUT/DELETE /api/devices/{id}`：编辑或移除档案；PUT 只接受 `name`、`location`、`enabled`。
+- `PUT/DELETE /api/devices/{id}`：编辑或移除档案；PUT 接受 `name`、`location`、`enabled`、可选 `device_number`。
+  编号与连接 ID 分开保存，支持修改/清空，同主题根下非空编号唯一；重复返回 409。
+- `GET/PUT /api/devices/{id}/reporting`：读取或保存本后端配置文件所属 ESP 的打包间隔；
+  PUT 接受 `{"interval_seconds":60}`，仅接受 1–300 的整数。错误设备 ID 返回 404，
+  没有写权限或配置不可用返回 503；保存不代表硬件已连接。原子写回网关配置文件，
+  保留其他配置，网关自动读取。其他网关的 ESP 需在其所属后端配置。
 - `GET /api/reports?scope=history&agent=<id>&start_ms=<毫秒>&end_ms=<毫秒>&limit=50`：
   按设备、上报时间查询，筛选项均可省略；`scope=live` 仅查询已登记设备的当前连接。
   返回 `reports`、`total`、`next_cursor`、`scope`、`history_days`；下一页传回 `cursor`。

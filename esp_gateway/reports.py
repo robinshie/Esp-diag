@@ -7,13 +7,14 @@ import time
 import uuid
 
 from .store import fields
+from .reporting_config import validate_interval
 
 
 class ReportBatcher:
     def __init__(self, store, topic, batch_ms=250, clock=time.monotonic, interval_ms=5000):
         self.store, self.topic, self.clock = store, topic, clock
         self.window = batch_ms / 1000
-        self.interval = interval_ms / 1000
+        self.interval = validate_interval(interval_ms) / 1000
         self.lock = threading.RLock()
         with store.lock, store.db:
             store.db.execute("CREATE TABLE IF NOT EXISTS report_state(topic TEXT PRIMARY KEY, data TEXT)")
@@ -24,6 +25,18 @@ class ReportBatcher:
 
     def _save(self):
         self.store.db.execute("INSERT OR REPLACE INTO report_state VALUES(?,?)", (self.topic, json.dumps(self.data)))
+
+    def set_interval(self, interval_ms):
+        interval = validate_interval(interval_ms) / 1000
+        with self.lock:
+            if interval == self.interval:
+                return False
+            periodic_pending = self.due == self.next_periodic
+            self.interval = interval
+            self.next_periodic = self.clock() + interval
+            if self.data["dirty"] and periodic_pending:
+                self.due = self.next_periodic
+            return True
 
     def ingest(self, channel, payload):
         if channel == "action" and payload.startswith("reason="):
@@ -65,6 +78,7 @@ class ReportBatcher:
             if not self.data["dirty"] or (not force and self.clock() < self.due):
                 return False
             report = {"schema_version": 1, "report_id": uuid.uuid4().hex, "sent_at_ms": int(time.time() * 1000),
+                      "report_interval_ms": round(self.interval * 1000),
                       "boot": self.data["boot"], "status": self.data["status"],
                       "observations": list(self.data["observations"].values()), "lines": self.data["lines"]}
             # Enqueue and clear the pending burst in one SQLite transaction.

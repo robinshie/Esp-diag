@@ -22,6 +22,7 @@ class Settings:
     state_path: str
     host: str
     port: int
+    config_path: str | None = None
 
     @classmethod
     def load(cls, config_path, env_file):
@@ -59,4 +60,4 @@ class Settings:
         return cls(cfg, token, os.environ.get("MONGO_HOST", "127.0.0.1"), int(os.environ.get("MONGO_PORT", "27017")),
                    os.environ.get("MONGO_DATABASE", "esp_diag"), username, password, uri, history,
                    str(Path(os.environ.get("ESP_BACKEND_STATE", "var/backend/inbox.sqlite3")).resolve()),
-                   os.environ.get("ESP_API_HOST", "127.0.0.1"), int(os.environ.get("ESP_API_PORT", "8080")))
+                   os.environ.get("ESP_API_HOST", "127.0.0.1"), int(os.environ.get("ESP_API_PORT", "8080")), str(Path(config_path).resolve()))

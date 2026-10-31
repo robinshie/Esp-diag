@@ -62,6 +62,32 @@ class DeploymentConfigTest(unittest.TestCase):
         with self.assertRaises(ConfigError):
             self.load()
 
+    def test_demo_all_faults_requires_realistic_actions_and_known_workload(self):
+        self.config = json.loads((ROOT / "config/demo.json").read_text())
+        self.config["mqtt"]["password_env"] = "MQTT_GATEWAY_PASSWORD"
+        self.config["web"]["password_env"] = "MQTT_WEB_PASSWORD"
+        self.config["simulation"].update(workload="all_faults", action_mode="realistic")
+        self.assertEqual(self.load()["simulation"]["workload"], "all_faults")
+        self.config["simulation"]["action_mode"] = "success"
+        with self.assertRaises(ConfigError):
+            self.load()
+        self.config["simulation"].update(action_mode="realistic", workload="typo")
+        with self.assertRaises(ConfigError):
+            self.load()
+
+    def test_overnight_intervals_are_validated_and_passed_to_gateway(self):
+        from esp_gateway.runtime import transport_args
+        self.config = json.loads((ROOT / "config/demo.json").read_text())
+        self.config["mqtt"]["password_env"] = "MQTT_GATEWAY_PASSWORD"
+        self.config["web"]["password_env"] = "MQTT_WEB_PASSWORD"
+        self.config["simulation"].update(workload="overnight", normal_min=300, normal_max=900)
+        args = transport_args(self.load())
+        self.assertEqual((args.workload, args.normal_min, args.normal_max), ("overnight", 300, 900))
+        for low, high in ((0, 900), (300, 299), (300, 100000)):
+            self.config["simulation"].update(normal_min=low, normal_max=high)
+            with self.assertRaises(ConfigError):
+                self.load()
+
     def test_deployed_gateway_accepts_usb_plugged_after_the_old_startup_deadline(self):
         gateway = self.gateway()
         gateway.mqtt = Mock()

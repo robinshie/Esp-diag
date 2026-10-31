@@ -54,21 +54,36 @@ def main():
             assert api.get("/api/devices").json()["devices"][0]["report_count"] == 1
             passed("automatic ESP32 registration and duplicate delivery deduplication")
 
-            metadata = {"name": "持久化验收设备", "location": "验收机架", "enabled": False}
+            metadata = {"name": "持久化验收设备", "location": "验收机架", "enabled": False, "device_number": "ESP-001"}
             assert api.put("/api/devices/edge-test", json=metadata).status_code == 200
             repo.register_report("edge-test", {**report, "report_id": "old-report", "sent_at_ms": 1000})
             row = api.get("/api/devices").json()["devices"][0]
             assert row["name"] == metadata["name"] and row["enabled"] is False
             assert row["report_count"] == 2
+            assert row["device_number"] == "ESP-001"
             assert row["latest_report"]["report_id"] == "new-report"
             repo.record_availability("edge-test", "OFFLINE", 3000)
             repo.record_availability("edge-test", "ONLINE", 1000)
             assert repo.list_devices()[0]["availability"] == "OFFLINE"
             passed("metadata survives reporting; old snapshots and availability cannot overwrite new state")
 
+            renamed = {**metadata, "device_number": "ESP-002"}
+            assert api.put("/api/devices/edge-test", json=renamed).status_code == 200
+            assert api.put("/api/devices/another-edge", json={**renamed, "name": "duplicate"}).status_code == 409
+            assert len(repo.list_devices()) == 1
+            assert api.put("/api/devices/edge-test", json={key: value for key, value in metadata.items() if key != "device_number"}).status_code == 200
+            assert repo.list_devices()[0]["device_number"] == "ESP-002", "old clients must preserve a saved number"
+            assert len(repo.history('edge-test')) == 2
+            assert api.put("/api/devices/edge-test", json={**metadata, "device_number": ""}).status_code == 200
+            assert api.put("/api/devices/another-edge", json=renamed).status_code == 200
+            assert api.delete("/api/devices/another-edge").status_code == 200
+            assert api.put("/api/devices/edge-test", json=metadata).status_code == 200
+            passed("device number can change or clear, is unique, survives old clients, and preserves identity/history")
+
             reopened = MongoRepository(settings)
             try:
                 assert reopened.list_devices()[0]["location"] == "验收机架"
+                assert reopened.list_devices()[0]["device_number"] == "ESP-001"
                 assert len(reopened.history("edge-test")) == 2
                 assert reopened.list_devices()[0]["report_count"] == 2
             finally: reopened.close()

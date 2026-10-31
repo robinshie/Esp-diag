@@ -68,6 +68,17 @@ test("real ESP32 status sets agent health and retains its observation time", () 
   applyTelemetry(d, {channel: "availability"}, {state: "ONLINE"}, 20000);
   assert.equal(telemetryOnline(d, true, 20000), false);
 });
+test("minute reports remain online between packets without refreshing retained timestamps", () => {
+  const d = {...device(), kind: "agent", reportIntervalMs: 60000};
+  applyTelemetry(d, {channel: "status"}, {reasoning_cycle: "ACTIVE", seen_at_ms: "1000"}, 1000);
+  assert.equal(telemetryOnline(d, true, 61000), true);
+  assert.equal(telemetryOnline(d, true, 126000), false);
+  assert.equal(telemetryOnline(d, false, 2000), false);
+  applyTelemetry(d, {channel: "availability"}, {state: "ONLINE"}, 200000);
+  assert.equal(telemetryOnline(d, true, 200000), false);
+  applyTelemetry(d, {channel: "availability"}, {state: "OFFLINE"}, 200001);
+  assert.equal(telemetryOnline(d, true, 2000), false);
+});
 test("raw serial frames stay attached to ESP32 even when mentioning a server", () => {
   assert.deepEqual(topicInfo("h3c/esp32-s3-eth/serial", {device: "sim-01"}),
     {id: "esp32-s3-eth", kind: "agent", channel: "serial", sourceId: null});

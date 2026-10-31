@@ -1,4 +1,8 @@
 export const SOURCE_TTL_MS = 90_000;
+export function reportFreshnessMs(interval) {
+  return Number.isFinite(interval) && interval >= 1000 && interval <= 300000
+    ? Math.max(15000, 2 * interval + 5000) : 15000;
+}
 export function agentTopics(topicRoot = "h3c", agentIds = ["+"]) {
   return agentIds.flatMap((id) => ["report", "availability"]
     .map((channel) => `${topicRoot}/${id}/${channel}`));
@@ -66,5 +70,5 @@ export function applyTelemetry(device, info, fields, now = Date.now()) {
 }
 export function telemetryOnline(device, connected, now = Date.now()) {
   return Boolean(connected && device.availability !== "OFFLINE" && device.lastSeen &&
-    now - device.lastSeen < (device.kind === "agent" ? 15_000 : SOURCE_TTL_MS));
+    now - device.lastSeen < (device.kind === "agent" ? reportFreshnessMs(device.reportIntervalMs) : SOURCE_TTL_MS));
 }

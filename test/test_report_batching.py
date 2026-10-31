@@ -107,3 +107,31 @@ class ReportBatchingTest(unittest.TestCase):
         self.now = 0.26
         self.assertTrue(self.batch.flush())
         self.assertEqual(json.loads(self.store.first()[2])["lines"][0]["text"], "[GATEWAY] reason=USB_OUTPUT_TOO_LONG")
+
+    def test_sixty_second_reports_include_interval_and_retain_urgent_events(self):
+        self.batch.set_interval(60000)
+        self.batch.ingest("status", "reasoning_cycle=ACTIVE seen_at_ms=1000")
+        self.batch.flush(force=True)  # initial discovery remains immediate
+        self.store.delivered(self.store.first()[0])
+        self.batch.ingest("serial", "[BDI][STATUS] reasoning_cycle=ACTIVE")
+        self.now = 59.9
+        self.assertFalse(self.batch.flush())
+        self.now = 60
+        self.assertTrue(self.batch.flush())
+        self.assertEqual(json.loads(self.store.first()[2])["report_interval_ms"], 60000)
+        self.store.delivered(self.store.first()[0])
+        self.batch.ingest("serial", "[BDI][RECOVERED] device=a component=admin fault=AUTH_LOCKED")
+        self.now = 60.26
+        self.assertTrue(self.batch.flush())
+
+    def test_live_interval_changes_reschedule_normal_batches_without_delaying_alarm(self):
+        self.batch.ingest("serial", "[BDI][STATUS] reasoning_cycle=ACTIVE")
+        self.now = 1
+        self.batch.set_interval(60000)
+        self.now = 5
+        self.assertFalse(self.batch.flush())
+        self.batch.ingest("serial", "[BDI][CMD] UNLOCK request_id=one")
+        self.batch.set_interval(120000)
+        self.now = 5.26
+        self.assertTrue(self.batch.flush())
+        self.assertEqual(json.loads(self.store.first()[2])["report_interval_ms"], 120000)

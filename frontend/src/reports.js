@@ -23,6 +23,7 @@ export class ReportHistory {
 }
 
 export function applyReport(device, report, now = Date.now()) {
+  device.reportIntervalMs = report.report_interval_ms;
   // Retained reports and receipts must not renew the original observation time.
   if (report.status) {
     const offline = device.availability === "OFFLINE" && Number(report.status.seen_at_ms) <= (device.availabilityAtMs || 0);

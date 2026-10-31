@@ -32,19 +32,21 @@ MQTT 不直接更新展示数据。实时计数按 USB 连接与硬件 boot 划�
 
 ## 模块边界
 
+设备管理 MVC 的目录职责、设备编号语义与扩展方法见 [设备管理 MVC](management-mvc.md)。
+
 | 模块 | 职责 |
 |---|---|
 | `src/` | 固件与可在主机编译的同一份状态模型/Embedded-BDI |
 | `esp_gateway/config.py` | 配置校验、路径、凭据环境变量、前端配置导出 |
 | `esp_gateway/transport.py` | USB 握手/确认/重连、MQTT、队列、ESP32 上报路由 |
 | `esp_gateway/store.py` | SQLite 快照、双向队列、动作账本与部署身份绑定 |
-| `esp_backend/` | MQTT 持久收件箱、MongoDB 幂等归档、设备档案与历史 API |
+| `esp_backend/models/`、`controllers/`、`repository.py` | 管理参数模型、设备/历史 HTTP 控制器、MongoDB 持久化 |
 | `esp_gateway/reports.py` | 持久化打包上报、快照与 USB 原文合并、正常限频与故障及时上报 |
 | `esp_gateway/ssh.py` | host key 验证、shell/exec 会话、有界输出与规则解析 |
 | `esp_gateway/runtime.py` | 每设备 SSH 采集、动作授权、执行与真实状态验证 |
 | `esp_gateway/simulation.py`、`realistic_simulation.py` | 仅 demo 模式使用的演示源与延迟动作 |
 | `config/` | 环境配置示例；真实配置使用忽略提交的 `local.json` |
-| `frontend/` | 仪表盘/ESP32 输出控制台/历史查询；启动时加载运行时 JSON |
+| `frontend/src/models/`、`views/`、`controllers/`、`services/` | 设备状态、页面渲染、管理流程、HTTP 服务；`app.js` 仅启动 |
 | `deploy/` | systemd、Web 反代、MQTT ACL、凭据文件模板 |
 | `test/` | 验收；旧脚本保留兼容入口 |
 | `productlines/` | 型号资料、原始样本和假设备测试工具 |
@@ -61,7 +63,7 @@ MQTT 不直接更新展示数据。实时计数按 USB 连接与硬件 boot 划�
 | `serial` | USB 路径、波特率 |
 | `storage` | 持久状态库，演示/生产及不同 Agent 不混用 |
 | `protocol` | 新鲜度、ACK 等待、验证、稳定窗口，握手时下发固件 |
-| `reporting` | 正常打包周期 `interval_ms`（默认 5000）与变化合并窗口 `batch_ms`（默认 250） |
+| `reporting` | 正常打包周期 `interval_ms`（1000–300000，省略默认 5000，当前演示 60000）与变化合并窗口 `batch_ms`（默认 250） |
 | `mqtt` | 网关 Broker、账号、TLS、证书、客户端 ID |
 | `web` | 浏览器 WebSocket、独立只读账号、ESP32 ID 列表 |
 | `devices[].ssh` | 地址、认证、信任文件、超时、会话和提示符 |
@@ -78,7 +80,7 @@ event/action 副本。每包含 `schema_version=1`、唯一 `report_id`、`sent_
 `boot`、最近一次实际 `status`、全部 `observations[]`、本批 `lines[{at_ms,text}]`。
 USB 原文仅记录一次；网关自身诊断明确带 `[GATEWAY]` 前缀。
 
-正常数据每 5 秒合并发送，状态改变/动作/恢复在 250 毫秒窗口后及时发送；单包
+正常数据按可配置间隔合并发送，当前演示为每 60 秒；状态改变/动作/恢复在 250 毫秒窗口后及时发送；单包
 最多 64 行，连续突发会提前分包。待打包内容落 SQLite，打包与加入 MQTT 队列原子
 提交，Broker 断线继续保留。USB RECEIPT、ACK 和执行器不等待 MQTT 打包。
 

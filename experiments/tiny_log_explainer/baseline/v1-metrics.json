@@ -1,0 +1,192 @@
+{
+  "data": "synthetic templates; NOT real-switch accuracy",
+  "seed": 20261031,
+  "split": "6/2/2 whole template groups per label; 10 variations each",
+  "labels": [
+    "auth_lock",
+    "link_down",
+    "thermal",
+    "loop",
+    "power",
+    "fan",
+    "source_lost",
+    "action_request",
+    "action_ack",
+    "recovery_report",
+    "normal",
+    "record_gap",
+    "unknown"
+  ],
+  "threshold_from_validation": 0.9,
+  "float32_parameter_bytes": 53300,
+  "dataset_sha256": "94a5330eb615ccf0531f24b7a9659c64f2bcb68ea38b48ebc8931f9155cfa753",
+  "train": {
+    "samples": 780,
+    "accuracy": 1.0,
+    "accepted": 720,
+    "coverage": 0.9230769230769231,
+    "accepted_accuracy": 1.0,
+    "known_samples": 720,
+    "confusion": {
+      "auth_lock": {
+        "auth_lock": 60
+      },
+      "link_down": {
+        "link_down": 60
+      },
+      "thermal": {
+        "thermal": 60
+      },
+      "loop": {
+        "loop": 60
+      },
+      "power": {
+        "power": 60
+      },
+      "fan": {
+        "fan": 60
+      },
+      "source_lost": {
+        "source_lost": 60
+      },
+      "action_request": {
+        "action_request": 60
+      },
+      "action_ack": {
+        "action_ack": 60
+      },
+      "recovery_report": {
+        "recovery_report": 60
+      },
+      "normal": {
+        "normal": 60
+      },
+      "record_gap": {
+        "record_gap": 60
+      },
+      "unknown": {
+        "unknown": 60
+      }
+    }
+  },
+  "validation": {
+    "samples": 260,
+    "accuracy": 0.8153846153846154,
+    "accepted": 84,
+    "coverage": 0.3230769230769231,
+    "accepted_accuracy": 1.0,
+    "known_samples": 240,
+    "confusion": {
+      "auth_lock": {
+        "auth_lock": 20
+      },
+      "link_down": {
+        "link_down": 20
+      },
+      "thermal": {
+        "fan": 10,
+        "thermal": 10
+      },
+      "loop": {
+        "loop": 20
+      },
+      "power": {
+        "power": 20
+      },
+      "fan": {
+        "fan": 20
+      },
+      "source_lost": {
+        "source_lost": 20
+      },
+      "action_request": {
+        "action_request": 19,
+        "auth_lock": 1
+      },
+      "action_ack": {
+        "action_ack": 10,
+        "power": 3,
+        "thermal": 4,
+        "fan": 1,
+        "loop": 1,
+        "auth_lock": 1
+      },
+      "recovery_report": {
+        "recovery_report": 13,
+        "link_down": 5,
+        "power": 1,
+        "thermal": 1
+      },
+      "normal": {
+        "normal": 20
+      },
+      "record_gap": {
+        "record_gap": 20
+      },
+      "unknown": {
+        "fan": 10,
+        "recovery_report": 10
+      }
+    }
+  },
+  "test": {
+    "samples": 260,
+    "accuracy": 0.6961538461538461,
+    "accepted": 83,
+    "coverage": 0.3192307692307692,
+    "accepted_accuracy": 1.0,
+    "known_samples": 240,
+    "confusion": {
+      "auth_lock": {
+        "auth_lock": 20
+      },
+      "link_down": {
+        "normal": 10,
+        "link_down": 10
+      },
+      "thermal": {
+        "thermal": 20
+      },
+      "loop": {
+        "loop": 20
+      },
+      "power": {
+        "power": 20
+      },
+      "fan": {
+        "power": 10,
+        "fan": 10
+      },
+      "source_lost": {
+        "source_lost": 20
+      },
+      "action_request": {
+        "action_request": 18,
+        "auth_lock": 1,
+        "link_down": 1
+      },
+      "action_ack": {
+        "action_request": 9,
+        "link_down": 1,
+        "action_ack": 10
+      },
+      "recovery_report": {
+        "loop": 2,
+        "thermal": 5,
+        "recovery_report": 13
+      },
+      "normal": {
+        "link_down": 10,
+        "normal": 10
+      },
+      "record_gap": {
+        "source_lost": 10,
+        "record_gap": 10
+      },
+      "unknown": {
+        "normal": 10,
+        "action_ack": 10
+      }
+    }
+  }
+}

@@ -9,6 +9,8 @@ from unittest.mock import Mock, patch
 from esp_backend.ingestion import ReportIngestor
 from esp_backend.repository import validate_report
 from esp_gateway.environment import load_environment
+from esp_backend.models import DeviceMetadata
+from pydantic import ValidationError
 
 
 def report():
@@ -80,6 +82,18 @@ class EnvironmentTest(unittest.TestCase):
             self.assertEqual(os.environ["EXISTING"], "shell")
             self.assertEqual(os.environ["LITERAL"], "$(echo secret)")
             self.assertEqual(os.environ["QUOTED"], "two words")
+
+
+class DeviceMetadataTest(unittest.TestCase):
+    def test_number_validation_and_old_client_preservation_contract(self):
+        self.assertNotIn('device_number', DeviceMetadata(name='ESP').model_dump(exclude_none=True))
+        self.assertEqual(DeviceMetadata(name='ESP', device_number='').model_dump(exclude_none=True)['device_number'], '')
+        self.assertEqual(DeviceMetadata(name='ESP', device_number='ESP-001').device_number, 'ESP-001')
+        for value in ('A' * 33, 'ESP 001', '../ESP/001', '<script>'):
+            with self.assertRaises(ValidationError):
+                DeviceMetadata(name='ESP', device_number=value)
+        with self.assertRaises(ValidationError):
+            DeviceMetadata(name='ESP', device_number='ESP-001', id='changed-connection')
 
 
 if __name__ == "__main__":

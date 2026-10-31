@@ -15,7 +15,8 @@ export function parseRuntimeConfig(config) {
       typeof config.api.token !== "string" || config.api.token.length < 32)) throw new Error("设备数据库 API 配置无效");
   return {configured: true, topicRoot: config.topic_root, agentIds: config.agent_ids,
     agentName: config.agent_name || config.agent_ids[0], serialLabel: config.serial_label || "USB",
-    mqttUrl: url.href, username: config.mqtt.username || "", password: config.mqtt.password || "", api: config.api || null};
+    mqttUrl: url.href, username: config.mqtt.username || "", password: config.mqtt.password || "", api: config.api || null,
+    reporting: config.reporting ? {agentId: config.reporting.agent_id, intervalMs: config.reporting.interval_ms} : null};
 }
 
 export async function loadRuntimeConfig() {

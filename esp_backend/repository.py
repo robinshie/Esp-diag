@@ -36,6 +36,7 @@ def validate_report(value):
 
 def public_device(row):
     return {"id": row["_id"], "name": row.get("name", row["_id"]), "location": row.get("location", "未设置"),
+            "device_number": row.get("device_number", ""),
             "enabled": row.get("enabled", True), "kind": "agent", "manuallyAdded": row.get("manuallyAdded", False),
             "metadata_custom": row.get("metadata_custom", False), "availability": row.get("availability"),
             "availability_at_ms": row.get("availability_at_ms", 0), "latest_report": row.get("latest_report"),
@@ -69,6 +70,9 @@ class MongoRepository:
     def initialize(self):
         self.ping()
         self.devices.create_index([("topic_root", ASCENDING)])
+        self.devices.create_index([("topic_root", ASCENDING), ("device_number", ASCENDING)],
+                                  unique=True, partialFilterExpression={"device_number": {"$type": "string"}},
+                                  name="unique_device_number")
         self.reports.create_index([("topic_root", ASCENDING), ("agent_id", ASCENDING),
                                    ("sent_at_ms", DESCENDING), ("_id", DESCENDING)])
         self.reports.create_index([("topic_root", ASCENDING), ("sent_at_ms", DESCENDING), ("_id", DESCENDING)])
@@ -177,10 +181,17 @@ class MongoRepository:
 
     def save_device(self, identity, metadata):
         identity = agent_id(identity)
-        self.remember_agent(identity)
         now = datetime.now(timezone.utc)
-        self.devices.update_one({"_id": self.key(identity)}, {"$set": {**metadata, "metadata_custom": True, "updated_at": now},
-            "$setOnInsert": {"topic_root": self.root, "agent_id": identity, "created_at": now, "manuallyAdded": True}}, upsert=True)
+        values = dict(metadata)
+        clear_number = values.get("device_number") == ""
+        if clear_number:
+            values.pop("device_number")
+        update = {"$set": {**values, "metadata_custom": True, "updated_at": now},
+                  "$setOnInsert": {"topic_root": self.root, "agent_id": identity, "created_at": now, "manuallyAdded": True}}
+        if clear_number:
+            update["$unset"] = {"device_number": ""}
+        self.devices.update_one({"_id": self.key(identity)}, update, upsert=True)
+        self.remember_agent(identity)
         count = self.reports.count_documents({"topic_root": self.root, "agent_id": identity})
         return public_device({**self.devices.find_one({"_id": self.key(identity)}), "_id": identity, "report_count": count})
 

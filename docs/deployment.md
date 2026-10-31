@@ -39,7 +39,7 @@ chmod 600 deploy/gateway.env
 - `mqtt` 为真实 Broker、写入账号、TLS 与证书；`web` 为实际 `wss` 地址和只读账号。
 - `devices` 为 SSH 主机、认证、信任文件、轮询周期、采集命令与解析规则。
 - `actions` 先保持 `enabled=false`，核对设备权限、白名单和命令后再逐项开启。
-- `reporting.interval_ms` 控制正常合并上报周期（1000–5000，默认 5000）；
+- `reporting.interval_ms` 控制正常合并上报周期（1000–300000，省略时默认 5000；当前演示为 60000）；
   `batch_ms` 控制状态变化/动作/恢复的短合并窗口（50–1000，默认 250）。
 
 凭据写环境文件，不写 JSON 或源码。加载环境变量：

@@ -21,6 +21,7 @@
         </a>
 
         <div class="connection-cluster">
+          <a class="button button-quiet" href="/network.html">网口 / 蓝牙配置</a>
           <a class="button button-quiet" href="/history.html">历史查询</a>
           <a class="button button-quiet" href="/console.html" target="_blank" rel="noopener">实时日志控制台</a>
           <div id="connectionState" class="connection-state is-offline" role="status" aria-live="polite">
@@ -66,11 +67,6 @@
             <div><small>账户锁定</small><strong id="lockedMetric">0</strong></div>
             <span class="metric-note">BDI 信念</span>
           </article>
-          <article class="metric-card metric-traffic">
-            <span class="metric-icon" aria-hidden="true">↕</span>
-            <div><small id="messageTitle">上报消息</small><strong id="messageMetric">—</strong></div>
-            <span id="messageScope" class="metric-note">加载中</span>
-          </article>
         </section>
 
         <section class="workspace-grid">
@@ -87,9 +83,11 @@
               <table>
                 <thead>
                   <tr>
+                    <th>设备编号</th>
                     <th>设备</th>
                     <th>连接</th>
                     <th>健康</th>
+                    <th>实时上报</th>
                     <th>最近上报</th>
                     <th><span class="sr-only">操作</span></th>
                   </tr>
@@ -114,11 +112,23 @@
                 <div>
                   <p id="detailKind" class="eyebrow">DEVICE</p>
                   <h2 id="detailTitle">—</h2>
+                  <span id="detailNumber" class="device-number-label">编号未设置</span>
                   <span id="detailId" class="mono">—</span>
                 </div>
                 <button id="editDeviceButton" class="icon-button" type="button" aria-label="编辑设备">✎</button>
               </div>
               <div id="detailBadges" class="badge-row"></div>
+              <div class="metric-card metric-traffic device-report-metric">
+                <span class="metric-icon" aria-hidden="true">↕</span>
+                <div><small>本设备实时上报</small><strong id="detailMessages">—</strong></div>
+                <span id="messageScope" class="metric-note">加载中</span>
+              </div>
+              <form id="reportingForm" class="reporting-settings" hidden>
+                <label for="reportingSeconds">本设备上报间隔（秒）</label>
+                <div><input id="reportingSeconds" type="number" min="1" max="300" step="1" value="60" required /><button id="saveReportingButton" class="button button-secondary" type="submit">保存间隔</button></div>
+                <p id="reportingResult" class="form-note">正常状态按此间隔打包；故障、恢复及缓冲区满时及时上报。</p>
+              </form>
+              <button id="openLoopButton" class="button button-secondary" type="button">查看环路处置过程</button>
               <dl class="detail-list">
                 <div><dt>位置</dt><dd id="detailLocation">—</dd></div>
                 <div><dt>最后在线</dt><dd id="detailLastSeen">—</dd></div>
@@ -126,7 +136,6 @@
                 <div><dt>运行时间</dt><dd id="detailUptime">—</dd></div>
                 <div><dt>CPU</dt><dd id="detailCpu">—</dd></div>
                 <div><dt>温度</dt><dd id="detailTemp">—</dd></div>
-                <div><dt>消息计数</dt><dd id="detailMessages">0</dd></div>
                 <div><dt>监测故障</dt><dd id="detailFaults">0</dd></div>
               </dl>
               <div class="belief-block">
@@ -211,7 +220,9 @@
           <button class="icon-button" value="cancel" formnovalidate aria-label="关闭">×</button>
         </div>
         <div class="form-stack">
-          <label>设备 ID<input id="deviceIdInput" required maxlength="64" pattern="[A-Za-z0-9._-]+" placeholder="例如 esp32-rack-a" /></label>
+          <label>连接 ID<input id="deviceIdInput" required maxlength="64" pattern="[A-Za-z0-9._-]+" placeholder="例如 esp32-rack-a" /></label>
+          <label>设备编号<input id="deviceNumberInput" maxlength="32" pattern="[A-Za-z0-9._-]*" placeholder="例如 ESP-001，可留空" /></label>
+          <p class="form-note">连接 ID 用于绑定上报；设备编号用于现场管理，支持字母、数字、点、横线和下划线。</p>
           <label>显示名称<input id="deviceNameInput" required maxlength="40" placeholder="例如 机架 A ESP32" /></label>
           <label>位置<input id="deviceLocationInput" maxlength="60" placeholder="例如 实验室 A-03" /></label>
           <label class="checkbox-row"><input id="deviceEnabledInput" type="checkbox" checked /> 纳入监控与告警统计</label>
@@ -223,6 +234,17 @@
           <button id="saveDeviceButton" class="button button-primary" value="default">保存</button>
         </div>
       </form>
+    </dialog>
+
+    <dialog id="loopDialog" class="loop-dialog" aria-labelledby="loopTitle">
+      <div class="loop-card">
+        <header class="dialog-heading"><div><p class="eyebrow">LOOP RESPONSE · 环路处置</p><h2 id="loopTitle">环路观察</h2><p id="loopAgent" class="mono"></p></div><button id="closeLoopButton" class="icon-button" aria-label="关闭环路观察">×</button></header>
+        <div class="loop-notice">当前仅观察上报，环路自动隔离执行器尚未接入。此界面不会向交换机发送命令。</div>
+        <div class="loop-toolbar"><span id="loopConnection"></span><button id="loopDemoButton" class="button button-secondary" type="button">查看流程演示</button></div>
+        <div id="loopDemoNotice" class="loop-demo-notice" hidden>界面演示 · 虚拟设备与端口 · 不执行任何操作</div>
+        <div class="loop-layout"><nav id="loopIncidentList" class="loop-incidents" aria-label="环路事件"></nav><section id="loopBody" aria-live="polite"></section></div>
+        <p class="form-note">依据当前已加载的上报记录更新；没有环路日志不等于已验证网络无环路。命令成功回执不等于故障已恢复。</p>
+      </div>
     </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>

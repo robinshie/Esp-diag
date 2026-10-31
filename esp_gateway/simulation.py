@@ -105,6 +105,9 @@ def parse_args():
     p.add_argument("--seed", type=int)
     p.add_argument("--skip-smoke", action="store_true")
     p.add_argument("--action-mode", choices=["success", "failed", "timeout", "partial", "realistic"], default="success")
+    p.add_argument("--workload", choices=["standard", "all_faults", "overnight"], default="standard")
+    p.add_argument("--normal-min", type=float, default=300, help="minimum healthy seconds between overnight incidents")
+    p.add_argument("--normal-max", type=float, default=900, help="maximum healthy seconds between overnight incidents")
     p.add_argument("--topology", help="optional topology JSON for service quorum and failure-domain correlation")
     args = p.parse_args()
     if not 0 <= args.fault_rate <= 1 or not 1 <= args.devices <= 32:
@@ -113,6 +116,10 @@ def parse_args():
         p.error("intervals must satisfy 0 < min <= max < 80 (firmware freshness limit: 90s)")
     if args.duration < 0:
         p.error("duration must be nonnegative")
+    if args.workload in {"all_faults", "overnight"} and args.action_mode != "realistic":
+        p.error("scenario workloads require --action-mode realistic")
+    if not 60 <= args.normal_min <= args.normal_max <= 86400:
+        p.error("healthy intervals must satisfy 60 <= normal-min <= normal-max <= 86400")
     return args
 
 

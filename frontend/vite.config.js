@@ -6,6 +6,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
+        journal: fileURLToPath(new URL("./journal.html", import.meta.url)),
+        network: fileURLToPath(new URL("./network.html", import.meta.url)),
         dashboard: fileURLToPath(new URL("./index.html", import.meta.url)),
         console: fileURLToPath(new URL("./console.html", import.meta.url)),
         history: fileURLToPath(new URL("./history.html", import.meta.url))

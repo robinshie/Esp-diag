@@ -113,7 +113,22 @@ class GatewayTransport:
         self.store.enqueue(topic, payload, retain)
 
     def _reporter(self):
+        from .reporting_config import ReportingConfig
+        path = getattr(self.args, "reporting_config_path", None)
+        config = ReportingConfig(path) if path else None
+        next_check, previous_error = 0, None
         while not self.stop_event.wait(0.02):
+            if config and time.monotonic() >= next_check:
+                next_check = time.monotonic() + 2
+                try:
+                    interval = config.read(getattr(self.args, "agent_id", "esp32-s3-eth"))["interval_ms"]
+                    if self.reports.set_interval(interval):
+                        print(f"[REPORTING] agent={self.args.agent_id} interval_ms={interval}", flush=True)
+                    previous_error = None
+                except (OSError, ValueError, KeyError) as exc:
+                    if type(exc) != previous_error:
+                        print(f"[REPORTING] config unavailable ({type(exc).__name__}); previous interval preserved", flush=True)
+                    previous_error = type(exc)
             self.reports.flush()
 
 
