@@ -1,0 +1,20 @@
+[Unit]
+Description=Native ESP32 MQTT monitoring and archive API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=esp-backend
+Group=esp-backend
+WorkingDirectory=/opt/esp-diag
+EnvironmentFile=/etc/esp-diag/native.env
+ExecStart=/opt/esp-diag/.venv/bin/python -u -m esp_backend --config /etc/esp-diag/native.json --env-file /etc/esp-diag/native.env
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

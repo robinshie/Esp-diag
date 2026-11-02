@@ -54,5 +54,10 @@
     "workload": "overnight",
     "normal_min": 300,
     "normal_max": 900
+  },
+  "archive_copy": {
+    "api_url": "http://127.0.0.1:8080/api",
+    "token_env": "ESP_API_TOKEN",
+    "backfill_history": false
   }
 }

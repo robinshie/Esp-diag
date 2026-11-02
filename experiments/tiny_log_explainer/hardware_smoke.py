@@ -41,6 +41,7 @@ def main():
         'DIAG/5/CPU_MINOR_RECOVERY: CPU utilization fell into the recovery interval',
     ]
     semantic=json.loads((ROOT/'corpus/qualification.json').read_text())
+    semantic+=json.loads((ROOT/'corpus/protocol_regression.json').read_text())
     expected_labels={row['text']:row['label'] for row in semantic}
     cases.extend(expected_labels)
     state_file = repo / 'test/.runtime/live-demo/processes.json'

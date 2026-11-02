@@ -1,7 +1,8 @@
-#include "../src/network_settings.h"
+#include "../src/config/network_settings.h"
 #include <cassert>
 int main(){
  NetworkSettings s;assert(s.validate().empty());
+ assert(s.ip=="192.168.10.1"&&s.mask=="255.255.255.0"&&s.gateway=="192.168.10.10");
  auto original=s.encode();assert(!s.decode("192.168.4.0|255.255.255.0|192.168.4.254|0.0.0.0"));assert(s.encode()==original);
  assert(!s.decode("192.168.4.255|255.255.255.0|0.0.0.0|0.0.0.0"));
  assert(!s.decode("192.168.4.2|255.0.255.0|0.0.0.0|0.0.0.0"));

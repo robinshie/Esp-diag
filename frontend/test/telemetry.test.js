@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseFields, topicInfo, applyTelemetry, telemetryOnline, AGENT_TOPICS } from "../src/telemetry.js";
+import { parseFields, parseAvailability, topicInfo, applyTelemetry, applyNativeStatus, telemetryOnline, AGENT_TOPICS } from "../backend/telemetry.js";
 const device = () => ({kind: "server", health: "unknown", availability: null, beliefs: {server_critical: null}});
 test("source identities and BDI context are preserved", () => {
   assert.equal(topicInfo("h3c/server/a/health").id, "a");
@@ -27,7 +27,7 @@ test("dashboard subscriptions exclude direct server publications", () => {
   const matches = (topic) => AGENT_TOPICS.some((filter) => new RegExp(`^${filter.replaceAll("+", "[^/]+")}$`).test(topic));
   assert.equal(matches("h3c/esp32-s3-eth/report"), true);
   assert.equal(matches("h3c/esp32-s3-eth/availability"), true);
-  assert.equal(matches("h3c/esp32-s3-eth/status"), false);
+  assert.equal(matches("h3c/esp32-s3-eth/status"), true);
   assert.equal(matches("h3c/esp32-s3-eth/serial"), false);
   assert.equal(matches("h3c/esp32-s3-eth/observation/a"), false);
   assert.equal(matches("h3c/server/sim-01/health"), false);
@@ -86,4 +86,20 @@ test("raw serial frames stay attached to ESP32 even when mentioning a server", (
   applyTelemetry(d, {channel: "serial"}, {belief: "server_critical", value: "true"});
   assert.equal(d.beliefs.server_critical, null);
   assert.equal(d.health, "healthy");
+});
+test("native retained status is visible but only a live observation establishes freshness",()=>{
+  const d={kind:"agent",beliefs:{},lastSeen:null};
+  const status={schema_version:1,source:"esp_native",boot:"b1",uptime_ms:10000,ssh_state:"connected",heartbeat:{state:"healthy"},bdi:{state:"monitoring"}};
+  assert.equal(applyNativeStatus(d,status,1000,true),true);assert.equal(d.sshState,"connected");assert.equal(telemetryOnline(d,true,2000),false);
+  applyNativeStatus(d,status,2000,false);assert.equal(telemetryOnline(d,true,3000),true);
+  applyTelemetry(d,{channel:"availability"},{state:"OFFLINE"},4000);
+  applyNativeStatus(d,status,2000,false);assert.equal(telemetryOnline(d,true,5000),false);
+  assert.equal(applyNativeStatus(d,{...status,source:"simulation"},6000,false),false);
+});
+
+test("native plain Last Will and legacy availability formats both preserve offline state",()=>{
+  for(const raw of ['OFFLINE','state=OFFLINE','{"state":"OFFLINE"}'])assert.equal(parseAvailability(raw).state,'OFFLINE');
+  assert.equal(parseAvailability('ONLINE').state,'ONLINE');assert.equal(parseAvailability('unknown'),null);
+  const d={kind:'agent',lastSeen:1000,availability:'ONLINE'};
+  applyTelemetry(d,{channel:'availability'},parseAvailability('OFFLINE'),2000);assert.equal(telemetryOnline(d,true,2500),false);
 });

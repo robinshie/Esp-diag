@@ -20,6 +20,7 @@ def transport_args(config):
     return SimpleNamespace(
         state_db=config["storage"]["state_db"], port=config["serial"]["port"], baud=config["serial"]["baud"],
         serial_number=config["serial"].get("serial_number"),
+        archive_copy=config.get('archive_copy'),
         host=config["mqtt"]["host"], mqtt_port=config["mqtt"]["port"], user=config["mqtt"]["username"],
         password=credential(config["mqtt"]), gateway_id=config["mqtt"]["client_id"], tls=config["mqtt"]["tls"],
         agent_id=config["agent"]["id"], topic_root=config["agent"]["topic_root"], serial_log=True,
@@ -27,7 +28,7 @@ def transport_args(config):
         # The reader retries missing ports and handshakes until shutdown.
         protocol=config["protocol"], publish_source_topics=False, handshake_timeout=0, worker_shutdown_timeout=120,
         batch_reports=True, report_batch_ms=config.get("reporting", {}).get("batch_ms", 250),
-        report_interval_ms=config.get("reporting", {}).get("interval_ms", 5000),
+        report_interval_ms=config.get("reporting", {}).get("interval_ms", 60000),
         reporting_config_path=config.get("_config_path"),
         duration=0, skip_smoke=True, topology=None, min_interval=simulation.get("min_interval", 3),
         max_interval=simulation.get("max_interval", 5), fault_rate=simulation.get("fault_rate", 0.15),

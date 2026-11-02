@@ -1,35 +1,39 @@
-# ESP32-S3 Embedded-BDI 监测网关
+# ESP32-S3 Embedded-BDI 交换机监测
 
-主链路：配置驱动 SSH 采集 → USB → ESP32 Embedded-BDI → 授权动作与实际状态验证 →
-持久化网关 → MQTT → Web 控制台。前端只展示 ESP32 及其监测结果，不直连服务器。
+正式运行链路：**ESP 网口直连 H3C SSH → ESP 本机采集与 Embedded-BDI → 本机 TF 日志与离线 AI → 设备 Wi-Fi 页面**。设备独立运行；MQTT、后台数据库和后台 AI 都是可选扩展。USB 仅用于开发烧录。
 
-真实环境入口：`python -m esp_gateway run --config config/local.json`。
-复制 [SSH 配置模板](config/ssh.example.json)，配置串口、地址、账号、命令、解析规则、
-MQTT 与前端参数即可切换 SSH 环境。生产包不依赖测试目录，真实模式不会启用模拟器。
-先阅读 [项目架构](docs/architecture.md) 与 [配置部署指南](docs/deployment.md)。
-设备档案与上报历史使用 Docker MongoDB，安装与启动见 [数据库指南](docs/database.md)。
-本机数据库管理界面为 `http://127.0.0.1:8081/db/esp_diag`（mongo-express 容器），
-登录信息由初始化脚本生成到私有文件 `deploy/mongo-express-login.txt`。
-`check` 校验配置，`probe` 核验采集，`export-web` 导出前端运行时配置。
-旧固件需更新一次；此后时间参数也从配置下发，无需因环境变化重新编译。
+长按 **BOOT 3 秒**进入设置；连续短按 **BOOT 三次**进入日志分析。连接 `ESP-Logs-…` 热点后打开 `http://192.168.4.1/archive`。SSH 主机公钥首次连接自动保存，以后逐次校验，无需输入指纹；换钥会阻止登录，需在现场长按开启配置页后明确重新配对。
 
-当前版本采用 **protocol 2**。升级时必须同时更新固件、网关及前端；旧版没有
-设备身份的 `H3C LOG` / `ACK` 不再接受。服务器/交换机保留在 ESP32 的监测上下文中。
+| 层 | 目录与职责 |
+| --- | --- |
+| 设备固件 | `src/`：网口、SSH、真实 H3C 解析、BDI 决策与处置、TF、ESP 小模型和两类 BOOT 页面 |
+| 可选后台 | `esp_backend/`：MQTT 只读采集、持久收件箱、MongoDB、设备与历史 API、可选 AI provider |
+| 前端 | `frontend/device/` 为设备页面，`frontend/backend/` 为后台控制台，`frontend/shared/` 为纯证据解释与呈现 |
+| 历史实验 | `esp_gateway/`、USB protocol 2、模拟器与 `esp32-s3-usb-lab`：保留测试兼容，正式运行不经过此路径 |
 
-本轮实测结果见 [验收记录](docs/cluster-validation.md)，帧格式见
-[USB 协议](docs/usb-protocol-v2.md)。
+正式后台配置示例为 [`config/native.json`](config/native.json)。原生 MQTT 默认关闭，启用后用 `esp-switch/<设备ID>/status`、`report`、`availability` 上报；现场日志与 BDI 不等待后台在线。后台 Ollama / OpenAI-compatible 接口默认 `disabled`，只补充解释，不下发硬件动作。后台启动与连接参数由部署配置明确指定，缺配置不自动连接演示环境。
 
-## 客户网口 IP 配置
+固件目录按职责分为 `config/`、`device/`、`net/`、`bdi/`、`h3c/`、`storage/`、`security/`、`ai/`、`common/`、`generated/` 和 `legacy/`。默认 PlatformIO 只编译 `src/main.cpp`；USB 入口在 `src/legacy/main.cpp`，不进入正式构建。AI 推理与合格模型部署在 `src/ai/inference.h`、`model.h`，训练保留于 `experiments/tiny_log_explainer/`，以 `python3 tools/sync_log_model.py --check` 核对导出一致性。正式开关为 `ESP_LOG_AI_ENABLED`，默认开启；旧 MQTT / log-ai 环境只是兼容别名，不是必须另烧的实验能力。
 
-新增[网口 / 蓝牙配置说明](docs/network-setup.md)：网线直连后打开设备配置页，
-或在控制台点击“网口 / 蓝牙配置”通过蓝牙写入 IP、掩码、网关和 DNS。配置断电保留。
-当前构建已按 Waveshare ESP32-S3-ETH 的板载 W5500 引脚启用网口，同时支持蓝牙和配置存储。
-双击 BOOT 可单独打开 TF 记录只读网页（青灯每轮闪两下），连接 ESP-Logs 热点查看，无需重配网络；十分钟后自动关闭。配置入口默认关闭，按住 BOOT 三秒才开启；保存成功后绿灯亮三秒，随后关闭热点、蓝牙连接及 HTTP 配置服务。未保存时十分钟自动关闭。
+## 现场连接与自动处理
 
-网口 MQTT 已新增[独立实验构建](docs/ethernet-mqtt-experiment.md)，默认关闭。
-本轮仅编译，未烧录、未连接 Broker；实验主题不进入生产后端归档。
+默认 ESP 为 `192.168.10.1/24`、网关 `192.168.10.10`，交换机为 `192.168.10.2:22`；已有 NVS 设置优先。配置页一次保存网口、SSH 和可选 MQTT 参数，密码不回显。详见[配置方法](docs/network-setup.md)与[交换机连接和命令](docs/switch-connection.md)。
 
-## 已实现的覆盖
+现场已识别型号为 **H3C S5130S-52S-EI / Comware 7.1.070 R6328P03**。正式固件通过同一个 SSH 会话轮询九项只读命令：版本、接口概要、down 原因、环路检测、STP、聚合、日志缓冲、CPU、内存。身份、输出完整性、时间和采集周期均有效后才允许 BDI 评估。ping 心跳独立反映管理 IP 可达性，不能证明业务正常或解除端口故障。
+
+自动处置覆盖已授权业务口，保护管理口 `GE1/0/1`、trunk/hybrid、聚合成员、STP ROOT/MAST 与已有保护状态。只有明确、尚未被隔离的环路证据才会形成 `shutdown` 计划；先持久化意图，再执行，之后至少两轮完整采集读回才能标记 `contained`。**`contained` 表示隔离状态已验证，不表示物理环路已修复**；不会仅凭成功 ACK 恢复端口，也不自动改 STP、重启交换机或反复开关端口。
+
+AI 小模型在 ESP 上分类，设备页面结合原文证据显示中文解释和检查建议。它不决定交换机写命令。三击日志窗口只读，十分钟后自动关闭；长按配置窗口与其分离。详见[正式架构](docs/architecture.md)、[本机日志与 AI](docs/tf-fault-journal.md)。
+
+## 自动检查入口
+
+固件原生策略、SSH 状态机、存储格式、前端及后台均有自动检查，入口见 [`test/README.md`](test/README.md)。真实 Wi-Fi HTTP 验收使用 `test/standalone_http_acceptance.py`；模型或模拟接口测试不能替代真实 H3C 写操作、物理环路修复或长期耐久验收。历史已确认的现场结果保留在[连接记录](docs/switch-connection.md)，本轮最终构建、测试及烧录结论单独记录。
+
+---
+
+下列内容保留旧 USB 网关、集群模型与模拟验收的使用记录。涉及 USB 帧输入的脚本必须显式使用 `esp32-s3-usb-lab` 构建；默认正式固件不接受 USB 运行时控制。
+
+## 历史 USB / 集群模拟覆盖（开发参考）
 
 | 优先级 | 实现 | 验收入口 |
 | --- | --- | --- |
@@ -251,23 +255,24 @@ Repository。新增管理字段和功能的步骤见 [设备管理 MVC](docs/man
 设备编号可在列表编号或铅笔按钮中设置，例如 `ESP-001`；编号独立于连接 ID，
 同一项目内非空编号唯一，修改后保留原连接计数与历史。
 
-- `src/cluster_model.h`：协议解析、设备/故障/请求状态机、时间与容量边界。
-- `src/cluster_runtime.h`：每设备独立 Embedded-BDI 与动作上下文。
-- `src/main.cpp`：有界 USB 帧处理及固件计时。
+- `src/legacy/cluster_model.h`：协议解析、设备/故障/请求状态机、时间与容量边界。
+- `src/legacy/cluster_runtime.h`：每设备独立 Embedded-BDI 与动作上下文。
+- `src/main.cpp`：仅正式固件组装与调度，无 USB 运行时分支。
+- `src/legacy/main.cpp`：历史 USB 入口，仅由显式 `esp32-s3-usb-lab` 构建选择。
 - `esp_gateway/transport.py`：共享 USB、MQTT、握手与可靠转发。
 - `esp_gateway/store.py`：SQLite 队列、快照、动作账本和部署身份。
-- `esp_gateway/runtime.py`、`ssh.py`：生产 SSH 采集、配置规则和动作执行。
+- `esp_gateway/runtime.py`、`ssh.py`：历史主机 SSH 采集、配置规则和动作执行。
 - `esp_gateway/simulation.py`：隔离的演示源；`test/h3c_server_sim.py` 是兼容入口。
 - `esp_gateway/topology.py`：依赖、故障域和业务模型。
 - `productlines/`：按厂商、设备类型、系列隔离的产品资料、日志与模拟器。
 
-本版本输入是本项目定义的归一化协议，不能直接把厂商原始日志接入固件。
+上述历史 USB 模型输入是本项目定义的归一化协议。正式固件的真实 H3C 命令返回由 `src/h3c/` 解析，不经过 USB 归一化网关。
 SSH 接入已提供配置驱动采集/解析和授权动作；上线需用真实样本核验命令与规则。
 其他采集协议需要相应适配器。MQTT 的证书、ACL 和 Broker HA 按现场部署。
 Embedded-BDI 上游采用 GPL-3.0，分发时
 遵守对应许可证。
 
-交换机 SSH / Telnet 连接参数的设备配置说明见 [交换机管理连接配置](docs/switch-connection.md)（当前为参数保存，ESP 直连客户端尚未接入）。
+交换机 SSH / Telnet 连接参数的设备配置说明见 [交换机管理连接配置](docs/switch-connection.md)（ESP 已支持网口 SSH 采集与受保护的环路隔离；Telnet 尚未接入）。
 
 TF 卡故障摘要、原始日志和处置过程的本地保存见 [TF 卡故障记录](docs/tf-fault-journal.md)。
 

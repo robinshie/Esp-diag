@@ -9,8 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 
-class ConfigError(ValueError):
-    pass
+from esp_protocol.config import ConfigError, credential
 
 
 def _object(value, allowed, required=(), label="config"):
@@ -44,14 +43,6 @@ def _command(value):
         raise ConfigError("commands must be nonempty single-line strings")
 
 
-def credential(section, key="password_env"):
-    name = section.get(key)
-    if not name:
-        return None
-    if not isinstance(name, str) or not os.environ.get(name):
-        raise ConfigError(f"missing environment variable: {name}")
-    return os.environ[name]
-
 
 def load_config(path, *, require_credentials=True):
     path = Path(path).resolve()
@@ -59,7 +50,7 @@ def load_config(path, *, require_credentials=True):
         config = json.loads(path.read_text())
     except (OSError, ValueError) as exc:
         raise ConfigError(f"cannot read JSON config: {path}") from exc
-    _object(config, {"schema_version", "mode", "agent", "serial", "storage", "mqtt", "web", "devices", "simulation", "protocol", "reporting"},
+    _object(config, {"schema_version", "mode", "agent", "serial", "storage", "mqtt", "web", "devices", "simulation", "protocol", "reporting", "archive_copy"},
             {"schema_version", "mode", "agent", "serial", "storage", "mqtt", "web"})
     if type(config["schema_version"]) is not int or config["schema_version"] != 1 or config["mode"] not in {"demo", "ssh"}:
         raise ConfigError("expected schema_version=1 and mode=demo|ssh")
@@ -76,9 +67,22 @@ def load_config(path, *, require_credentials=True):
     reporting = config.setdefault("reporting", {})
     _object(reporting, {"batch_ms", "interval_ms"}, label="reporting")
     reporting.setdefault("batch_ms", 250)
-    reporting.setdefault("interval_ms", 5000)
+    reporting.setdefault("interval_ms", 60000)
     _integer(reporting["batch_ms"], 50, 1000, "reporting.batch_ms")
     _integer(reporting["interval_ms"], 1000, 300000, "reporting.interval_ms")
+    if 'archive_copy' in config:
+        copy = config['archive_copy']
+        _object(copy, {'api_url', 'token_env', 'backfill_history'}, {'api_url', 'token_env'}, 'archive_copy')
+        copy.setdefault('backfill_history', False)
+        if type(copy['backfill_history']) is not bool:
+            raise ConfigError('archive_copy.backfill_history must be boolean')
+        if not isinstance(copy['api_url'], str) or not isinstance(copy['token_env'], str) or not copy['token_env']:
+            raise ConfigError('archive_copy requires an API URL and token environment variable')
+        parsed = urlparse(copy['api_url'])
+        if parsed.scheme not in {'http', 'https'} or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+            raise ConfigError('archive_copy.api_url must be an HTTP(S) API URL without credentials')
+        if require_credentials:
+            credential(copy, 'token_env')
 
     def local_file(section, key, *, must_exist=False):
         if section.get(key):

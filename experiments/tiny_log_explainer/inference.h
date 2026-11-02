@@ -4,7 +4,10 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include "artifacts/model.h"
+#ifndef TINYLOG_MODEL_HEADER
+#define TINYLOG_MODEL_HEADER "artifacts/model.h"
+#endif
+#include TINYLOG_MODEL_HEADER
 
 namespace tinylog {
 struct Prediction {

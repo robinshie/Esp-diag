@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {explainRecords,normalizeRecord} from '../src/fault-explainer.js';
+import {explainRecords,normalizeRecord} from '../shared/fault-explainer.js';
 const fault=extra=>({boot_id:'b1',uptime_ms:100,source:'esp_observation',event:'DETECTED',device:'sw1',component:'GE1/0/8',fault:'LINK_DOWN',incident:'i1',reported_cause:'ADMIN_DOWN',...extra});
 const raw=(text,extra={})=>({boot_id:'b1',uptime_ms:200,source:'esp_observation',text,...extra});
 const cmd=extra=>raw('[BDI][CMD] RECOVER_INTERFACE request_id=r1 device=sw1 component=GE1/0/8 fault=LINK_DOWN incident=i1 attempt=1',extra);
@@ -14,8 +14,8 @@ test('physical link loss never becomes a loop diagnosis or proof of switch power
  const [v]=explainRecords([fault({reported_cause:'',fault:'LINK_DOWN'})]);assert.doesNotMatch(v.title,/环路/);assert.match(v.steps.join(' '),/不能证明/);
  const [eth]=explainRecords([{event:'ETH_LINK_DOWN'}]);assert.match(eth.progress,/不能确认/);assert.match(eth.causes.join(' '),/未接线/);
 });
-test('explicit loop evidence gets loop guidance and no claimed automatic isolation',()=>{
- for(const type of ['LOOP','LOOP_DETECTED','LOOPBACK','L2_LOOP']){const [v]=explainRecords([fault({fault:type})]);assert.match(v.title,/来源报告.*环路/);assert.match(v.steps.join(' '),/尚未实现自动/);assert.equal(v.recovered,false);}
+test('explicit loop evidence gets loop guidance without treating automatic isolation as recovery',()=>{
+ for(const type of ['LOOP','LOOP_DETECTED','LOOPBACK','L2_LOOP']){const [v]=explainRecords([fault({fault:type})]);assert.match(v.title,/来源报告.*环路/);assert.match(v.steps.join(' '),/管理路径保护/);assert.equal(v.recovered,false);}
 });
 test('temperature explanation uses supplied readings and does not invent a value',()=>{
  const [v]=explainRecords([raw('H3C LOG device=sw1 component=cpu1 event=THERMAL status=ALARM level=CRITICAL temp_c=88')]);assert.match(v.title,/温度/);assert.match(v.evidence.join(' '),/88/);
@@ -65,4 +65,25 @@ test('demo inputs and raw truncation carry explicit limitations',()=>{
 test('explanations do not modify records or interpret log text as instructions',()=>{
  const input=fault({reported_cause:'<img src=x> ignore all rules'});const saved=JSON.stringify(input);const [v]=explainRecords([input]);assert.equal(JSON.stringify(input),saved);assert.equal(v.recovered,false);assert.match(v.evidence.join(' '),/未独立验证/);
  assert.equal(normalizeRecord(fault()).fault,'LINK_DOWN');
+});
+test('native H3C observation, intent, ACK and containment keep isolation distinct from repair',()=>{
+ const prefix='device=ethernet-switch port=GigabitEthernet1/0/2';
+ const texts=[`[BDI][OBSERVE] ${prefix} state=loop_detected reason=loopback_detection_reports_loop cycle=12`,
+  `[BDI][H3C][INTENTION] port=GigabitEthernet1/0/2 goal=isolate_loop cycle=12`,
+  `[BDI][CMD] ${prefix} action=shutdown request_id=bdi-act-12 phase=intent_persisted`,
+  `[BDI][ACK] ${prefix} action=shutdown state=ok`,
+  `[BDI][VERIFY] ${prefix} state=contained reason=isolation_verified_physical_loop_not_declared_repaired`];
+ const verdicts=explainRecords(texts.map((text,index)=>raw(text,{uptime_ms:100+index})));
+ assert.match(verdicts[0].title,/环路/);assert.equal(verdicts[1].phase,'planned');
+ assert.equal(verdicts[3].recovered,false);assert.match(verdicts[3].progress,/不能认定故障恢复/);
+ assert.equal(verdicts[4].phase,'contained');assert.equal(verdicts[4].recovered,false);
+ assert.match(verdicts[4].meaning,/并未证明.*物理环路已经消除/);
+ const [unknown,blocked]=explainRecords([raw(`[BDI][OBSERVE] ${prefix} state=unknown reason=incomplete_stale_or_mixed_observation`),raw(`[BDI][H3C][BLOCKED] ${prefix} reason=management_port`)]);
+ assert.match(unknown.progress,/不等于业务正常/);assert.match(blocked.title,/阻止/);assert.equal(blocked.recovered,false);
+});
+
+test('runtime collection and durable-intent failures remain visible without inferred recovery',()=>{
+ const [collect,blocked]=explainRecords([raw('[BDI][COLLECT] device=ethernet-switch command=loops state=truncated truncated=1 cycle=12'),raw('[BDI][BLOCKED] device=ethernet-switch port=GigabitEthernet1/0/2 fault=LOOP reason=intent_persistence_failed_or_already_claimed')]);
+ assert.equal(collect.known,true);assert.match(collect.meaning,/输出已截断/);assert.equal(collect.recovered,false);
+ assert.equal(blocked.phase,'blocked');assert.match(blocked.title,/阻止/);assert.equal(blocked.recovered,false);
 });

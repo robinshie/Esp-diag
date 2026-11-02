@@ -1,0 +1,44 @@
+name: esp-native
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "${MQTT_BIND_ADDRESS:?Set the broker LAN address}:${MQTT_PORT:-1883}:1883"
+      - "${MQTT_BIND_ADDRESS:?Set the broker LAN address}:${MQTT_WS_PORT:-9001}:9001"
+    entrypoint: ["/bin/sh", "/esp/native-mosquitto-entrypoint.sh"]
+    environment:
+      MQTT_TOPIC_ROOT: ${MQTT_TOPIC_ROOT:-esp-switch}
+      ESP_DEVICE_MQTT_USERNAME: ${ESP_DEVICE_MQTT_USERNAME:-esp-device}
+      ESP_DEVICE_MQTT_PASSWORD: ${ESP_DEVICE_MQTT_PASSWORD:?Set device MQTT password}
+      ESP_ARCHIVE_MQTT_USERNAME: ${ESP_ARCHIVE_MQTT_USERNAME:-archive-readonly}
+      ESP_ARCHIVE_MQTT_PASSWORD: ${ESP_ARCHIVE_MQTT_PASSWORD:?Set archive MQTT password}
+      ESP_DASHBOARD_MQTT_USERNAME: ${ESP_DASHBOARD_MQTT_USERNAME:-dashboard-readonly}
+      ESP_DASHBOARD_MQTT_PASSWORD: ${ESP_DASHBOARD_MQTT_PASSWORD:?Set dashboard MQTT password}
+    volumes:
+      - ./native-mosquitto-entrypoint.sh:/esp/native-mosquitto-entrypoint.sh:ro
+      - ../mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt_native_data:/mosquitto/data
+    stop_grace_period: 20s
+  mongodb:
+    image: mongo:8.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Set Mongo root user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set Mongo root password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-esp_diag_native}
+      ESP_MONGO_USERNAME: ${MONGO_USERNAME:?Set Mongo application user}
+      ESP_MONGO_PASSWORD: ${MONGO_PASSWORD:?Set Mongo application password}
+    volumes:
+      - mongo_native_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/01-app-user.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.getSiblingDB('admin').auth(process.env.MONGO_INITDB_ROOT_USERNAME, process.env.MONGO_INITDB_ROOT_PASSWORD); quit(db.adminCommand({ping:1}).ok === 1 ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  mqtt_native_data:
+  mongo_native_data:

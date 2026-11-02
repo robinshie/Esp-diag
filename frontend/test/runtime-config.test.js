@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {parseRuntimeConfig, connectionFields, loadRuntimeConfig} from "../src/runtime-config.js";
-import {agentTopics, topicInfo} from "../src/telemetry.js";
+import {parseRuntimeConfig, connectionFields, loadRuntimeConfig} from "../backend/runtime-config.js";
+import {agentTopics, topicInfo} from "../backend/telemetry.js";
 
 const config = {schema_version: 1, mqtt: {url: "wss://monitor.example.com/mqtt", username: "readonly", password: "browser"},
   topic_root: "site-a", agent_ids: ["edge-07"], agent_name: "Rack A"};
@@ -23,6 +23,12 @@ test("a missing production config does not silently connect to demo MQTT", async
   globalThis.location = {hostname: "monitor.example.com"};
   try { await assert.rejects(loadRuntimeConfig(), /runtime-config.json/); }
   finally { globalThis.fetch = originalFetch; globalThis.location = originalLocation; }
+});
+test("localhost also requires explicit configuration and never falls back to demo", async () => {
+  const originalFetch=globalThis.fetch,originalLocation=globalThis.location;
+  globalThis.fetch=async()=>({status:404,ok:false});globalThis.location={hostname:"127.0.0.1"};
+  try { await assert.rejects(loadRuntimeConfig(),/缺少 runtime-config.json/); }
+  finally { globalThis.fetch=originalFetch;globalThis.location=originalLocation; }
 });
 test("a demo export cannot be served as a production deployment", async () => {
   const originalFetch = globalThis.fetch;

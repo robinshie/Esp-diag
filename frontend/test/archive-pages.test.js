@@ -78,7 +78,7 @@ test("both running pages remove externally deleted reports without reload or MQT
           return {reports: reports.map(report => ({agent_id: "edge-1", report}))};
         }};}
       });
-      const file = new URL(page === "app" ? "../src/controllers/dashboard-controller.js" : `../src/${page}.js`, import.meta.url);
+      const file = new URL(page === "app" ? "../backend/controllers/dashboard-controller.js" : `../backend/${page}.js`, import.meta.url);
       let source = await readFile(file, "utf8");
       source = source.replace('import mqtt from "mqtt";', 'const mqtt = {connect: () => ({connected: true, on() {}, subscribe() {}})};')
         .replace('import "./styles.css";', "")

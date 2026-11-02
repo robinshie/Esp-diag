@@ -1,0 +1,25 @@
+display version
+H3C Comware Software, Version 7.1.070, Release 6328P03
+Copyright (c) 2004-2021 New H3C Technologies Co., Ltd. All rights reserved.
+H3C S5130S-52S-EI uptime is 0 weeks, 0 days, 3 hours, 57 minutes
+Last reboot reason : Cold reboot
+Boot image: flash:/s5130s_ei-cmw710-boot-r6328p03.bin
+Boot image version: 7.1.070, Release 6328P03
+  Compiled Jul 12 2021 11:00:00
+System image: flash:/s5130s_ei-cmw710-system-r6328p03.bin
+System image version: 7.1.070, Release 6328P03
+  Compiled Jul 12 2021 11:00:00
+Slot 1:
+Uptime is 0 weeks,0 days,3 hours,57 minutes
+S5130S-52S-EI with 1 Processor
+BOARD TYPE:         S5130S-52S-EI
+DRAM:               512M bytes
+FLASH:              256M bytes
+PCB 1 Version:      VER.B
+Bootrom Version:    141
+CPLD 1 Version:     001
+Release Version:    H3C S5130S-52S-EI-6328P03
+Patch Version  :    None
+Reboot Cause  :     ColdReboot
+[SubSlot 0] 48GE+4SFP Plus
+<H3C>

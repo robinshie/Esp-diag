@@ -1,4 +1,35 @@
-# ESP-DIAG Web Console
+# 前端边界与设备页面
+
+正式设备独立采集 H3C SSH 输出、执行 BDI、运行本机小模型并记录 TF 日志。前端呈现设备证据；可选后台只接收和归档，不替代现场处置。
+
+| 目录 | 职责 |
+| --- | --- |
+| `device/network.html` | 长按 BOOT 3 秒进入的设置页：网口、SSH 自动主机公钥配对、只读查询、可选 MQTT |
+| `device/archive.html` | 连按三下 BOOT 进入的本机日志分析页：ESP 模型、BDI、心跳、MQTT 状态与 TF 原文 |
+| `device/journal.html` | 旧静态日志预览地址的转向入口 |
+| `backend/` | 后台管理控制台的 Model / View / Controller / Service、MQTT 订阅和数据库接口 |
+| `shared/` | 两类前端共用的纯日志解释、证据关联和视图模块；不含 MQTT、后台接口或控制动作 |
+| `index.html`、`console.html`、`history.html` | 保持既有部署 URL 的后台入口 |
+| `test/` | 设备网页、归档时间、MQTT 新鲜度、后台页面和共享解释测试 |
+
+设备网页嵌入固件后使用 `/portal`（设置窗口）和 `/archive`（日志窗口），无 CDN、后台或互联网依赖。`tools/embed_network_page.py` 将 `device/` 与所需 `shared/` 模块合并到 `src/generated/network_page.h`、`src/generated/archive_page.h`，并检查最终 JavaScript 语法。Vite 的 `/device/*.html` 是源页面预览；完整设置接口在 ESP 配置窗口内提供。
+
+SSH 首次连接自动保存主机公钥，每次重连校验。页面只读显示状态和指纹，无需填写密钥。换钥会停止登录；现场点击“重新配对当前交换机公钥”才清除旧配对并重新连接。保存网络参数不会提交或清空可信指纹。
+
+MQTT 默认关闭，默认主题前缀 `esp-switch`，已保存的历史前缀保留。后台运行时配置须与设备前缀及设备 ID 一致；仪表盘只订阅 `report`、`status`、`availability`。原生报告保留 `clock: uptime` 与 `boot`；历史列表以外层 `archive_at_ms` 显示接收归档时间，原文显示“本次开机 +…秒”。retained 状态仅恢复内容，不能单凭重新收到消息判定在线。
+
+接口说明见 [device/README.md](device/README.md)。设备页修改后执行：
+
+```sh
+python3 tools/embed_network_page.py
+cd frontend
+node --test test/*.test.js
+npm run build
+```
+
+下面保留既有后台控制台及 USB 实验部署说明。USB 网关和模拟器仅用于历史实验，正式设备不依赖这些进程。
+
+## 后台控制台与历史实验
 
 本地设备管理控制台，通过 MQTT over WebSocket 订阅 ESP32 的运行状态、监测结果及处理日志，实时显示：
 

@@ -1,5 +1,5 @@
 {
-  "model": "tiny-log-v2-h3c",
+  "model": "tiny-log-v3-protocol",
   "data": "official facts with authored paraphrases + synthetic templates; NOT real-switch accuracy",
   "seed": 20261031,
   "split": "synthetic whole templates 6/2/2; official whole mnemonic families; protocol adapters train only",
@@ -11,6 +11,7 @@
     ],
     "train": [
       "normalized:THERMAL",
+      "protocol:0",
       "recovery_report:6"
     ]
   },
@@ -31,24 +32,27 @@
     "login_failure",
     "stp_protection",
     "mac_move",
-    "resource_pressure"
+    "resource_pressure",
+    "runtime_status",
+    "state_snapshot",
+    "delivery_receipt"
   ],
   "threshold_from_validation": 0.9,
-  "float32_parameter_bytes": 139332,
-  "dataset_sha256": "0ae9a85b8a717c10daca1e19ce30f0f06c0021cc31050b51d1a9fba0d5e8b7d7",
+  "float32_parameter_bytes": 163920,
+  "dataset_sha256": "4d00de5aa345e25b38a677a788e1324af0eaa1816c5be8d6a7bccafbbf395e0c",
   "limitations": [
     "Synthetic development evaluation, not real-device incidents or blind testing.",
     "Template expansions are correlated; group counts matter more than row counts.",
     "Documentation spans several H3C platforms; exact-release support is unverified."
   ],
   "train": {
-    "samples": 2282,
-    "groups": 137,
+    "samples": 3062,
+    "groups": 170,
     "accuracy": 1.0,
-    "accepted": 2222,
-    "coverage": 0.9737072743207712,
+    "accepted": 3002,
+    "coverage": 0.9804049640757675,
     "accepted_accuracy": 1.0,
-    "known_samples": 2222,
+    "known_samples": 3002,
     "confusion": {
       "auth_lock": {
         "auth_lock": 84
@@ -72,19 +76,19 @@
         "source_lost": 84
       },
       "action_request": {
-        "action_request": 60
+        "action_request": 100
       },
       "action_ack": {
-        "action_ack": 60
+        "action_ack": 140
       },
       "recovery_report": {
-        "recovery_report": 242
+        "recovery_report": 282
       },
       "normal": {
-        "normal": 276
+        "normal": 516
       },
       "record_gap": {
-        "record_gap": 228
+        "record_gap": 268
       },
       "unknown": {
         "unknown": 60
@@ -100,17 +104,26 @@
       },
       "resource_pressure": {
         "resource_pressure": 132
+      },
+      "runtime_status": {
+        "runtime_status": 100
+      },
+      "state_snapshot": {
+        "state_snapshot": 140
+      },
+      "delivery_receipt": {
+        "delivery_receipt": 100
       }
     }
   },
   "validation": {
-    "samples": 522,
-    "groups": 37,
-    "accuracy": 0.9003831417624522,
-    "accepted": 250,
-    "coverage": 0.4789272030651341,
+    "samples": 582,
+    "groups": 43,
+    "accuracy": 0.872852233676976,
+    "accepted": 261,
+    "coverage": 0.4484536082474227,
     "accepted_accuracy": 1.0,
-    "known_samples": 502,
+    "known_samples": 562,
     "confusion": {
       "auth_lock": {
         "auth_lock": 20
@@ -126,7 +139,8 @@
         "loop": 20
       },
       "power": {
-        "power": 68
+        "power": 56,
+        "recovery_report": 12
       },
       "fan": {
         "fan": 20
@@ -150,7 +164,8 @@
       },
       "normal": {
         "normal": 56,
-        "record_gap": 12
+        "action_request": 4,
+        "record_gap": 8
       },
       "record_gap": {
         "record_gap": 20
@@ -170,17 +185,27 @@
       },
       "resource_pressure": {
         "resource_pressure": 44
+      },
+      "runtime_status": {
+        "runtime_status": 20
+      },
+      "state_snapshot": {
+        "normal": 10,
+        "state_snapshot": 10
+      },
+      "delivery_receipt": {
+        "delivery_receipt": 20
       }
     }
   },
   "test": {
-    "samples": 436,
-    "groups": 38,
-    "accuracy": 0.8394495412844036,
-    "accepted": 214,
-    "coverage": 0.4908256880733945,
+    "samples": 496,
+    "groups": 44,
+    "accuracy": 0.8770161290322581,
+    "accepted": 221,
+    "coverage": 0.44556451612903225,
     "accepted_accuracy": 1.0,
-    "known_samples": 416,
+    "known_samples": 476,
     "confusion": {
       "auth_lock": {
         "auth_lock": 20
@@ -205,23 +230,19 @@
         "source_lost": 20
       },
       "action_request": {
-        "action_request": 18,
-        "auth_lock": 1,
-        "link_down": 1
+        "action_request": 20
       },
       "action_ack": {
-        "action_request": 7,
-        "auth_lock": 2,
-        "link_down": 1,
-        "action_ack": 10
+        "action_ack": 17,
+        "action_request": 2,
+        "link_down": 1
       },
       "recovery_report": {
         "recovery_report": 44
       },
       "normal": {
         "normal": 60,
-        "recovery_report": 4,
-        "login_failure": 4
+        "login_failure": 8
       },
       "record_gap": {
         "record_gap": 20
@@ -242,6 +263,15 @@
       },
       "resource_pressure": {
         "resource_pressure": 20
+      },
+      "runtime_status": {
+        "runtime_status": 20
+      },
+      "state_snapshot": {
+        "state_snapshot": 20
+      },
+      "delivery_receipt": {
+        "delivery_receipt": 20
       }
     }
   },
@@ -249,9 +279,9 @@
     "validation": {
       "samples": 192,
       "groups": 4,
-      "accuracy": 0.9375,
-      "accepted": 96,
-      "coverage": 0.5,
+      "accuracy": 0.875,
+      "accepted": 104,
+      "coverage": 0.5416666666666666,
       "accepted_accuracy": 1.0,
       "known_samples": 192,
       "confusion": {
@@ -262,7 +292,8 @@
         "thermal": {},
         "loop": {},
         "power": {
-          "power": 48
+          "recovery_report": 12,
+          "power": 36
         },
         "fan": {},
         "source_lost": {},
@@ -273,7 +304,8 @@
         },
         "normal": {
           "normal": 36,
-          "record_gap": 12
+          "action_request": 4,
+          "record_gap": 8
         },
         "record_gap": {},
         "unknown": {},
@@ -282,15 +314,18 @@
         "mac_move": {},
         "resource_pressure": {
           "resource_pressure": 24
-        }
+        },
+        "runtime_status": {},
+        "state_snapshot": {},
+        "delivery_receipt": {}
       }
     },
     "test": {
       "samples": 96,
       "groups": 4,
       "accuracy": 0.9166666666666666,
-      "accepted": 28,
-      "coverage": 0.2916666666666667,
+      "accepted": 24,
+      "coverage": 0.25,
       "accepted_accuracy": 1.0,
       "known_samples": 96,
       "confusion": {
@@ -308,8 +343,7 @@
         },
         "normal": {
           "normal": 40,
-          "recovery_report": 4,
-          "login_failure": 4
+          "login_failure": 8
         },
         "record_gap": {},
         "unknown": {},
@@ -318,7 +352,10 @@
           "stp_protection": 24
         },
         "mac_move": {},
-        "resource_pressure": {}
+        "resource_pressure": {},
+        "runtime_status": {},
+        "state_snapshot": {},
+        "delivery_receipt": {}
       }
     }
   },
@@ -387,9 +424,9 @@
     "current": {
       "samples": 260,
       "groups": 26,
-      "accuracy": 0.8384615384615385,
-      "accepted": 156,
-      "coverage": 0.6,
+      "accuracy": 0.8730769230769231,
+      "accepted": 147,
+      "coverage": 0.5653846153846154,
       "accepted_accuracy": 1.0,
       "known_samples": 240,
       "confusion": {
@@ -416,15 +453,12 @@
           "source_lost": 20
         },
         "action_request": {
-          "action_request": 18,
-          "auth_lock": 1,
-          "link_down": 1
+          "action_request": 20
         },
         "action_ack": {
-          "action_request": 7,
-          "auth_lock": 2,
-          "link_down": 1,
-          "action_ack": 10
+          "action_ack": 17,
+          "action_request": 2,
+          "link_down": 1
         },
         "recovery_report": {
           "recovery_report": 20
@@ -441,7 +475,10 @@
         "login_failure": {},
         "stp_protection": {},
         "mac_move": {},
-        "resource_pressure": {}
+        "resource_pressure": {},
+        "runtime_status": {},
+        "state_snapshot": {},
+        "delivery_receipt": {}
       }
     }
   }

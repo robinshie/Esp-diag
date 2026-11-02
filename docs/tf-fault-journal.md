@@ -1,4 +1,50 @@
-# TF 卡故障记录
+# 现场日志与 ESP 离线 AI
+
+正式版由 ESP 本机采集、保存并分析记录。上电后通过网口 SSH 连接真实 H3C；连续短按 BOOT 三次开启十分钟 `ESP-Logs-…` 热点，浏览器访问 `http://192.168.4.1/archive`。长按 3 秒是设置入口。查看日志无需 USB、电脑进程、后台或云端 AI。
+
+## 本机证据与存储
+
+新记录位于 TF 卡 `/esp-native`，与历史 `/esp-db-mirror` 和 `/esp-journal` 分目录保留，正式页不混读旧实验记录。内容包括实际 SSH 状态、九项自动轮询与手动查询的原文、H3C BDI 信念/意图/回执/验证、ICMP 观测与本机模型结果。它们不是模拟器推送的故障。
+
+固定容量 PSRAM 队列 → 独立 TF 任务 → 临时文件写入与重命名提交。每 30 秒或读取页面时请求保存，单包最多 64 条原文、约 48 KiB 内容，JSON 编码还受 64 KiB 上限约束；约 12 MiB / 最多 256 包循环保留，并预留约 1 MiB 卡空间。队列满或写卡失败会计数并报告缺口；断电可能丢失尚未提交的内存记录。TF 卡异常不停止监测和心跳，也不会伪装成记录已保存。
+
+原生报告包含 `source=esp_native`、`transport=ETH`、`boot`、`clock=uptime`、`report_id`、`sent_at_ms` 和 `lines`。没有可信墙钟时显示“本次开机 +…秒”，不编造日期；不同 boot 的 uptime 不混合关联。自动 BDI 写命令还有独立的持久化意图约束，不能仅靠一行内存日志当作已经落盘。
+
+## 两类设备页面
+
+三击打开的日志窗口只读，可查看当前本机 AI、SSH、BDI、心跳、可选 MQTT 状态，以及 TF 中最近记录。点击“一键分析最近日志”读取最近最多 10 包、10 分钟内记录，按同一 boot 与时间基准核对；历史范围和缺失记录明确标示。`/storage/files`、`/storage/read` 分页读取并校验分片偏移与 UTF-8，读取失败可重试，不改 IP 或 SSH 配置。
+
+当前状态与历史证据分开：状态接口失败显示暂不可读，不能沿用旧“正常”；历史恢复也不代表现在正常。日志窗口拒绝配置读写和主机钥重配。十分钟后或点击“关闭查看入口”隐藏热点；再次三击即可打开。
+
+长按 BOOT 3 秒打开配置窗口，可设 IP、SSH 与 MQTT。主机公钥自动取得与保存，页面只读显示可信指纹；换钥会停止登录，必须在现场进入配置页明确重新配对。BOOT 由独立任务采样，使用页面与热点状态核对是否打开，不把指示灯亮灭当作唯一依据。
+
+## ESP 模型与真实处置解释
+
+部署推理与模型位于 `src/ai/inference.h`、`src/ai/model.h`，训练产物通过 `tools/sync_log_model.py --check` 核对；`ESP_LOG_AI_ENABLED` 默认开启。小模型在 ESP 推理；浏览器内的共享证据规则和中文模板负责呈现。模型只辅助分类，低置信度、截断或与日志阶段冲突时不采用；不把可能原因当成已确认根因，不直接执行交换机命令。后台 Ollama 等 provider 默认关闭，是另一条可选解释能力，不是本机分析的依赖。
+
+日志按 `device / port / fault / incident / request_id` 关联真实观察与处置：
+
+- `[BDI][OBSERVE]`：实际命令解析得到的端口/环路状态；unknown 表示证据不足。
+- `[BDI][H3C][BELIEF/INTENTION/BLOCKED]`：Embedded-BDI 信念、目标或保护门控结果。
+- `[BDI][CMD] ... phase=intent_persisted`：意图已经持久化，尚不证明命令完成。
+- `[BDI][ACK] ... state=ok`：命令返回成功，尚不证明故障修复。
+- `[BDI][VERIFY] ... state=contained`：至少两轮采集验证端口隔离，**物理环路仍待现场处理**。
+
+自动隔离保护管理口 `GE1/0/1`、trunk/hybrid、聚合成员、STP ROOT/MAST 和已有保护状态。固件不会根据心跳丢失或 AI 分类直接关端口。缺完整事件标识时逐条展示，不强行拼成一个恢复过程。
+
+## 可选后台副本
+
+启用 MQTT 后，ESP 发布已提交的同一份 TF 原生报告和本机分析数据，断线后只在本机循环保留范围内补传。后台 `esp_backend` 的原生配置为 `config/native.json`；`report_id` 去重、持久收件箱与 MongoDB 均不成为现场运行前提。原文 uptime 不改写，后台外层 `archive_at_ms` 表示接收归档时间，页面不会将 uptime 显示成 1970 年。retained 状态只恢复展示内容，不证明消息当前新鲜。
+
+实现入口见 `frontend/device/archive.html` 与 `frontend/shared/`。修改后执行 `python3 tools/embed_network_page.py` 生成嵌入页面，再运行前端测试与构建。完整运行边界见[正式架构](architecture.md)，测试入口见[验收说明](../test/README.md)。
+
+以下保留早期 TF / 数据库镜像方案及已完成的实物结果。其双击手势、USB 来源和 JSONL 文件格式属于当时版本，不是当前正式版操作步骤。
+
+---
+
+# 历史 TF 卡实现（已归档）
+
+> 历史数据库镜像方案使用**数据库为准的 SD 副本**：完整复制已入库上报，不再独立生成下面的高频三类日志。双击 BOOT 默认打开故障分析，自动显示故障卡片与 AI 辅助解释；存储信息折叠。旧版页面已移除，`/journal` 重定向到新版，不删除旧文件。新格式、补传与限制见[数据库指南](database.md#数据库为准的-sd-副本与日志解释)。下文记录旧格式及此前验收，不能当作新版副本的实机验收。
 
 ESP32-S3-ETH 板载 TF 卡槽通过第二个 SPI 主机使用，GPIO 为 CS=4、MISO=5、MOSI=6、SCK=7。W5500 仍使用原有 SPI 和 9–14 引脚，不共用总线。依据 [Waveshare Arduino TF 卡例程](https://docs.waveshare.com/ESP32-S3-ETH/Development-Environment-Setup-Arduino#03_sd_card)。
 
@@ -50,6 +96,10 @@ ESP32-S3-ETH 板载 TF 卡槽通过第二个 SPI 主机使用，GPIO 为 CS=4、
 3. 首页直接显示 TF 记录，不显示配置表单。切换“故障摘要 / 原始日志 / 处置过程”，选文件、看文件末尾或翻阅更早内容。默认显示所选类型最新创建文件的末尾。完整字段可展开查看，日志内容按文本渲染。
 4. 点“关闭查看入口”立即关闭；否则开启十分钟后自动隐藏热点与 HTTP。双击 BOOT 可再次打开。读取不重写 NVS、不更改 IP/SSH/MQTT、不广播蓝牙配置服务。查看模式下配置读写接口返回 403。
 
+BOOT 现在由独立任务每 10 ms 采样，避免主循环等待 USB 或 HTTP 时漏掉短按。串口 `[BOOT]` 显示 GPIO0 电平、按下/释放次数和识别出的手势。
+
+正式版只通过物理 BOOT 开启查看入口，不提供 USB 开页或 USB 日志输入。默认构建已启用 ESP 离线小模型；运行无需电脑、网关或云端 AI。
+
 已接网口的电脑也可在双击后打开 `http://<已配置的网口IP>/`，不需要换 IP。网口链路或交换机故障时使用设备自身的热点。热点是本地免密码入口，只在现场需要查看时打开。
 
 长按 BOOT 三秒仍开启原有配置模式（蓝灯提示）。配置页面“TF 卡故障记录”中的“查看 TF 卡记录”链接也可打开 `/journal`，无需点击保存；这个链接不会改变当前配置模式。参数仍只有原来的一个“保存全部配置”按钮。
@@ -64,7 +114,7 @@ TF 查看页内置离线规则解释器，在手机或电脑浏览器本地运�
 
 每次仅分析当前读入的文件片段。命令与 ACK 需要匹配同一开机标识、请求、设备、组件及动作；恢复还要求同一事件、故障类型与先后时间，缺少标识或有歧义就不关联。`COMMAND_ACCEPTED` 和 `SUCCESS` 回执均不能单独证明故障恢复；来源恢复输入、心跳和在线也不能替代模型恢复记录。历史已验证恢复只说明记录当时的模型状态，不能当作实时正常；片段外的证据不作推测。
 
-解释规则和测试分别在 `frontend/src/fault-explainer.js` 与 `frontend/test/fault-explainer.test.js`。编辑后运行 `python3 tools/embed_network_page.py`，将规则与页面共同嵌入 `src/journal_page.h`。Vite 构建仍使用同一模块源码。
+解释规则和测试分别在 `frontend/shared/fault-explainer.js` 与 `frontend/test/fault-explainer.test.js`。编辑后运行 `python3 tools/embed_network_page.py`，将规则与新版页面共同嵌入 `src/generated/archive_page.h`。Vite 构建仍使用同一模块源码。
 
 ## 验收
 
@@ -72,7 +122,7 @@ TF 查看页内置离线规则解释器，在手机或电脑浏览器本地运�
 
 实物验收需确认：插卡后 `sd_state=ready`；无卡时 BDI 仍工作；产生测试故障、回执、恢复和来源超时后断电取卡，核对三类文件；检查断网记录、轮转、异常拔卡与重新插卡。当前真实交换机采集未接入，因此模拟测试记录不能作为真实环路处置成功的证据。
 
-原生按键、文件轮转策略与摘要测试分别位于 `test/boot_gesture.cpp`、`test/journal_files.cpp`、`test/fault_journal.cpp`；网页行为测试位于 `frontend/test/journal-page.test.js`。
+原生按键、文件轮转策略与摘要测试分别位于 `test/boot_gesture.cpp`、`test/journal_files.cpp`、`test/fault_journal.cpp`；网页行为测试位于 `frontend/test/archive-page.test.js（当前页面测试；旧 JSONL 页面已归档）`。
 
 原生摘要测试：`c++ -std=c++11 test/fault_journal.cpp -o /tmp/esp-fault-journal-test && /tmp/esp-fault-journal-test`。
 

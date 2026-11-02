@@ -1,4 +1,4 @@
-#include "../src/journal_files.h"
+#include "../src/storage/journal_files.h"
 #include <cassert>
 #include <set>
 int main(){
@@ -33,4 +33,6 @@ int main(){
   assert(!encodeReadReply(small.buffer,sizeof(small.buffer),filename,0,1,1,true,"a",1));assert(small.guard=='X');
   assert(!encodeReadReply(response,sizeof(response),filename,0,0,0,true,chunk.data(),ReadChunkBytes+1));
   assert(!encodeReadReply(response,sizeof(response),"../../outside",0,0,0,true,"",0));
+  std::string archiveName=std::string(19,'0')+"1-"+std::string(64,'a')+".json";
+  assert(encodeChunkReply(response,sizeof(response),archiveName.c_str(),2097152-3072,2097152,2097152,true,chunk.data(),chunk.size()));
 }

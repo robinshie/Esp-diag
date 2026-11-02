@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Reproducible softmax training on authored official-derived + synthetic logs."""
 import hashlib
+import argparse
 import json
 import math
 import random
@@ -10,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DIM = 2048
 SEED = 20261031
-VERSION = 'tiny-log-v2-h3c'
+VERSION = 'tiny-log-v3-protocol'
 SKIP_VALUE = {'device', 'component', 'incident', 'request', 'req', 'boot', 'boot_id',
               'uptime_ms', 'unix_ms', 'duration_ms', 'first_uptime_ms', 'nonce'}
 
@@ -58,11 +59,16 @@ def probabilities(weights, bias, indices):
 def dataset():
     templates = json.loads((ROOT / 'samples.json').read_text())
     templates.update(json.loads((ROOT / 'corpus/additional.json').read_text()))
+    protocol = json.loads((ROOT / 'corpus/protocol.json').read_text())
+    templates.update(protocol['templates'])
     labels = list(templates)
     rng = random.Random(SEED)
     sets = {key: [] for key in ('train', 'validation', 'test')}
     # Whole templates stay in ONE split. IDs and field variations never cross it.
+    legacy_rng_state = None
     for label, phrases in templates.items():
+        if label in protocol['templates'] and legacy_rng_state is None:
+            legacy_rng_state = rng.getstate()
         order = list(range(len(phrases)))
         rng.shuffle(order)
         for position, group in enumerate(order):
@@ -76,6 +82,9 @@ def dataset():
                 if variation % 3 == 0:
                     text = text.upper()
                 sets[split].append({'label': label, 'template_group': f'{label}:{group}', 'text': text})
+    # Adding protocol categories must not reshuffle the existing H3C holdout.
+    if legacy_rng_state is not None:
+        rng.setstate(legacy_rng_state)
     # Official message identifiers and authored paraphrases are NOT real logs.
     official = json.loads((ROOT / 'corpus/h3c.json').read_text())
     families = sorted({row['family'] for row in official})
@@ -132,6 +141,24 @@ def dataset():
             text=patterns[variation%len(patterns)].format(**variables)
             sets['train'].append({'label':label,'template_group':'normalized:'+event,
                                   'kind':'synthetic_protocol_adapter','text':text})
+    # These authored adapters match the firmware protocol, not independent field
+    # incidents. Keep their entire families train-only and report that explicitly.
+    faults = ['AUTH_LOCKED','LINK_DOWN','THERMAL','FAN_FAILURE','PSU_FAILURE','LOOP',
+              'LOGIN_FAILURE','CPU_HIGH','STP_PROTECTION','MAC_MOVE']
+    for number, adapter in enumerate(protocol['adapters']):
+        for variation in range(40):
+            fault = faults[variation % len(faults)]
+            variables = dict(device=f'lab-{rng.randrange(100,999)}', port=f'GigabitEthernet1/0/{rng.randrange(1,49)}',
+                id=f'case-{rng.randrange(10000,99999)}', request=f'boot-{rng.randrange(10000,99999)}',
+                time=rng.randrange(100,999999), fault=fault,
+                action='UNLOCK' if fault=='AUTH_LOCKED' else 'RECOVER_INTERFACE',
+                result=['SUCCESS','FAILED','ATTEMPT_FAILED','COMMAND_ACCEPTED'][variation%4],
+                receipt=['ACCEPTED','DUPLICATE','REJECTED'][variation%3],
+                state=['NORMAL','DEGRADED','FAULT'][variation%3],
+                locked='true' if variation%3 else 'false', healthy='false' if variation%3 else 'true',
+                count=1 if variation%3 else 0, faults=f'fan1:{fault}' if variation%3 else 'none')
+            sets['train'].append({'label':adapter['label'], 'template_group':f'protocol:{number}',
+                                  'kind':'authored_firmware_adapter','text':adapter['text'].format(**variables)})
     # Template names alone are insufficient: stripping IDs can make two different
     # templates identical to the model. Preserve test groups; exclude whole
     # overlapping validation/train groups, rather than leaking numeric variants.
@@ -167,6 +194,9 @@ def evaluate(labels, rows, weights, bias, threshold):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', type=Path, default=ROOT / 'artifacts')
+    args = parser.parse_args()
     labels, sets = dataset()
     train = [(labels.index(row['label']), features(row['text'])) for row in sets['train']]
     rng = random.Random(SEED)
@@ -192,11 +222,11 @@ def main():
             break
     model = {'version': VERSION, 'seed': SEED, 'dimension': DIM,
              'labels': labels, 'threshold': threshold, 'weights': weights, 'bias': bias}
-    output = ROOT / 'artifacts'
-    output.mkdir(exist_ok=True)
+    output = args.output
+    output.mkdir(exist_ok=True, parents=True)
     (output / 'model.json').write_text(json.dumps(model, separators=(',', ':')) + '\n')
     (output / 'split.json').write_text(json.dumps(sets, indent=2) + '\n')
-    corpus_paths=[ROOT/'samples.json', ROOT/'corpus/additional.json', ROOT/'corpus/h3c.json', ROOT/'corpus/sources.json']
+    corpus_paths=[ROOT/'samples.json', ROOT/'corpus/additional.json', ROOT/'corpus/h3c.json', ROOT/'corpus/sources.json', ROOT/'corpus/protocol.json']
     reports = {'model':VERSION,'data': 'official facts with authored paraphrases + synthetic templates; NOT real-switch accuracy', 'seed': SEED,
                'split': 'synthetic whole templates 6/2/2; official whole mnemonic families; protocol adapters train only',
                'official_sources':len(json.loads((ROOT/'corpus/sources.json').read_text())['sources']),

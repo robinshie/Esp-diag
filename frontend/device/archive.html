@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>故障分析 · 离线助手</title>
+<style>
+body{font:16px/1.6 system-ui,sans-serif;color:#183047;background:#eef3f7;margin:0}main{max-width:960px;margin:auto;padding:24px 16px}section,details{background:white;border:1px solid #d6e0e8;border-radius:10px;padding:16px;margin:12px 0}h1{font-size:26px;margin-bottom:6px}button,select{font:inherit;padding:9px;border:1px solid #9fb6c6;border-radius:7px;color:inherit;background:white;margin:5px}select{max-width:100%}button{cursor:pointer}button:disabled{opacity:.5}summary{cursor:pointer;font-weight:600}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}p{overflow-wrap:anywhere}.muted{color:#526b7f}#analyze{display:block;width:100%;margin:16px 0;padding:16px;background:#155e82;color:white;border:0;font-size:18px;font-weight:700}#status{margin:12px 0}#status[data-error=true]{color:#a32e22}.report-analysis{--analysis-bg:#f2f7fa;--analysis-border:#d6e0e8;--analysis-muted:#526b7f}
+</style></head><body><main>
+<h1>故障分析</h1><p class="muted">查看故障现象、可能原因和处置过程。离线小模型辅助分类，原文证据随时可查。</p>
+<section aria-label="设备当前状态"><h2>设备独立运行</h2><p id="device-ai">正在读取本机 AI 状态…</p><p id="device-bdi">正在读取 BDI 状态…</p><p id="device-link">正在读取交换机连接…</p><p id="device-mqtt">正在读取可选后台连接…</p><small class="muted">本区显示当前设备状态；下方分析只依据已保存日志。管理连接受保护，业务口处置须通过后续采集确认结果。</small></section>
+<button id="analyze" type="button">一键分析最近日志</button><p class="muted">读取最近最多 10 包、10 分钟内的已保存日志，调用 ESP 离线小模型，汇总故障和处置过程。</p><p id="status" role="status" aria-live="polite">正在加载最近一次记录…</p>
+<div id="report"></div>
+<details id="history"><summary>其他时间的记录与存储信息</summary><p id="storage" class="muted">正在检查 TF 卡…</p><button id="refresh">刷新最新记录</button><button id="older" disabled>更早记录</button><button id="newer" disabled>返回较新记录</button><p><select id="file" aria-label="选择历史记录"><option value="">暂无记录</option></select></p><p class="muted">正式版记录由 ESP 本机采集并直接写入 TF 卡，无需电脑或 USB。约 12 MiB 循环保留，空间不足覆盖最早记录。历史记录不代表当前状态。</p></details>
+<p class="muted">连按三下 BOOT可再次打开；查看入口十分钟后隐藏。</p><button id="close">关闭查看入口</button>
+<script type="module">
+import {renderReportAI} from '../shared/report-ai-view.js';
+const $=id=>document.getElementById(id);
+let busy=false,closed=false,files=[],pages=[0],hasOlder=false;
+const reportTime=(at,clock)=>clock==='uptime'?'本次开机 +'+(at/1000).toFixed(1)+' 秒':new Date(at).toLocaleString('zh-CN');
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function request(url,options={}){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6000);
+ try{
+  const response=await fetch(url,{...options,cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw Error('入口已关闭或请求失败，请连按三下 BOOT 后连接 ESP-Logs 热点。');
+  // Consume the body before clearing the timeout, including slow or interrupted transfers.
+  const body=await response.text();return {json:()=>JSON.parse(body),text:()=>body};
+ }catch(error){if(error.name==='AbortError')throw Error('设备响应超时，请确认仍连接 ESP-Logs 热点，再点一键分析最近日志。');throw error;}
+ finally{clearTimeout(timer);}
+}
+const bdiNames={idle:'等待观察',monitoring:'持续监测',unknown:'证据不足',loop_detected:'观察到环路',verifying:'处置后验证中',contained:'隔离已验证，物理环路仍待处理',needs_review:'需要现场核对',recovered:'已验证恢复',disabled:'未启用'};
+const heartbeatNames={disabled:'未启用',waiting_ssh:'等待 SSH 首次登录',unknown:'未知',healthy:'正常',suspect:'等待失败确认',lost:'丢失',recovering:'恢复验证中'};
+async function loadDeviceStatus(){
+ if(closed)return;
+ try{
+  const value=(await request('/device/status')).json();
+  const analysis=value.analysis||{},bdi=value.bdi||{},mqtt=value.mqtt||{};
+  $('device-ai').textContent=value.ai_on_device?'本机 AI：运行于 ESP32'+(analysis.model?' · '+analysis.model:'')+(analysis.label?' · 最近分类 '+analysis.label+(analysis.accepted?'（已采用）':'（未采用）'):''):'本机 AI：当前不可用';
+  $('device-bdi').textContent='BDI：'+(bdiNames[bdi.state]||bdi.state||'等待状态')+(bdi.enabled===false?'（自动处置未启用）':'')+(bdi.reason?' · '+bdi.reason:'')+(bdi.port?' · 端口 '+bdi.port:'')+(bdi.action?' · 动作 '+bdi.action:'');
+  const heartbeat=typeof value.heartbeat==='string'?new URLSearchParams(value.heartbeat).get('heartbeat_state'):value.heartbeat?.state;
+  $('device-link').textContent='SSH：'+(value.ssh_state==='connected'?'已登录':value.ssh_state||'未知')+' · ping 心跳：'+(heartbeatNames[heartbeat]||heartbeat||'未知');
+  $('device-mqtt').textContent='后台 MQTT：'+(mqtt.enabled===false?'未启用（不影响本机工作）':mqtt.state||'未知');
+ }catch(error){
+  for(const [id,label] of [['device-ai','本机 AI'],['device-bdi','BDI'],['device-link','交换机连接'],['device-mqtt','后台 MQTT']])$(id).textContent=label+'：当前状态暂不可读。';
+ }
+}
+function controls(){for(const id of ['analyze','refresh','file','older','newer'])$(id).disabled=busy||closed||(id==='older'&&!hasOlder)||(id==='newer'&&pages.length<2);}
+async function loadReports(showLatest=true){
+ $('status').textContent='正在检查 TF 卡中的记录…';
+ const url='/storage/files?'+new URLSearchParams({before:String(pages.at(-1))});let reply;
+ for(let retry=0;retry<40;retry++){
+  reply=(await request(url)).json();if(reply.state!=='busy'&&reply.state!=='starting')break;
+  await pause(200);
+ }
+ if(reply.state==='no_card')throw Error('未检测到 TF 卡，请插入 FAT32 卡后重试。');
+ if(reply.state!=='ready')throw Error('记录存储尚未就绪（'+reply.state+'），请检查 FAT32 卡后重试。');
+ files=reply.files||[];hasOlder=reply.has_older===true;$('file').replaceChildren();
+ for(const file of files){const option=document.createElement('option');option.value=file.name;option.textContent='记录 #'+file.sequence+' · '+(file.bytes/1024).toFixed(1)+' KiB';$('file').append(option);}
+ if(!files.length){const option=document.createElement('option');option.value='';option.textContent='等待设备保存日志';$('file').append(option);}
+ $('file').value=files[0]?.name||'';
+ $('storage').textContent='已保留 '+reply.count+' 包，占用 '+(reply.bytes/1048576).toFixed(2)+' MiB。'+(reply.source==='esp_native'?'记录由 ESP 本机采集并保存。':'历史数据库副本。');
+ if(showLatest)await loadAnalysis();
+}
+async function readStoredReport(file,label=''){
+ let offset=0,total=0;const chunks=[],started=Date.now();
+ $('status').textContent=label+'正在读取日志，0 KiB…';
+ for(let page=0;page<700;page++){
+  if(Date.now()-started>120000)throw Error('读取时间过长，请重新连接热点并重新分析。');
+  let reply=(await request('/storage/read?'+new URLSearchParams({file,offset:String(offset)}))).json();let job=reply.job;
+  for(let retry=0;retry<40&&(reply.state==='pending'||reply.state==='busy');retry++){
+   await pause(50);
+   reply=(await request('/storage/read?'+new URLSearchParams(job?{job:String(job)}:{file,offset:String(offset)}))).json();job=reply.job||job;
+  }
+  if(reply.state!=='ready')throw Error(reply.message||'日志读取未完成，请点一键分析最近日志重试。');
+  const bytes=Uint8Array.from(atob(reply.base64),c=>c.charCodeAt(0));
+  if(reply.start!==offset||reply.next!==offset+bytes.length||reply.size>2097152||reply.next>reply.size||(!bytes.length&&!reply.eof))throw Error('日志读取位置异常，请刷新重试。');
+  chunks.push(bytes);total+=bytes.length;offset=reply.next;
+  $('status').textContent=label+'正在读取日志 '+Math.round(offset/Math.max(reply.size,1)*100)+'% · '+(offset/1024).toFixed(1)+' KiB';
+  if(reply.eof)break;if(page===699)throw Error('日志超过读取上限。');
+ }
+ const bytes=new Uint8Array(total);let cursor=0;for(const chunk of chunks){bytes.set(chunk,cursor);cursor+=chunk.length;}
+ const report=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
+ if(report.schema_version!==1||!Array.isArray(report.lines)||report.lines.length>2048)throw Error('日志包格式无效。');
+ return report;
+}
+function showReport(report,options={}){
+ $('report').replaceChildren();
+ const view=renderReportAI(report,$('report'),async text=>(await request('/model/explain?'+new URLSearchParams({log:text}))).json(),options);
+ const raw=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre');summary.textContent='上报信息与完整 JSON';pre.textContent=JSON.stringify(options.contextReports||[report],null,2);raw.append(summary,pre);$('report').append(raw);
+ return view;
+}
+async function loadAnalysis(){
+ $('report').replaceChildren();const file=$('file').value;
+ if(!file){$('status').textContent='暂无可分析记录。等待 ESP 保存下一批现场记录后，点一键分析最近日志。';return;}
+ const report=await readStoredReport(file);showReport(report);
+ $('status').textContent=reportTime(report.sent_at_ms,report.clock)+' · '+report.lines.length+' 条日志 · 历史记录';
+ for(const option of $('file').children)if(option.value===file)option.textContent=reportTime(report.sent_at_ms,report.clock)+' · '+report.lines.length+' 条';
+}
+async function analyzeRecent(){
+ pages=[0];await loadReports(false);$('report').replaceChildren();
+ if(!files.length){$('status').textContent='暂无可分析记录。等待 ESP 保存下一批现场记录后，再点一键分析最近日志。';return;}
+ const reports=[],latest=await readStoredReport(files[0].name,'第 1 包 · ');reports.push(latest);
+ const cutoff=latest.sent_at_ms-10*60000;let contextBytes=0,contextError='',limited=false;
+ for(const file of files.slice(1,10)){
+  if(contextBytes+file.bytes>524288){limited=true;break;}
+  try{const report=await readStoredReport(file.name,'第 '+(reports.length+1)+' 包 · ');
+   if((latest.clock==='uptime'||report.clock==='uptime')&&(latest.clock!==report.clock||latest.boot!==report.boot))break;
+   if(report.sent_at_ms<cutoff)break;
+   if(report.sent_at_ms>latest.sent_at_ms){contextError='部分记录时间异常，未纳入分析';continue;}
+   contextBytes+=file.bytes;reports.push(report);
+  }catch(error){contextError='部分历史记录读取失败：'+error.message;break;}
+ }
+ const start=Math.min(...reports.map(report=>report.sent_at_ms)),end=latest.sent_at_ms;
+ const range=reportTime(start,latest.clock)+'—'+reportTime(end,latest.clock);
+ const {analysis,ready}=showReport(latest,{recent:true,contextReports:reports,contextError,contextLimited:limited||files.length>10||hasOlder,
+  onProgress:progress=>{$('status').textContent='AI 分析中 · 已读取 '+reports.length+' 包 · 模型核对 '+progress.completed+'/'+progress.total+' 条…';}});
+ const progress=await ready;
+ $('status').textContent='AI 分析完成 · '+range+' · '+reports.length+' 包 / '+analysis.rawCount+' 条日志 · '+analysis.incidents.length+' 组故障或处置记录 · 小模型采用 '+progress.accepted+'/'+progress.total+' 条。'+(contextError?' 部分历史未读取，详见分析范围。':'');
+}
+
+async function run(action){if(busy||closed)return;busy=true;$('status').dataset.error='false';controls();try{await action();}catch(error){$('status').textContent=error.message;$('status').dataset.error='true';}finally{busy=false;controls();}}
+$('analyze').onclick=()=>run(analyzeRecent);
+$('refresh').onclick=()=>run(async()=>{pages=[0];await loadReports();});
+$('older').onclick=()=>run(async()=>{if(files.length){pages.push(files.at(-1).sequence);await loadReports();}});
+$('newer').onclick=()=>run(async()=>{if(pages.length>1){pages.pop();await loadReports();}});
+$('file').onchange=()=>run(loadAnalysis);
+$('close').onclick=()=>run(async()=>{$('status').textContent=(await request('/storage/close',{method:'POST'})).text();closed=true;});
+function startPage(){loadDeviceStatus();run(loadReports);setInterval(loadDeviceStatus,5000);}
+startPage();
+</script></main></body></html>

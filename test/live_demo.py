@@ -267,11 +267,13 @@ def gateway():
     original_send, original_handle = agent.send_usb, agent._handle_line
 
     def send(line):
-        trace("USB -> ESP32", line)
+        if not line.startswith('H3C COPY '):
+            trace("USB -> ESP32", line)
         return original_send(line)
 
     def receive(line):
-        trace("ESP32 -> GATEWAY", line)
+        if not line.startswith('[SDCOPY] '):
+            trace("ESP32 -> GATEWAY", line)
         return original_handle(line)
 
     agent.send_usb, agent._handle_line = send, receive

@@ -11,14 +11,16 @@
         <form id="historyForm" class="history-filters">
           <label>ESP32 ID<input id="historyAgent" type="text" placeholder="留空查询全部设备" maxlength="64" pattern="[A-Za-z0-9_.-]+"/></label>
           <label>开始时间<input id="historyStart" type="datetime-local" step="1"/></label>
-          <label>结束时间<input id="historyEnd" type="datetime-local" step="1"/></label>
-          <button class="button button-primary" type="submit">查询</button><button id="allHistory" class="button button-quiet" type="button">全部历史</button>
+          <label>结束时间<input id="historyEnd" type="datetime-local" step="1" disabled/></label>
+          <label class="history-follow"><input id="historyFollowLatest" type="checkbox" checked/>跟随最新数据（每60秒）</label>
+          <button class="button button-primary" type="submit">查询 / 刷新</button><button id="allHistory" class="button button-quiet" type="button">全部历史</button>
         </form>
+        <p class="history-note">按上报包归档，一包可包含多条日志。原生日志的归档时间来自后台接收，原文保留设备开机计时。此处包含过去连接；实时页仅显示当前连接。翻页或展开内容时暂停自动刷新，保留正在查看的原文与解释。</p>
         <p id="historyState" role="status" class="history-state">正在加载历史记录…</p>
-        <div class="event-table-wrap"><table class="event-table"><thead><tr><th>上报时间</th><th>ESP32</th><th>级别</th><th>内容</th></tr></thead><tbody id="historyRows"></tbody></table></div>
+        <div class="event-table-wrap"><table class="event-table"><thead><tr><th>归档时间</th><th>ESP32</th><th>级别</th><th>内容</th></tr></thead><tbody id="historyRows"></tbody></table></div>
         <div class="history-pagination"><button id="historyPrevious" type="button" class="button button-quiet" disabled>上一页</button><span id="historyPage">第 1 页</span><button id="historyNext" type="button" class="button button-quiet" disabled>下一页</button></div>
       </section>
     </main>
   </div>
-  <script type="module" src="/src/history.js"></script>
+  <script type="module" src="/backend/history.js"></script>
 </body></html>

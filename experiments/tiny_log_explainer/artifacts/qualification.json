@@ -1,14 +1,14 @@
 {
   "purpose": "Authored development semantic regression; NOT blind or real-device accuracy.",
-  "model": "tiny-log-v2-h3c",
+  "model": "tiny-log-v3-protocol",
   "metrics": {
-    "samples": 36,
-    "groups": 36,
-    "accuracy": 0.8888888888888888,
-    "accepted": 26,
-    "coverage": 0.7222222222222222,
+    "samples": 52,
+    "groups": 52,
+    "accuracy": 0.9230769230769231,
+    "accepted": 41,
+    "coverage": 0.7884615384615384,
     "accepted_accuracy": 1.0,
-    "known_samples": 33,
+    "known_samples": 49,
     "confusion": {
       "auth_lock": {
         "auth_lock": 1
@@ -29,17 +29,19 @@
         "fan": 2
       },
       "source_lost": {},
-      "action_request": {},
+      "action_request": {
+        "action_request": 1
+      },
       "action_ack": {
-        "action_ack": 1
+        "action_ack": 3
       },
       "recovery_report": {
-        "recovery_report": 6
+        "recovery_report": 11
       },
       "normal": {
-        "normal": 4,
+        "normal": 6,
         "login_failure": 1,
-        "record_gap": 1
+        "action_request": 1
       },
       "record_gap": {
         "record_gap": 2
@@ -60,6 +62,60 @@
       },
       "resource_pressure": {
         "resource_pressure": 2
+      },
+      "runtime_status": {
+        "runtime_status": 2
+      },
+      "state_snapshot": {
+        "state_snapshot": 2
+      },
+      "delivery_receipt": {
+        "delivery_receipt": 2
+      }
+    }
+  },
+  "protocol_metrics": {
+    "samples": 16,
+    "groups": 16,
+    "accuracy": 1.0,
+    "accepted": 16,
+    "coverage": 1.0,
+    "accepted_accuracy": 1.0,
+    "known_samples": 16,
+    "confusion": {
+      "auth_lock": {},
+      "link_down": {},
+      "thermal": {},
+      "loop": {},
+      "power": {},
+      "fan": {},
+      "source_lost": {},
+      "action_request": {
+        "action_request": 1
+      },
+      "action_ack": {
+        "action_ack": 2
+      },
+      "recovery_report": {
+        "recovery_report": 5
+      },
+      "normal": {
+        "normal": 2
+      },
+      "record_gap": {},
+      "unknown": {},
+      "login_failure": {},
+      "stp_protection": {},
+      "mac_move": {},
+      "resource_pressure": {},
+      "runtime_status": {
+        "runtime_status": 2
+      },
+      "state_snapshot": {
+        "state_snapshot": 2
+      },
+      "delivery_receipt": {
+        "delivery_receipt": 2
       }
     }
   },
@@ -70,7 +126,7 @@
       "text": "IFNET/3/PHY_UPDOWN: Physical carrier at GigabitEthernet1/0/24 is down.",
       "template_group": "qualification:0",
       "prediction": "link_down",
-      "score": 0.9502015830513807,
+      "score": 0.9428989037641565,
       "accepted": true
     },
     {
@@ -79,7 +135,7 @@
       "text": "IFNET/3/PHY_UPDOWN: Physical carrier at GigabitEthernet1/0/24 is up.",
       "template_group": "qualification:1",
       "prediction": "normal",
-      "score": 0.970942096561926,
+      "score": 0.9581637525596471,
       "accepted": true
     },
     {
@@ -88,8 +144,8 @@
       "text": "IFNET/5/LINK_UPDOWN: Line protocol GigabitEthernet1/0/24 is down.",
       "template_group": "qualification:2",
       "prediction": "link_down",
-      "score": 0.9042054296774417,
-      "accepted": true
+      "score": 0.8631232673477811,
+      "accepted": false
     },
     {
       "label": "normal",
@@ -97,7 +153,7 @@
       "text": "IFNET/5/LINK_UPDOWN: Line protocol GigabitEthernet1/0/24 is up.",
       "template_group": "qualification:3",
       "prediction": "normal",
-      "score": 0.985576902492788,
+      "score": 0.9821898210748715,
       "accepted": true
     },
     {
@@ -106,7 +162,7 @@
       "text": "STP/4/STP_LOOP_PROTECTION: Protected interface GigabitEthernet1/0/24 has missed BPDUs.",
       "template_group": "qualification:4",
       "prediction": "stp_protection",
-      "score": 0.9521687137630208,
+      "score": 0.9484245297369318,
       "accepted": true
     },
     {
@@ -115,7 +171,7 @@
       "text": "STP/4/STP_LOOPBACK_PROTECTION: Interface GigabitEthernet1/0/24 received its own BPDU.",
       "template_group": "qualification:5",
       "prediction": "stp_protection",
-      "score": 0.9957263492080856,
+      "score": 0.9947696751097078,
       "accepted": true
     },
     {
@@ -124,7 +180,7 @@
       "text": "LPDT/4/LPDT_LOOPED: Loop detection flagged GigabitEthernet1/0/24.",
       "template_group": "qualification:6",
       "prediction": "loop",
-      "score": 0.996606162126831,
+      "score": 0.9964605012969541,
       "accepted": true
     },
     {
@@ -133,7 +189,7 @@
       "text": "LPDT/5/LPDT_RECOVERED: Loop detection has cleared at GigabitEthernet1/0/24.",
       "template_group": "qualification:7",
       "prediction": "recovery_report",
-      "score": 0.9375364293044368,
+      "score": 0.9548586380935588,
       "accepted": true
     },
     {
@@ -142,7 +198,7 @@
       "text": "MAC/4/MAC_FLAPPING: Learned MAC moved from GigabitEthernet1/0/24 to GigabitEthernet1/0/25 in VLAN 12.",
       "template_group": "qualification:8",
       "prediction": "mac_move",
-      "score": 0.9335252692471341,
+      "score": 0.9085014276148967,
       "accepted": true
     },
     {
@@ -151,7 +207,7 @@
       "text": "DEV/2/FAN_FAILED: The chassis cooling tray reports fan failure.",
       "template_group": "qualification:9",
       "prediction": "fan",
-      "score": 0.9980592401632726,
+      "score": 0.9973348537053224,
       "accepted": true
     },
     {
@@ -160,7 +216,7 @@
       "text": "DEV/3/FAN_ABSENT: Fan tray is not present in slot 2.",
       "template_group": "qualification:10",
       "prediction": "fan",
-      "score": 0.9737621193780664,
+      "score": 0.9661716860261869,
       "accepted": true
     },
     {
@@ -169,7 +225,7 @@
       "text": "DEV/5/FAN_RECOVERED: Cooling tray is operating again.",
       "template_group": "qualification:11",
       "prediction": "recovery_report",
-      "score": 0.6761154973622768,
+      "score": 0.7544982170166245,
       "accepted": false
     },
     {
@@ -178,7 +234,7 @@
       "text": "DEV/2/POWER_FAILED: Supply module has a power failure.",
       "template_group": "qualification:12",
       "prediction": "power",
-      "score": 0.9974416619847235,
+      "score": 0.9960783233628929,
       "accepted": true
     },
     {
@@ -187,7 +243,7 @@
       "text": "DEV/3/POWER_ABSENT: Supply module is missing from chassis.",
       "template_group": "qualification:13",
       "prediction": "power",
-      "score": 0.993243300100018,
+      "score": 0.9926719370449224,
       "accepted": true
     },
     {
@@ -196,7 +252,7 @@
       "text": "DEV/5/POWER_RECOVERED: Supply module reports recovery.",
       "template_group": "qualification:14",
       "prediction": "recovery_report",
-      "score": 0.9976247865894371,
+      "score": 0.9977481391949969,
       "accepted": true
     },
     {
@@ -205,7 +261,7 @@
       "text": "DEV/4/TEMPERATURE_WARNING: High temperature sensor warning detected.",
       "template_group": "qualification:15",
       "prediction": "thermal",
-      "score": 0.985157757509392,
+      "score": 0.9817875448386915,
       "accepted": true
     },
     {
@@ -214,7 +270,7 @@
       "text": "DEV/2/TEMPERATURE_SHUTDOWN: Sensor reached the thermal shutdown threshold.",
       "template_group": "qualification:16",
       "prediction": "thermal",
-      "score": 0.9971803057383636,
+      "score": 0.9969900435045569,
       "accepted": true
     },
     {
@@ -223,7 +279,7 @@
       "text": "DEV/5/TEMPERATURE_NORMAL: Sensor temperature is back in the normal interval.",
       "template_group": "qualification:17",
       "prediction": "recovery_report",
-      "score": 0.6752084686707255,
+      "score": 0.6591254323407948,
       "accepted": false
     },
     {
@@ -232,7 +288,7 @@
       "text": "DIAG/4/CPU_MINOR_THRESHOLD: Processor usage crossed its alarm threshold.",
       "template_group": "qualification:18",
       "prediction": "resource_pressure",
-      "score": 0.9215115464376813,
+      "score": 0.9041758178124981,
       "accepted": true
     },
     {
@@ -241,7 +297,7 @@
       "text": "DIAG/5/CPU_MINOR_RECOVERY: Processor usage alarm is now cleared.",
       "template_group": "qualification:19",
       "prediction": "recovery_report",
-      "score": 0.792872663380249,
+      "score": 0.8137093692999287,
       "accepted": false
     },
     {
@@ -250,7 +306,7 @@
       "text": "DIAG/1/MEM_EXCEED_THRESHOLD: Memory consumption exceeded its limit.",
       "template_group": "qualification:20",
       "prediction": "resource_pressure",
-      "score": 0.9869112257734218,
+      "score": 0.985063549385624,
       "accepted": true
     },
     {
@@ -259,7 +315,7 @@
       "text": "DIAG/1/MEM_BELOW_THRESHOLD: Memory usage dropped below its recovery boundary.",
       "template_group": "qualification:21",
       "prediction": "recovery_report",
-      "score": 0.99269937354847,
+      "score": 0.9924695960839004,
       "accepted": true
     },
     {
@@ -268,7 +324,7 @@
       "text": "AAA/5/AAA_FAILURE: User access request rejected by authentication service.",
       "template_group": "qualification:22",
       "prediction": "login_failure",
-      "score": 0.9947949454356343,
+      "score": 0.9945303133457646,
       "accepted": true
     },
     {
@@ -277,7 +333,7 @@
       "text": "AAA/6/AAA_SUCCESS: User access request accepted by authentication service.",
       "template_group": "qualification:23",
       "prediction": "login_failure",
-      "score": 0.8610482556841618,
+      "score": 0.8508351708354674,
       "accepted": false
     },
     {
@@ -286,7 +342,7 @@
       "text": "SHELL/5/SHELL_LOGINFAIL: User management login failed.",
       "template_group": "qualification:24",
       "prediction": "login_failure",
-      "score": 0.9891791960897947,
+      "score": 0.9887554883338807,
       "accepted": true
     },
     {
@@ -295,7 +351,7 @@
       "text": "SHELL/5/SHELL_LOGIN: User completed management login.",
       "template_group": "qualification:25",
       "prediction": "normal",
-      "score": 0.9313226167179949,
+      "score": 0.9397058717188408,
       "accepted": true
     },
     {
@@ -303,8 +359,8 @@
       "source_id": "shell",
       "text": "SHELL/6/SHELL_CMD: User command audit record.",
       "template_group": "qualification:26",
-      "prediction": "record_gap",
-      "score": 0.2719776242406296,
+      "prediction": "action_request",
+      "score": 0.4546376350780876,
       "accepted": false
     },
     {
@@ -313,7 +369,7 @@
       "text": "SYSLOG/4/SYSLOG_NO_SPACE: Storage exhausted while saving logs.",
       "template_group": "qualification:27",
       "prediction": "record_gap",
-      "score": 0.9716243816758463,
+      "score": 0.9693675559156354,
       "accepted": true
     },
     {
@@ -322,7 +378,7 @@
       "text": "SYSLOG/4/SYSLOG_LOGBUFFER_FAILURE: Buffer delivery timeout lost log records.",
       "template_group": "qualification:28",
       "prediction": "record_gap",
-      "score": 0.9960441430111054,
+      "score": 0.993534430908376,
       "accepted": true
     },
     {
@@ -331,7 +387,7 @@
       "text": "SYSLOG/6/SYSLOG_RESTART: Comware startup notification.",
       "template_group": "qualification:29",
       "prediction": "normal",
-      "score": 0.7629390015136917,
+      "score": 0.8208761432006676,
       "accepted": false
     },
     {
@@ -339,7 +395,7 @@
       "text": "BGP/3/NEW_MESSAGE: Unsupported routing event without an explanation.",
       "template_group": "qualification:30",
       "prediction": "loop",
-      "score": 0.3831746308422807,
+      "score": 0.35971017535822064,
       "accepted": false
     },
     {
@@ -347,7 +403,7 @@
       "text": "Temperature unknown; no actual alarm or event information available.",
       "template_group": "qualification:31",
       "prediction": "normal",
-      "score": 0.27465672616195597,
+      "score": 0.29241424792343723,
       "accepted": false
     },
     {
@@ -355,7 +411,7 @@
       "text": "example unrelated application database error",
       "template_group": "qualification:32",
       "prediction": "unknown",
-      "score": 0.6332881295323002,
+      "score": 0.5493522265121483,
       "accepted": false
     },
     {
@@ -363,7 +419,7 @@
       "text": "[BDI][ACK] device=sw1 action=UNLOCK result=SUCCESS request_id=demo",
       "template_group": "qualification:33",
       "prediction": "action_ack",
-      "score": 0.9670628280775658,
+      "score": 0.9987652113087256,
       "accepted": true
     },
     {
@@ -371,7 +427,7 @@
       "text": "event=DETECTED fault=AUTH_LOCKED",
       "template_group": "qualification:34",
       "prediction": "auth_lock",
-      "score": 0.9925990541027642,
+      "score": 0.991542515792657,
       "accepted": true
     },
     {
@@ -379,8 +435,136 @@
       "text": "event=DETECTED fault=THERMAL severity=CRITICAL",
       "template_group": "qualification:35",
       "prediction": "thermal",
-      "score": 0.35218221814793405,
+      "score": 0.32189906788950867,
       "accepted": false
+    },
+    {
+      "label": "runtime_status",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=345678 devices=2 rejected=1 free_heap=51000 sd_state=ready archive_copy=1",
+      "template_group": "qualification:36",
+      "prediction": "runtime_status",
+      "score": 0.9973334812330671,
+      "accepted": true
+    },
+    {
+      "label": "runtime_status",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=900000 devices=1 rejected=0 free_heap=38000 sd_state=no_card archive_copy=1",
+      "template_group": "qualification:37",
+      "prediction": "runtime_status",
+      "score": 0.9987557120903726,
+      "accepted": true
+    },
+    {
+      "label": "state_snapshot",
+      "text": "[BDI][STATE] device=access-77 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=720000",
+      "template_group": "qualification:38",
+      "prediction": "state_snapshot",
+      "score": 0.9982142589755084,
+      "accepted": true
+    },
+    {
+      "label": "state_snapshot",
+      "text": "[BDI][STATE] device=access-77 kind=server rack=network state=FAULT availability=ONLINE locked=false healthy=false critical=true link_fault=false incomplete=false active_faults=1 faults=fan2:FAN_FAILURE observed_ms=725000",
+      "template_group": "qualification:39",
+      "prediction": "state_snapshot",
+      "score": 0.9964242236702491,
+      "accepted": true
+    },
+    {
+      "label": "delivery_receipt",
+      "text": "[BDI][RECEIPT] device=access-77 epoch=56789012 seq=55 result=ACCEPTED",
+      "template_group": "qualification:40",
+      "prediction": "delivery_receipt",
+      "score": 0.9986284850292014,
+      "accepted": true
+    },
+    {
+      "label": "delivery_receipt",
+      "text": "[BDI][RECEIPT] device=access-77 epoch=56789012 seq=55 result=REJECTED",
+      "template_group": "qualification:41",
+      "prediction": "delivery_receipt",
+      "score": 0.9969481494924202,
+      "accepted": true
+    },
+    {
+      "label": "action_request",
+      "text": "[BDI][CMD] UNLOCK request_id=another-boot-77 device=access-77 component=admin target=admin fault=AUTH_LOCKED incident=sample-55 attempt=3",
+      "template_group": "qualification:42",
+      "prediction": "action_request",
+      "score": 0.9075014637531362,
+      "accepted": true
+    },
+    {
+      "label": "action_ack",
+      "text": "[BDI][ACK] action=UNLOCK request_id=another-boot-77 device=access-77 component=admin state=VERIFY result=COMMAND_ACCEPTED attempt=3",
+      "template_group": "qualification:43",
+      "prediction": "action_ack",
+      "score": 0.9971596245299168,
+      "accepted": true
+    },
+    {
+      "label": "action_ack",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=another-boot-78 device=access-77 component=GigabitEthernet1/0/33 result=ATTEMPT_FAILED attempt=2",
+      "template_group": "qualification:44",
+      "prediction": "action_ack",
+      "score": 0.9970941748596923,
+      "accepted": true
+    },
+    {
+      "label": "recovery_report",
+      "text": "[BDI][RECOVERED] device=access-77 component=admin fault=AUTH_LOCKED incident=sample-55",
+      "template_group": "qualification:45",
+      "prediction": "recovery_report",
+      "score": 0.9983930328661466,
+      "accepted": true
+    },
+    {
+      "label": "recovery_report",
+      "text": "[BDI][RECOVERED] device=access-77 component=login_service fault=LOGIN_FAILURE incident=sample-56",
+      "template_group": "qualification:46",
+      "prediction": "recovery_report",
+      "score": 0.9915517883268916,
+      "accepted": true
+    },
+    {
+      "label": "recovery_report",
+      "text": "[BDI][RECOVERED] device=access-77 component=cpu_usage fault=CPU_HIGH incident=sample-57",
+      "template_group": "qualification:47",
+      "prediction": "recovery_report",
+      "score": 0.9912782395797131,
+      "accepted": true
+    },
+    {
+      "label": "recovery_report",
+      "text": "[BDI][RECOVERED] device=access-77 component=cpu1 fault=THERMAL incident=sample-58",
+      "template_group": "qualification:48",
+      "prediction": "recovery_report",
+      "score": 0.9995286847817616,
+      "accepted": true
+    },
+    {
+      "label": "recovery_report",
+      "text": "[BDI][RECOVERED] device=access-77 component=GigabitEthernet1/0/33 fault=LINK_DOWN incident=sample-59",
+      "template_group": "qualification:49",
+      "prediction": "recovery_report",
+      "score": 0.9971600274038064,
+      "accepted": true
+    },
+    {
+      "label": "normal",
+      "text": "[BDI][EVENT] device=access-77 belief=server_healthy value=true",
+      "template_group": "qualification:50",
+      "prediction": "normal",
+      "score": 0.9977483171989674,
+      "accepted": true
+    },
+    {
+      "label": "normal",
+      "text": "[BDI][ACTION] device=access-77 decision=HEALTHY",
+      "template_group": "qualification:51",
+      "prediction": "normal",
+      "score": 0.9977577707842908,
+      "accepted": true
     }
   ]
 }

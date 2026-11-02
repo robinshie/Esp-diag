@@ -4,8 +4,9 @@ import json
 import re
 from pathlib import Path
 
-from esp_gateway.config import credential
-from esp_gateway.environment import load_environment
+from esp_protocol.config import credential
+from esp_protocol.environment import load_environment
+from .ai_provider import AISettings
 
 
 @dataclass
@@ -23,6 +24,7 @@ class Settings:
     host: str
     port: int
     config_path: str | None = None
+    ai: AISettings | None = None
 
     @classmethod
     def load(cls, config_path, env_file):
@@ -35,7 +37,11 @@ class Settings:
             raise ValueError("invalid archive topic root")
         if os.environ.get("ESP_ARCHIVE_MQTT_PASSWORD"):
             cfg["mqtt"]["password_env"] = "ESP_ARCHIVE_MQTT_PASSWORD"
-            cfg["mqtt"]["username"] = os.environ["ESP_ARCHIVE_MQTT_USERNAME"]
+            cfg["mqtt"]["username"] = os.environ.get("ESP_ARCHIVE_MQTT_USERNAME", cfg["mqtt"]["username"])
+        if os.environ.get("ESP_ARCHIVE_MQTT_HOST"):
+            cfg["mqtt"]["host"] = os.environ["ESP_ARCHIVE_MQTT_HOST"]
+        if os.environ.get("ESP_ARCHIVE_MQTT_PORT"):
+            cfg["mqtt"]["port"] = int(os.environ["ESP_ARCHIVE_MQTT_PORT"])
         credential(cfg["mqtt"])
         if not isinstance(cfg["mqtt"]["port"], int) or not 1 <= cfg["mqtt"]["port"] <= 65535:
             raise ValueError("invalid MQTT port")
@@ -60,4 +66,5 @@ class Settings:
         return cls(cfg, token, os.environ.get("MONGO_HOST", "127.0.0.1"), int(os.environ.get("MONGO_PORT", "27017")),
                    os.environ.get("MONGO_DATABASE", "esp_diag"), username, password, uri, history,
                    str(Path(os.environ.get("ESP_BACKEND_STATE", "var/backend/inbox.sqlite3")).resolve()),
-                   os.environ.get("ESP_API_HOST", "127.0.0.1"), int(os.environ.get("ESP_API_PORT", "8080")), str(Path(config_path).resolve()))
+                   os.environ.get("ESP_API_HOST", "127.0.0.1"), int(os.environ.get("ESP_API_PORT", "8080")),
+                   str(Path(config_path).resolve()), AISettings.load())

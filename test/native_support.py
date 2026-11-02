@@ -8,7 +8,7 @@ BINARY = ROOT / "test/.runtime/native_agent"
 
 def build_native(sanitize=False):
     sources = sorted((ROOT / "lib/EmbeddedBDI/lib").rglob("*.cpp"))
-    dependencies = sources + list((ROOT / "src").glob("*.h")) + [ROOT / "test/native_agent.cpp"]
+    dependencies = sources + list((ROOT / "src").rglob("*.h")) + [ROOT / "test/native_agent.cpp"]
     if not sanitize and BINARY.exists() and BINARY.stat().st_mtime >= max(p.stat().st_mtime for p in dependencies):
         return BINARY
     BINARY.parent.mkdir(parents=True, exist_ok=True)

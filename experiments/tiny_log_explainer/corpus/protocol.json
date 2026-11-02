@@ -1,0 +1,59 @@
+{
+  "purpose": "Authored firmware protocol adapters; synthetic development data, not real switch incidents.",
+  "templates": {
+    "runtime_status": [
+      "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms={time} devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1",
+      "BDI runtime status reports reasoning active storage ready",
+      "runtime status reasoning cycle active via USB transport",
+      "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready",
+      "agent runtime telemetry uptime free heap and storage status",
+      "firmware status contains reasoning cycle and attached device count",
+      "BDI STATUS uptime memory sd_state archive_copy telemetry",
+      "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1",
+      "USB agent periodic runtime counters and SD card state",
+      "runtime status rejected input counter and free heap information"
+    ],
+    "state_snapshot": [
+      "[BDI][STATE] device={device} state=NORMAL locked=false active_faults=0 faults=none",
+      "[BDI][STATE] device={device} state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE",
+      "firmware device state snapshot includes active faults and lock flags",
+      "BDI STATE availability online healthy true current model snapshot",
+      "device state snapshot degraded with active faults",
+      "model observation state normal and no active alarms",
+      "[BDI][STATE] state=DEGRADED device={device} availability=ONLINE healthy=false",
+      "BDI state snapshot of device availability and alarm count",
+      "observed device snapshot state and tracked fault list",
+      "current model state reports fault status and locked flag"
+    ],
+    "delivery_receipt": [
+      "[BDI][RECEIPT] device={device} epoch={time} seq=2 result=ACCEPTED",
+      "[BDI][RECEIPT] device={device} epoch={time} seq=3 result=DUPLICATE",
+      "BDI receipt confirms input frame delivery only",
+      "input log delivery receipt result accepted",
+      "protocol sequence duplicate receipt acknowledged by firmware",
+      "[BDI][RECEIPT] result=REJECTED device={device} seq=4 epoch={time}",
+      "receipt of source log is not a repair execution acknowledgement",
+      "BDI RECEIPT input accepted epoch sequence",
+      "firmware received a telemetry frame and returned delivery status",
+      "transport input receipt reports duplicate source sequence"
+    ]
+  },
+  "adapters": [
+    {"label":"runtime_status","text":"[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms={time} devices=1 rejected=0 free_heap=43852 sd_state=ready archive_copy=1"},
+    {"label":"runtime_status","text":"[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms={time} devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"},
+    {"label":"state_snapshot","text":"[BDI][STATE] device={device} kind=server rack=network state={state} availability=ONLINE locked={locked} healthy={healthy} critical=false link_fault=false incomplete=false active_faults={count} faults={faults} observed_ms={time}"},
+    {"label":"state_snapshot","text":"[BDI][STATE] device={device} kind=switch state={state} availability=OFFLINE locked={locked} healthy=false critical=false active_faults={count} faults={faults}"},
+    {"label":"delivery_receipt","text":"[BDI][RECEIPT] device={device} epoch={time} seq=42 result={receipt}"},
+    {"label":"action_request","text":"[BDI][CMD] {action} request_id={request} device={device} component={port} target={port} fault={fault} incident={id} attempt=1"},
+    {"label":"action_ack","text":"[BDI][ACK] action={action} request_id={request} device={device} component={port} state=VERIFY result={result} attempt=1"},
+    {"label":"action_ack","text":"[BDI][ACK] action={action} request_id={request} device={device} component={port} fault={fault} result={result}"},
+    {"label":"recovery_report","text":"[BDI][RECOVERED] device={device} component={port} fault={fault} incident={id}"},
+    {"label":"normal","text":"[BDI][EVENT] device={device} belief=server_healthy value=true"},
+    {"label":"normal","text":"[BDI][ACTION] device={device} decision=HEALTHY"},
+    {"label":"normal","text":"[BDI][READY] device={device} transport=USB"},
+    {"label":"normal","text":"[BDI][BOOT] boot={request} protocol=2 max_devices=32"},
+    {"label":"normal","text":"H3C PONG nonce={request} boot={id} transport=USB"},
+    {"label":"normal","text":"[STORAGE] state=ready dropped=0"},
+    {"label":"record_gap","text":"[STORAGE] state=write_error dropped=4"}
+  ]
+}

@@ -2,6 +2,7 @@
 """Exercise the real Docker MongoDB and API in an isolated topic namespace."""
 import copy
 from dataclasses import replace
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
@@ -43,6 +44,52 @@ def main():
             assert api.put("/api/devices/edge-test", json={"name": "bad", "ssh_password": "forbidden"}).status_code == 422
             assert api.get("/api/reports?limit=201").status_code == 422
             passed("authentication and API validation")
+
+            copy_report = {'schema_version': 1, 'report_id': 'copy-original', 'sent_at_ms': 1200,
+                'status': None, 'observations': [], 'lines': [{'at_ms': 1200, 'text': '[BDI][EVENT] event=THERMAL device=sw1'}]}
+            repo.register_report('copy-test', copy_report)
+            original = api.get('/api/devices/copy-test/sd-copy').json()['copy']
+            import hashlib
+            assert json.loads(original['payload']) == copy_report
+            assert hashlib.sha256(original['payload'].encode()).hexdigest() == original['sha256']
+            repo.register_report('copy-test', copy_report)
+            assert api.get('/api/devices/copy-test/sd-copy?after=' + str(original['sequence'])).json()['copy'] is None
+            repo.register_report('copy-test', {**copy_report, 'report_id': 'copy-late', 'sent_at_ms': 100})
+            late = api.get('/api/devices/copy-test/sd-copy?after=' + str(original['sequence'])).json()['copy']
+            assert late['report_id'] == 'copy-late' and late['sequence'] > original['sequence']
+            explanation = api.get('/api/reports/copy-original/explain?agent=copy-test&line=0')
+            assert explanation.status_code == 200 and explanation.json()['source'] == 'database'
+            assert explanation.json()['model'] == 'tiny-log-v3-protocol'
+            assert api.get('/api/reports/copy-original/explain?agent=other-esp&line=0').status_code == 404
+            assert api.get('/api/reports/copy-original/explain?agent=copy-test&line=1').status_code == 404
+            # Simulate an old pre-upgrade archive. Backfill gives it a later DB
+            # sequence even though its event timestamp predates the current cursor.
+            repo.reports.update_one({'topic_root': repo.root, 'agent_id': 'copy-test', 'report.report_id': 'copy-original'}, {'$unset': {'mirror_sequence': ''}})
+            upgraded = api.get('/api/devices/copy-test/sd-copy?after=' + str(late['sequence'])).json()['copy']
+            assert upgraded['report_id'] == 'copy-original' and json.loads(upgraded['payload']) == copy_report
+            repo.reports.update_many({'topic_root': repo.root, 'agent_id': 'copy-test'}, {'$set': {'received_at': datetime(2020, 1, 1, tzinfo=timezone.utc)}})
+            boundary = api.get('/api/devices/copy-test/sd-copy/boundary').json()['received_after_ms']
+            assert api.get(f'/api/devices/copy-test/sd-copy?received_after_ms={boundary}').json()['copy'] is None
+            interval_report = {**copy_report, 'report_id': 'copy-future', 'lines': [{'at_ms': 1300 + n, 'text': '[BDI][ACK] result=FAILED'} for n in range(130)]}
+            repo.register_report('copy-test', interval_report)
+            future = api.get(f'/api/devices/copy-test/sd-copy?received_after_ms={boundary}').json()['copy']
+            assert future['report_id'] == 'copy-future' and json.loads(future['payload']) == interval_report
+            explanation = api.get('/api/reports/copy-future/explain?agent=copy-test&line=129')
+            assert explanation.status_code == 200 and explanation.json()['evidence_text'] == interval_report['lines'][129]['text']
+            assert api.get('/api/reports/copy-future/explain?agent=copy-test&line=2048').status_code == 422
+            passed('future-only SD boundary excludes old history and one interval retains over 64 lines for database AI')
+            scoped = {**copy_report, 'boot': 'scope-boot', 'status': {'connection_id': 'scope-usb'}}
+            for rid, at, boot in [('context-before', 3000, 'scope-boot'), ('context-target', 4000, 'scope-boot'),
+                                  ('context-future', 5000, 'scope-boot'), ('context-otherboot', 3500, 'other-boot')]:
+                repo.register_report('copy-test', {**scoped, 'report_id': rid, 'sent_at_ms': at, 'boot': boot})
+            context = api.get('/api/reports/context-target/context?agent=copy-test').json()
+            assert context['source'] == 'database' and {row['report_id'] for row in context['reports']} == {'context-before', 'context-target'}
+            assert api.get('/api/reports/context-target/context?agent=another-agent').status_code == 404
+            passed('incident context is scoped to device/boot/USB and excludes future records')
+            repo.devices.delete_many({'topic_root': repo.root, 'agent_id': 'copy-test'})
+            repo.reports.delete_many({'topic_root': repo.root, 'agent_id': 'copy-test'})
+            repo.registrations.delete_one({'_id': repo.key('copy-test')})
+            passed('DB-authoritative SD copy preserves all fields/hash, deduplicates, includes late and old archives; AI reads saved evidence only')
 
             report = {"schema_version": 1, "report_id": "new-report", "sent_at_ms": 2000,
                       "status": None, "observations": [{"device": "target-1", "locked": "true"}],
@@ -179,6 +226,7 @@ def main():
         cleanup.devices.delete_many({"topic_root": cleanup.root})
         cleanup.reports.delete_many({"topic_root": cleanup.root})
         cleanup.registrations.delete_many({"topic_root": cleanup.root})
+        cleanup.copy_sequences.delete_many({'topic_root': cleanup.root})
         cleanup.close()
     destination = ROOT / "test/.runtime/mongodb-acceptance.json"
     destination.parent.mkdir(parents=True, exist_ok=True)

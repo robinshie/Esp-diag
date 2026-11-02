@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "mode": "native",
+  "topic_root": "esp-switch",
+  "agent_ids": ["esp-REPLACE_WITH_DEVICE_MAC"],
+  "agent_name": "ESP32 H3C 监视",
+  "serial_label": "ETH / MQTT",
+  "mqtt": {
+    "url": "ws://192.168.10.10:9001/mqtt",
+    "username": "dashboard-readonly",
+    "password": "REPLACE_WITH_DASHBOARD_READONLY_PASSWORD"
+  },
+  "api": {"url": "/api", "token": "REPLACE_WITH_RANDOM_TOKEN_AT_LEAST_32_CHARACTERS"}
+}

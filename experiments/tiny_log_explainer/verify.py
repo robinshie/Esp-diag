@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Check split isolation and Python/C++ prediction parity, including bounds."""
 import json
+import argparse
 import subprocess
 import tempfile
 from pathlib import Path
 from train import ROOT, features
 
-sets = json.loads((ROOT / 'artifacts/split.json').read_text())
+parser=argparse.ArgumentParser()
+parser.add_argument('--artifacts',type=Path,default=ROOT/'artifacts')
+args=parser.parse_args()
+sets = json.loads((args.artifacts / 'split.json').read_text())
 groups = [{r['template_group'] for r in rows} for rows in sets.values()]
 assert not any(a & b for i, a in enumerate(groups) for b in groups[i + 1:])
 signatures=[{tuple(features(r['text'])) for r in rows} for rows in sets.values()]
@@ -15,10 +19,11 @@ sources={s['id'] for s in json.loads((ROOT/'corpus/sources.json').read_text())['
 for rows in sets.values():
     for row in rows:
         if row.get('source_id'):assert row['source_id'] in sources
-fixtures = json.loads((ROOT / 'artifacts/parity.json').read_text())
+fixtures = json.loads((args.artifacts / 'parity.json').read_text())
 with tempfile.TemporaryDirectory(prefix='tiny-log-') as temp:
     binary = str(Path(temp) / 'infer')
     subprocess.run(['c++', '-std=c++17', '-O1', '-g', '-fsanitize=address,undefined',
+                    '-DTINYLOG_MODEL_HEADER="'+str((args.artifacts/'model.h').resolve())+'"',
                     str(ROOT / 'native.cpp'), '-o', binary], check=True)
     result = subprocess.run([binary], input='\n'.join(f['text'] for f in fixtures) + '\n',
                             text=True, capture_output=True, check=True)

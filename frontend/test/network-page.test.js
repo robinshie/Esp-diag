@@ -3,32 +3,49 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const page=fs.readFileSync(new URL('../network.html',import.meta.url),'utf8');
+const page=fs.readFileSync(new URL('../device/network.html',import.meta.url),'utf8');
 function setup(){
   const nodes=new Map([...page.matchAll(/id="([^"]+)"/g)].map(([,id])=>[id,{value:'',checked:false,disabled:false,hidden:false,dataset:{}}]));
-  const context=vm.createContext({document:{getElementById:id=>nodes.get(id)},location:{pathname:'/network.html'},navigator:{},URLSearchParams,TextEncoder,TextDecoder});
+  const context=vm.createContext({document:{getElementById:id=>nodes.get(id)},location:{pathname:'/network.html'},navigator:{},URLSearchParams,TextEncoder,TextDecoder,setInterval:()=>0,setTimeout:callback=>callback(),crypto:{randomUUID:()=> '12345678-1234-1234-1234-123456789abc'}});
   vm.runInContext(page.match(/<script>([\s\S]*?)<\/script>/)[1],context);
   return {nodes,context,run:code=>vm.runInContext(code,context)};
 }
-test('SSH fingerprint verification is optional; Telnet still requires confirmation',()=>{
+test('SSH host keys are automatic and never request a manual fingerprint',()=>{
   const {nodes,run}=setup();
+  assert.doesNotMatch(page, /id="sw_(?:fingerprint|verify_fingerprint)"/);
   nodes.get('sw_protocol').value='ssh';run('updateSwitch(true)');
-  assert.equal(nodes.get('sw_port').value,'22');assert.equal(nodes.get('sw_fingerprint').required,false);
-  assert.equal(nodes.get('sw_fingerprint').disabled,true);
-  nodes.get('sw_verify_fingerprint').checked=true;run('updateSwitch()');
-  assert.equal(nodes.get('sw_fingerprint').required,true);assert.equal(nodes.get('sw_fingerprint').disabled,false);
+  assert.equal(nodes.get('sw_port').value,'22');
   assert.equal(nodes.get('telnet-warning').hidden,true);
   nodes.get('sw_protocol').value='telnet';run('updateSwitch(true)');
-  assert.equal(nodes.get('sw_port').value,'23');assert.equal(nodes.get('sw_fingerprint').required,false);
-  assert.equal(nodes.get('sw_telnet_ack').required,true);
+  assert.equal(nodes.get('sw_port').value,'23');assert.equal(nodes.get('sw_telnet_ack').required,true);
   nodes.get('sw_protocol').value='none';run('updateSwitch()');assert.equal(nodes.get('switch-fields').disabled,true);
 });
-test('skipping fingerprint verification clears the saved pin while selecting verification includes it',()=>{
+test('read-only query reuses SSH API, waits for completion and displays output as text',async()=>{
+  const {context,nodes,run}=setup();run('wired=true');
+  nodes.get('ssh-command').value='version';
+  const calls=[];
+  context.fetch=async(url,opts)=>{
+    calls.push({url,opts});
+    return {ok:true,text:async()=> calls.length===1?'queued':new URLSearchParams({state:calls.length===2?'running':'ok',target:'192.168.10.2',output:'H3C <switch>',truncated:'0'}).toString()};
+  };
+  await nodes.get('ssh-run').onclick();
+  assert.equal(calls.length,3);assert.equal(calls[0].url,'/switch/command');
+  assert.equal(calls[0].opts.body.get('command'),'version');
+  assert.match(calls[1].url,/request_id=12345678123412341234123456789abc$/);
+  assert.equal(nodes.get('ssh-output').textContent,'H3C <switch>');
+  assert.match(nodes.get('ssh-query-state').textContent,/192\.168\.10\.2.*ok/);
+});
+test('rejected SSH query stops without replay',async()=>{
+  const {context,nodes}=setup();let count=0;
+  context.fetch=async()=>{count++;return {ok:false,text:async()=> 'not_connected'};};
+  await nodes.get('ssh-run').onclick();assert.equal(count,1);
+  assert.equal(nodes.get('ssh-query-state').textContent,'not_connected');
+});
+test('configuration save never submits or clears trusted host keys',()=>{
   const {nodes,run}=setup();run('switchLoaded=true;mqttLoaded=true');
-  nodes.get('sw_protocol').value='ssh';nodes.get('sw_fingerprint').value='SHA256:'+ 'A'.repeat(43);
-  let body=run("setupBody(['a','b','c','d'])");assert.equal(body.get('sw_verify_fingerprint'),'0');assert.equal(body.get('sw_fingerprint'),'');
-  nodes.get('sw_verify_fingerprint').checked=true;
-  body=run("setupBody(['a','b','c','d'])");assert.equal(body.get('sw_verify_fingerprint'),'1');assert.equal(body.get('sw_fingerprint'),nodes.get('sw_fingerprint').value);
+  nodes.get('sw_protocol').value='ssh';
+  const body=run("setupBody(['a','b','c','d'])");
+  assert.equal(body.has('sw_fingerprint'),false);assert.equal(body.has('sw_verify_fingerprint'),false);
 });
 test('unified payload preserves exact password, encodes special characters and clear flags',()=>{
   const {nodes,run}=setup();run('switchLoaded=true;mqttLoaded=true');
@@ -100,11 +117,23 @@ test('profile read displays secret presence without inserting password values',a
   assert.match(nodes.get('sw_password').placeholder,/已保存/);assert.equal(nodes.get('switch-section').hidden,false);
   assert.equal(nodes.get('sw_protocol').disabled,false);
 });
-test('saved fingerprint preference reloads and old pinned profiles retain verification',async()=>{
-  const {context,nodes,run}=setup();
-  const cfg={protocol:'ssh',port:'22',transport:'shell',connect_timeout:'5',command_timeout:'5',fingerprint:'SHA256:'+'A'.repeat(43)};
-  context.fetch=async()=>({ok:true,text:async()=>new URLSearchParams(cfg).toString()});
-  await run('loadSwitch()');assert.equal(nodes.get('sw_verify_fingerprint').checked,true);assert.equal(nodes.get('sw_fingerprint').required,true);
-  cfg.verify_fingerprint='0';cfg.fingerprint='';await run('loadSwitch()');
-  assert.equal(nodes.get('sw_verify_fingerprint').checked,false);assert.equal(nodes.get('sw_fingerprint').required,false);
+test('trusted host fingerprint is shown read-only; changed keys stop login without silent re-pairing',async()=>{
+  const {context,nodes,run}=setup();run('wired=true');
+  const cfg={protocol:'ssh',port:'22',transport:'shell',connect_timeout:'5',command_timeout:'5',sw_host_key_mode:'auto',sw_host_key_state:'trusted',sw_fingerprint:'SHA256:'+'A'.repeat(43)};
+  let calls=0;context.fetch=async()=>{calls++;return {ok:true,text:async()=>new URLSearchParams(cfg).toString()};};
+  await run('loadSwitch()');assert.match(nodes.get('ssh-key-state').textContent,/已自动配对/);assert.equal(nodes.get('ssh-key-fingerprint').textContent,cfg.sw_fingerprint);
+  cfg.sw_host_key_state='mismatch';cfg.state='host_key_mismatch';await run('loadSwitch()');
+  assert.match(nodes.get('ssh-key-state').textContent,/已停止登录/);assert.equal(nodes.get('ssh-run').disabled,true);assert.equal(calls,2);
+});
+test('explicit re-pair button requests only the config-window reset endpoint',async()=>{
+  const {context,nodes,run}=setup();run('wired=true');const calls=[];
+  context.fetch=async(url,opts)=>{calls.push({url,opts});return {ok:true,text:async()=>url==='/switch'?'protocol=ssh&sw_host_key_mode=auto&sw_host_key_state=unpaired':'ok'};};
+  await nodes.get('ssh-key-reset').onclick();
+  assert.equal(calls[0].url,'/switch/host-key/reset');assert.equal(calls[0].opts.method,'POST');assert.equal(calls[0].opts.body.toString(),'confirm=repair');
+  assert.equal(calls[1].url,'/switch');assert.match(nodes.get('ssh-key-state').textContent,/首次自动配对/);
+});
+test('re-pair rejection is visible and does not repeat the mutation',async()=>{
+  const {context,nodes,run}=setup();run('wired=true');let writes=0;
+  context.fetch=async(url)=>url==='/switch'?{ok:true,text:async()=> 'protocol=ssh&sw_host_key_mode=auto&sw_host_key_state=mismatch'}:{ok:false,text:async()=>{writes++;return '配置窗口已关闭';}};
+  await nodes.get('ssh-key-reset').onclick();assert.equal(writes,1);assert.match(nodes.get('ssh-key-result').textContent,/配置窗口已关闭/);
 });

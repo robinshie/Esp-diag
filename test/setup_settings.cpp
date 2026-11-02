@@ -1,4 +1,4 @@
-#include "../src/setup_settings.h"
+#include "../src/config/setup_settings.h"
 #include <cassert>
 int main(){
   SetupSettings saved,copy;
@@ -14,5 +14,5 @@ int main(){
   for(auto bad:{"", "2\n", "2\n9999:x", "2\n-1:x", "2\n999999999:x", "3\n1:a"}){assert(!copy.decode(bad));assert(copy.encode()==original);}
   assert(!copy.decode(original+"extra"));assert(copy.encode()==original);
   for(size_t i=0;i<original.size();++i){assert(!copy.decode(original.substr(0,i)));assert(copy.encode()==original);}
-  SetupSettings empty;assert(copy.decode(empty.encode()));assert(copy.device.protocol=="none"&&!copy.mqtt.enabled);
+  SetupSettings empty;assert(copy.decode(empty.encode()));assert(copy.device.protocol=="ssh"&&copy.device.host=="192.168.10.2"&&!copy.mqtt.enabled);
 }

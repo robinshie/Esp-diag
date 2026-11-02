@@ -1,0 +1,18 @@
+[
+ {"label":"runtime_status","text":"[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=345678 devices=2 rejected=1 free_heap=51000 sd_state=ready archive_copy=1"},
+ {"label":"runtime_status","text":"[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=900000 devices=1 rejected=0 free_heap=38000 sd_state=no_card archive_copy=1"},
+ {"label":"state_snapshot","text":"[BDI][STATE] device=access-77 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=720000"},
+ {"label":"state_snapshot","text":"[BDI][STATE] device=access-77 kind=server rack=network state=FAULT availability=ONLINE locked=false healthy=false critical=true link_fault=false incomplete=false active_faults=1 faults=fan2:FAN_FAILURE observed_ms=725000"},
+ {"label":"delivery_receipt","text":"[BDI][RECEIPT] device=access-77 epoch=56789012 seq=55 result=ACCEPTED"},
+ {"label":"delivery_receipt","text":"[BDI][RECEIPT] device=access-77 epoch=56789012 seq=55 result=REJECTED"},
+ {"label":"action_request","text":"[BDI][CMD] UNLOCK request_id=another-boot-77 device=access-77 component=admin target=admin fault=AUTH_LOCKED incident=sample-55 attempt=3"},
+ {"label":"action_ack","text":"[BDI][ACK] action=UNLOCK request_id=another-boot-77 device=access-77 component=admin state=VERIFY result=COMMAND_ACCEPTED attempt=3"},
+ {"label":"action_ack","text":"[BDI][ACK] action=RECOVER_INTERFACE request_id=another-boot-78 device=access-77 component=GigabitEthernet1/0/33 result=ATTEMPT_FAILED attempt=2"},
+ {"label":"recovery_report","text":"[BDI][RECOVERED] device=access-77 component=admin fault=AUTH_LOCKED incident=sample-55"},
+ {"label":"recovery_report","text":"[BDI][RECOVERED] device=access-77 component=login_service fault=LOGIN_FAILURE incident=sample-56"},
+ {"label":"recovery_report","text":"[BDI][RECOVERED] device=access-77 component=cpu_usage fault=CPU_HIGH incident=sample-57"},
+ {"label":"recovery_report","text":"[BDI][RECOVERED] device=access-77 component=cpu1 fault=THERMAL incident=sample-58"},
+ {"label":"recovery_report","text":"[BDI][RECOVERED] device=access-77 component=GigabitEthernet1/0/33 fault=LINK_DOWN incident=sample-59"},
+ {"label":"normal","text":"[BDI][EVENT] device=access-77 belief=server_healthy value=true"},
+ {"label":"normal","text":"[BDI][ACTION] device=access-77 decision=HEALTHY"}
+]

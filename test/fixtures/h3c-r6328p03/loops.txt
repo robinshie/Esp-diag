@@ -1,0 +1,3 @@
+display loopback-detection
+LPDT is not configured.
+<H3C>

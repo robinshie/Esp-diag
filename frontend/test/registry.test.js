@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {registryRequest, deviceMetadata, loadArchivedReports, loadArchiveSnapshot} from "../src/registry.js";
-import {ReportHistory} from "../src/reports.js";
-import {parseRuntimeConfig} from "../src/runtime-config.js";
+import {registryRequest, deviceMetadata, loadArchivedReports, loadArchiveSnapshot} from "../backend/registry.js";
+import {ReportHistory} from "../backend/reports.js";
+import {parseRuntimeConfig} from "../backend/runtime-config.js";
 
 const api = {url: "/api", token: "x".repeat(32)};
 test("registry mutations send only metadata and API credentials to the same origin", async () => {

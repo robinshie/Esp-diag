@@ -7,9 +7,10 @@ import time
 
 import paho.mqtt.client as mqtt
 
-from esp_gateway.config import credential
-from esp_gateway.store import Store, fields
+from esp_protocol.config import credential
+from .inbox import Inbox
 from .repository import agent_id, validate_report
+from .native_contract import availability, validate_status
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ log = logging.getLogger(__name__)
 class ReportIngestor:
     def __init__(self, settings, repository):
         self.settings, self.repository = settings, repository
-        self.store = Store(settings.state_path)
+        self.store = Inbox(settings.state_path)
         self.lock = open(settings.state_path + ".lock", "a")
         try:
             fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -47,7 +48,8 @@ class ReportIngestor:
             return
         if reason == 0:
             self.connected.set()
-            client.subscribe([(self.root + "/+/report", 1), (self.root + "/+/availability", 1)])
+            client.subscribe([(self.root + "/+/report", 1), (self.root + "/+/availability", 1),
+                              (self.root + "/+/status", 1)])
 
     def on_message(self, client, userdata, message):
         try:
@@ -60,12 +62,13 @@ class ReportIngestor:
             payload = message.payload.decode()
             if parts[2] == "report":
                 validate_report(json.loads(payload))
+            elif parts[2] == "status":
+                validate_status(json.loads(payload))
             elif parts[2] == "availability":
-                if fields(payload).get("state") not in {"ONLINE", "OFFLINE"}:
-                    raise ValueError("invalid availability")
+                availability(payload)
             else:
                 raise ValueError("unexpected channel")
-        except (ValueError, UnicodeError, TypeError):
+        except (ValueError, UnicodeError, TypeError, RecursionError):
             log.warning("discarded malformed ESP32 report")
             client.ack(message.mid, message.qos)
             return
@@ -98,10 +101,12 @@ class ReportIngestor:
                 item = json.loads(raw)
                 identity, channel = topic.split("/")[1:]
                 if channel == "report":
-                    name = self.settings.config["agent"].get("name") if identity == self.settings.config["agent"]["id"] else None
-                    self.repository.register_report(identity, json.loads(item["payload"]), item["retained"], name)
+                    name = self.settings.config["agent"].get("name") if identity == self.settings.config["agent"].get("id") else None
+                    self.repository.register_report(identity, json.loads(item["payload"]), item["retained"], name, item["at_ms"])
+                elif channel == "status":
+                    self.repository.record_telemetry(identity, json.loads(item["payload"]), item["at_ms"], item["retained"])
                 else:
-                    self.repository.record_availability(identity, fields(item["payload"])["state"], item["at_ms"])
+                    self.repository.record_availability(identity, availability(item["payload"]), item["at_ms"])
                 self.store.delivered(row_id)
                 self.archive_error = False
             except Exception as exc:

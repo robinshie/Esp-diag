@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from h3c_server_sim import UsbMqttGateway, AGENT
 from reliable_gateway import Store, fields
+from esp_gateway.archive_copy import ArchiveCopy
 
 
 class ReportingPolicyTest(unittest.TestCase):
@@ -30,6 +31,7 @@ class ReportingPolicyTest(unittest.TestCase):
         self.usb_lines = []
         self.gateway.publish_mqtt = lambda topic, payload, retain=False: self.published.append((topic, payload, retain))
         self.gateway.send_usb = self.usb_lines.append
+        self.gateway.archive_copy = ArchiveCopy(self.gateway)
         self.gateway.queue_usb = self.usb_lines.append
 
     def test_heartbeat_never_invents_healthy_state(self):

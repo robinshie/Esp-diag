@@ -2,10 +2,15 @@
 """One-command hardware-free acceptance suite; writes a machine-readable report."""
 import argparse
 import json
+import sys
 import time
 import unittest
 from pathlib import Path
 from native_support import build_native
+
+# Direct execution sets sys.path[0] to test/, not the repository root.
+# Production packages and their shared contracts must resolve identically to -m.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 
 def main():

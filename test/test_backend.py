@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 
 from esp_backend.ingestion import ReportIngestor
 from esp_backend.repository import validate_report
+from esp_gateway.report_limits import MAX_REPORT_LINES
 from esp_gateway.environment import load_environment
 from esp_backend.models import DeviceMetadata
 from pydantic import ValidationError
@@ -67,7 +68,7 @@ class BackendInboxTest(unittest.TestCase):
         self.assertEqual(self.client.ack.call_count, 3)
 
     def test_report_limits_and_identity_are_checked(self):
-        for changes in ({"report_id": "$bad"}, {"sent_at_ms": True}, {"lines": [report()["lines"][0]] * 65},
+        for changes in ({"report_id": "$bad"}, {"sent_at_ms": True}, {"lines": [report()["lines"][0]] * (MAX_REPORT_LINES + 1)},
                         {"observations": [{"device": "a"}] * 33}):
             with self.assertRaises(ValueError):
                 validate_report({**report(), **changes})

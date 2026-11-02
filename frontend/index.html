@@ -21,7 +21,7 @@
         </a>
 
         <div class="connection-cluster">
-          <a class="button button-quiet" href="/network.html">网口 / 蓝牙配置</a>
+          <a class="button button-quiet" href="/device/network.html">网口 / 蓝牙配置</a>
           <a class="button button-quiet" href="/history.html">历史查询</a>
           <a class="button button-quiet" href="/console.html" target="_blank" rel="noopener">实时日志控制台</a>
           <div id="connectionState" class="connection-state is-offline" role="status" aria-live="polite">
@@ -124,9 +124,9 @@
                 <span id="messageScope" class="metric-note">加载中</span>
               </div>
               <form id="reportingForm" class="reporting-settings" hidden>
-                <label for="reportingSeconds">本设备上报间隔（秒）</label>
-                <div><input id="reportingSeconds" type="number" min="1" max="300" step="1" value="60" required /><button id="saveReportingButton" class="button button-secondary" type="submit">保存间隔</button></div>
-                <p id="reportingResult" class="form-note">正常状态按此间隔打包；故障、恢复及缓冲区满时及时上报。</p>
+                <label for="reportingSeconds">本设备上报与存储周期（秒）</label>
+                <div><input id="reportingSeconds" type="number" min="1" max="300" step="1" value="60" required /><button id="saveReportingButton" class="button button-secondary" type="submit">保存周期</button></div>
+                <p id="reportingResult" class="form-note">到周期后保存一包，包含期间日志；数据库与 SD 使用同一周期。故障判断与处置实时进行。</p>
               </form>
               <button id="openLoopButton" class="button button-secondary" type="button">查看环路处置过程</button>
               <dl class="detail-list">
@@ -239,15 +239,14 @@
     <dialog id="loopDialog" class="loop-dialog" aria-labelledby="loopTitle">
       <div class="loop-card">
         <header class="dialog-heading"><div><p class="eyebrow">LOOP RESPONSE · 环路处置</p><h2 id="loopTitle">环路观察</h2><p id="loopAgent" class="mono"></p></div><button id="closeLoopButton" class="icon-button" aria-label="关闭环路观察">×</button></header>
-        <div class="loop-notice">当前仅观察上报，环路自动隔离执行器尚未接入。此界面不会向交换机发送命令。</div>
-        <div class="loop-toolbar"><span id="loopConnection"></span><button id="loopDemoButton" class="button button-secondary" type="button">查看流程演示</button></div>
-        <div id="loopDemoNotice" class="loop-demo-notice" hidden>界面演示 · 虚拟设备与端口 · 不执行任何操作</div>
+        <div class="loop-notice">此处展示 ESP 本机上报的环路判断、处置和验证证据。设备按现场策略自动处理业务口并保护管理连接；后台页面只监视上报。</div>
+        <div class="loop-toolbar"><span id="loopConnection"></span></div>
         <div class="loop-layout"><nav id="loopIncidentList" class="loop-incidents" aria-label="环路事件"></nav><section id="loopBody" aria-live="polite"></section></div>
         <p class="form-note">依据当前已加载的上报记录更新；没有环路日志不等于已验证网络无环路。命令成功回执不等于故障已恢复。</p>
       </div>
     </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="/src/app.js"></script>
+    <script type="module" src="/backend/app.js"></script>
   </body>
 </html>

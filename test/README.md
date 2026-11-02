@@ -1,4 +1,36 @@
-# 集群模拟与验收
+# 正式固件与三层架构检查
+
+正式路径为 ESP 真实 H3C SSH / BDI / TF / 小模型，`esp_backend` 是可选 MQTT 归档服务，`frontend/device` 与 `frontend/backend` 通过 `frontend/shared` 共用证据解释。`esp_gateway` 和 USB 帧测试属于历史实验；需要这些测试时显式选择 `esp32-s3-usb-lab`，不要将默认正式固件当作 USB 网关端点。默认构建只编译 `src/main.cpp`，USB 入口位于 `src/legacy/main.cpp`。
+
+## 正式自动检查入口
+
+```sh
+python3 tools/sync_log_model.py --check
+python3 tools/embed_network_page.py
+node --test frontend/test/*.test.js
+npm --prefix frontend run build
+.venv/bin/python -m unittest test.test_h3c_bdi_policy -v
+.venv/bin/python -m unittest discover -s test -p test_heartbeat_bdi.py
+.venv/bin/python -m unittest discover -s test -p test_local_report.py
+```
+
+H3C 原生测试使用真实解析器、策略、恢复状态机与 Embedded-BDI 库，检查身份、同轮新鲜证据、管理口/聚合/STP 保护，以及先意图后动作、两轮隔离验证。测试故障样本不连接或写入真实交换机，不能被描述为物理环路修复成功。SSH 主机钥测试覆盖首次自动信任、保存失败和换钥阻止登录；页面测试覆盖三击日志、重新配对失败不重发、原生 uptime 和 `contained` 不等于恢复。
+
+后端原生契约与 AI provider 测试在 `test/test_backend_native.py` 和 `test/test_backend_provider.py`；provider 默认 disabled，测试不能依赖真实外部模型。`node test/archive_viewer_browser.mjs` 用本地只读 SD/模型接口与已存报告核对精确固件 HTML、手机宽度、分页、空卡与模型结果展示；它属于页面集成，不是实机 HTTP 验收。
+
+实机只读验收：三击 BOOT、连接 `ESP-Logs-…` 后运行 `.venv/bin/python test/standalone_http_acceptance.py`。它通过设备 Wi-Fi HTTP 检查真实 SSH/心跳、本机文件和 ESP 模型，不打开 USB、不修改设备配置。真实交换机 `shutdown` 和物理环路故障需要单独记录端口、事件、命令、两轮读回与现场状态；不可由模拟测试或成功 ACK 代替。
+
+当连接 ESP 热点会断开 GPT 时，先在终端运行 `python3 tools/collect_device_logs.py`，再三击 BOOT 并连接热点。程序无需互联网或 Python 依赖，默认等待 10 分钟；连接后采样 30 秒状态，读取最近最多 40 包 TF 日志，保存到 `test/.runtime/esp-offline-diagnostics.json`。终端提示采集完成后切回联网 Wi-Fi，GPT 可直接读取本地文件继续检查。失败会保留部分结果和错误，不判定验收成功。此入口只读，不改 Wi-Fi、SSH 或端口配置，也不调用 USB。采集程序测试：`python3 -m unittest test.test_offline_diagnostics -v`。
+
+`native-bdi-20261102-r2` 修复了持续产生日志时 TF 列表依赖全局待写计数归零而一直 busy 的问题。列表返回原子改名后已落盘的不可变文件快照；刷新请求合并为至少一秒间隔，写任务先处理最多 32 条队列记录，避免每次 HTTP 轮询都单条刷盘。`test.test_local_journal` 在模拟慢 FAT 与持续产生日志、轮询、异步读取下运行真实 `LocalJournal` 任务，使用 ASan/UBSan；不只是检查页面替身。BDI 状态新增五项表各自的 valid/complete/cycle/fresh，解析拒绝会记录 `[BDI][COLLECT] ... state=parse_rejected`；这些字段不放宽动作所需证据。
+
+`native-bdi-20261102-r3` 根据离线实机样本识别 `LPDT is not configured.` 和 `No link aggregation group exists.`。前者是有效的“检测器未配置”证据，不能等同于无环路；后者是有效空聚合表。六项同轮原始输出保存在 `test/fixtures/h3c-r6328p03/`，H3C 回归会通过完整 Runtime 回放，核对 observation_valid、monitoring、loop_detection_disabled 以及没有写动作。另将 PSRAM 日志队列扩为 384 个槽，索引使用 uint16_t，真实任务回归覆盖超过 256 条突发，防止索引回绕及截断。HTTP 验收必须获得五表同轮有效证据，不能仅凭 BDI cycle 大于零通过。
+
+本文件列测试用途和入口；本轮最终数量、构建与烧录结论由实际运行记录另行补充。下面保留原有集群、USB 和数据库实验说明。
+
+---
+
+# 历史集群模拟与验收
 
 所有测试入口及协议约定见 [项目 README](../README.md)。Python 使用 3.11+。
 
@@ -68,3 +100,19 @@ MQTT_BACKEND=local ./test/full_bdi_test.sh
 
 `.venv/bin/python test/docker_dependencies_acceptance.py` 使用随机独立 Compose 项目与端口，
 验证数据库、管理登录、MQTT TCP/WebSocket、认证与重启持久化；结束只清理该测试项目。
+
+## 网口心跳 BDI
+
+`.venv/bin/python -m unittest discover -s test -p test_heartbeat_bdi.py` 使用实际 Embedded-BDI 计划及 ASan/UBSan，验证首次 SSH 登录门控、三次失败告警、两次成功恢复、过期证据、目标切换和业务故障隔离。真实 ping、网线断开和 ICMP 策略仍需实机验证。
+
+## 已登录 SSH 的只读命令
+
+`c++ -std=c++11 test/ssh_commands.cpp -o /tmp/esp-ssh-commands && /tmp/esp-ssh-commands` 验证固定命令、提示符分片、终端控制码、输出截断及 URL 编码。
+
+`switch_ssh.cpp` 按 [交换机连接指南](../docs/switch-connection.md) 编译，使用真实 libssh API 头及模拟网络，验证认证、指纹、重试、同会话命令、重复请求、忙状态、任意命令拒绝及超时后关闭会话。正式版实机查询使用设备配置页；USB 查询协议仅保留在显式开发构建中。
+
+## 正式版无 USB 运行验收
+
+默认构建独立工作并启用 ESP 离线 AI。连按三下 BOOT、连接 ESP-Logs 热点后，运行 `.venv/bin/python test/standalone_http_acceptance.py`，通过真实 Wi-Fi HTTP 检查 SSH、心跳、TF 原生记录、完整 UTF-8 JSON、只读窗口和板载推理。该验收不打开串口、不发送 USB 命令、不修改设备配置。
+
+`.venv/bin/python -m unittest discover -s test -p test_local_report.py` 验证本机报告格式、容量、凭据脱敏、无效 UTF-8 修复、中文截断边界和单调时间，启用 ASan/UBSan。

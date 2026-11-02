@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "mode": "native",
+  "agent": {"topic_root": "esp-switch"},
+  "mqtt": {
+    "host": "127.0.0.1",
+    "port": 1883,
+    "client_id": "esp-native-archive",
+    "username": "archive-readonly",
+    "password_env": "ESP_ARCHIVE_MQTT_PASSWORD",
+    "tls": {"enabled": false}
+  }
+}

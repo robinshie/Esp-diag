@@ -1,0 +1,60 @@
+display interface brief down
+Brief information on interfaces in route mode:
+Link: ADM - administratively down; Stby - standby
+Interface            Link   Cause   
+Vlan1                DOWN   Not connected              
+Brief information on interfaces in bridge mode:
+Link: ADM - administratively down; Stby - standby
+Interface            Link   Cause   
+GE1/0/2              DOWN   Not connected              
+GE1/0/3              DOWN   Not connected              
+GE1/0/4              DOWN   Not connected              
+GE1/0/5              DOWN   Not connected              
+GE1/0/6              DOWN   Not connected              
+GE1/0/7              DOWN   Not connected              
+GE1/0/8              DOWN   Not connected              
+GE1/0/9              DOWN   Not connected              
+GE1/0/10             DOWN   Not connected              
+GE1/0/11             DOWN   Not connected              
+GE1/0/12             DOWN   Not connected              
+GE1/0/13             DOWN   Not connected              
+GE1/0/14             DOWN   Not connected              
+GE1/0/15             DOWN   Not connected              
+GE1/0/16             DOWN   Not connected              
+GE1/0/17             DOWN   Not connected              
+GE1/0/18             DOWN   Not connected              
+GE1/0/19             DOWN   Not connected              
+GE1/0/20             DOWN   Not connected              
+GE1/0/21             DOWN   Not connected              
+GE1/0/22             DOWN   Not connected              
+GE1/0/23             DOWN   Not connected              
+GE1/0/24             DOWN   Not connected              
+GE1/0/25             DOWN   Not connected              
+GE1/0/26             DOWN   Not connected              
+GE1/0/27             DOWN   Not connected              
+GE1/0/28             DOWN   Not connected              
+GE1/0/29             DOWN   Not connected              
+GE1/0/30             DOWN   Not connected              
+GE1/0/31             DOWN   Not connected              
+GE1/0/32             DOWN   Not connected              
+GE1/0/33             DOWN   Not connected              
+GE1/0/34             DOWN   Not connected              
+GE1/0/35             DOWN   Not connected              
+GE1/0/36             DOWN   Not connected              
+GE1/0/37             DOWN   Not connected              
+GE1/0/38             DOWN   Not connected              
+GE1/0/39             DOWN   Not connected              
+GE1/0/40             DOWN   Not connected              
+GE1/0/41             DOWN   Not connected              
+GE1/0/42             DOWN   Not connected              
+GE1/0/43             DOWN   Not connected              
+GE1/0/44             DOWN   Not connected              
+GE1/0/45             DOWN   Not connected              
+GE1/0/46             DOWN   Not connected              
+GE1/0/47             DOWN   Not connected              
+GE1/0/48             DOWN   Not connected              
+XGE1/0/49            DOWN   Not connected              
+XGE1/0/50            DOWN   Not connected              
+XGE1/0/51            DOWN   Not connected              
+XGE1/0/52            DOWN   Not connected              
+<H3C>

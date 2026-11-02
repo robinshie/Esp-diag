@@ -1,4 +1,4 @@
-#include "../src/fault_journal.h"
+#include "../src/legacy/fault_journal.h"
 #include <cassert>
 #include <vector>
 

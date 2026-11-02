@@ -5051,6 +5051,906 @@
       "text": "INSUFFICIENT FREE MEMORY RESOURCES ALARM"
     },
     {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB AGENT PERIODIC RUNTIME COUNTERS AND SD CARD STATE"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB agent periodic runtime counters and SD card state"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB agent periodic runtime counters and SD card state"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB AGENT PERIODIC RUNTIME COUNTERS AND SD CARD STATE"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB agent periodic runtime counters and SD card state"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB agent periodic runtime counters and SD card state"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB AGENT PERIODIC RUNTIME COUNTERS AND SD CARD STATE"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB agent periodic runtime counters and SD card state"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB agent periodic runtime counters and SD card state"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:8",
+      "text": "USB AGENT PERIODIC RUNTIME COUNTERS AND SD CARD STATE"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI RUNTIME STATUS REPORTS REASONING ACTIVE STORAGE READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI runtime status reports reasoning active storage ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI runtime status reports reasoning active storage ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI RUNTIME STATUS REPORTS REASONING ACTIVE STORAGE READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI runtime status reports reasoning active storage ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI runtime status reports reasoning active storage ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI RUNTIME STATUS REPORTS REASONING ACTIVE STORAGE READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI runtime status reports reasoning active storage ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI runtime status reports reasoning active storage ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:1",
+      "text": "BDI RUNTIME STATUS REPORTS REASONING ACTIVE STORAGE READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] TRANSPORT=USB REASONING_CYCLE=ACTIVE DEVICES=2 SD_STATE=READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] TRANSPORT=USB REASONING_CYCLE=ACTIVE DEVICES=2 SD_STATE=READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] TRANSPORT=USB REASONING_CYCLE=ACTIVE DEVICES=2 SD_STATE=READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] transport=USB reasoning_cycle=ACTIVE devices=2 sd_state=ready"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:3",
+      "text": "[BDI][STATUS] TRANSPORT=USB REASONING_CYCLE=ACTIVE DEVICES=2 SD_STATE=READY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "RUNTIME STATUS REASONING CYCLE ACTIVE VIA USB TRANSPORT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "runtime status reasoning cycle active via USB transport"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "runtime status reasoning cycle active via USB transport"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "RUNTIME STATUS REASONING CYCLE ACTIVE VIA USB TRANSPORT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "runtime status reasoning cycle active via USB transport"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "runtime status reasoning cycle active via USB transport"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "RUNTIME STATUS REASONING CYCLE ACTIVE VIA USB TRANSPORT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "runtime status reasoning cycle active via USB transport"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "runtime status reasoning cycle active via USB transport"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:2",
+      "text": "RUNTIME STATUS REASONING CYCLE ACTIVE VIA USB TRANSPORT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "AGENT RUNTIME TELEMETRY UPTIME FREE HEAP AND STORAGE STATUS"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "agent runtime telemetry uptime free heap and storage status"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "agent runtime telemetry uptime free heap and storage status"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "AGENT RUNTIME TELEMETRY UPTIME FREE HEAP AND STORAGE STATUS"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "agent runtime telemetry uptime free heap and storage status"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "agent runtime telemetry uptime free heap and storage status"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "AGENT RUNTIME TELEMETRY UPTIME FREE HEAP AND STORAGE STATUS"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "agent runtime telemetry uptime free heap and storage status"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "agent runtime telemetry uptime free heap and storage status"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:4",
+      "text": "AGENT RUNTIME TELEMETRY UPTIME FREE HEAP AND STORAGE STATUS"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE SD_STATE=NO_CARD DEVICES=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE SD_STATE=NO_CARD DEVICES=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE SD_STATE=NO_CARD DEVICES=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE sd_state=no_card devices=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:7",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE SD_STATE=NO_CARD DEVICES=1"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "FIRMWARE DEVICE STATE SNAPSHOT INCLUDES ACTIVE FAULTS AND LOCK FLAGS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "firmware device state snapshot includes active faults and lock flags"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "firmware device state snapshot includes active faults and lock flags"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "FIRMWARE DEVICE STATE SNAPSHOT INCLUDES ACTIVE FAULTS AND LOCK FLAGS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "firmware device state snapshot includes active faults and lock flags"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "firmware device state snapshot includes active faults and lock flags"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "FIRMWARE DEVICE STATE SNAPSHOT INCLUDES ACTIVE FAULTS AND LOCK FLAGS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "firmware device state snapshot includes active faults and lock flags"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "firmware device state snapshot includes active faults and lock flags"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:2",
+      "text": "FIRMWARE DEVICE STATE SNAPSHOT INCLUDES ACTIVE FAULTS AND LOCK FLAGS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] DEVICE=SW-455 STATE=NORMAL LOCKED=FALSE ACTIVE_FAULTS=0 FAULTS=NONE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] device=sw-549 state=NORMAL locked=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] device=sw-373 state=NORMAL locked=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] DEVICE=SW-783 STATE=NORMAL LOCKED=FALSE ACTIVE_FAULTS=0 FAULTS=NONE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] device=sw-525 state=NORMAL locked=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] device=sw-889 state=NORMAL locked=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] DEVICE=SW-184 STATE=NORMAL LOCKED=FALSE ACTIVE_FAULTS=0 FAULTS=NONE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] device=sw-290 state=NORMAL locked=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] device=sw-866 state=NORMAL locked=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:0",
+      "text": "[BDI][STATE] DEVICE=SW-898 STATE=NORMAL LOCKED=FALSE ACTIVE_FAULTS=0 FAULTS=NONE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "DEVICE STATE SNAPSHOT DEGRADED WITH ACTIVE FAULTS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "device state snapshot degraded with active faults"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "device state snapshot degraded with active faults"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "DEVICE STATE SNAPSHOT DEGRADED WITH ACTIVE FAULTS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "device state snapshot degraded with active faults"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "device state snapshot degraded with active faults"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "DEVICE STATE SNAPSHOT DEGRADED WITH ACTIVE FAULTS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "device state snapshot degraded with active faults"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "device state snapshot degraded with active faults"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:4",
+      "text": "DEVICE STATE SNAPSHOT DEGRADED WITH ACTIVE FAULTS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "MODEL OBSERVATION STATE NORMAL AND NO ACTIVE ALARMS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "model observation state normal and no active alarms"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "model observation state normal and no active alarms"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "MODEL OBSERVATION STATE NORMAL AND NO ACTIVE ALARMS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "model observation state normal and no active alarms"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "model observation state normal and no active alarms"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "MODEL OBSERVATION STATE NORMAL AND NO ACTIVE ALARMS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "model observation state normal and no active alarms"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "model observation state normal and no active alarms"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:5",
+      "text": "MODEL OBSERVATION STATE NORMAL AND NO ACTIVE ALARMS"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI STATE SNAPSHOT OF DEVICE AVAILABILITY AND ALARM COUNT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI state snapshot of device availability and alarm count"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI state snapshot of device availability and alarm count"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI STATE SNAPSHOT OF DEVICE AVAILABILITY AND ALARM COUNT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI state snapshot of device availability and alarm count"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI state snapshot of device availability and alarm count"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI STATE SNAPSHOT OF DEVICE AVAILABILITY AND ALARM COUNT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI state snapshot of device availability and alarm count"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI state snapshot of device availability and alarm count"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:7",
+      "text": "BDI STATE SNAPSHOT OF DEVICE AVAILABILITY AND ALARM COUNT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] DEVICE=SW-592 STATE=FAULT LOCKED=TRUE ACTIVE_FAULTS=1 FAULTS=FAN:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] device=sw-803 state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] device=sw-785 state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] DEVICE=SW-729 STATE=FAULT LOCKED=TRUE ACTIVE_FAULTS=1 FAULTS=FAN:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] device=sw-852 state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] device=sw-757 state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] DEVICE=SW-847 STATE=FAULT LOCKED=TRUE ACTIVE_FAULTS=1 FAULTS=FAN:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] device=sw-182 state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] device=sw-516 state=FAULT locked=true active_faults=1 faults=fan:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:1",
+      "text": "[BDI][STATE] DEVICE=SW-799 STATE=FAULT LOCKED=TRUE ACTIVE_FAULTS=1 FAULTS=FAN:FAN_FAILURE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] DEVICE=SW-662 EPOCH=196266 SEQ=3 RESULT=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] device=sw-498 epoch=490804 seq=3 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] device=sw-425 epoch=2015 seq=3 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] DEVICE=SW-376 EPOCH=448462 SEQ=3 RESULT=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] device=sw-598 epoch=181081 seq=3 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] device=sw-788 epoch=380244 seq=3 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] DEVICE=SW-332 EPOCH=351594 SEQ=3 RESULT=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] device=sw-939 epoch=834182 seq=3 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] device=sw-976 epoch=592966 seq=3 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:1",
+      "text": "[BDI][RECEIPT] DEVICE=SW-806 EPOCH=66308 SEQ=3 RESULT=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "RECEIPT OF SOURCE LOG IS NOT A REPAIR EXECUTION ACKNOWLEDGEMENT"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "receipt of source log is not a repair execution acknowledgement"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "receipt of source log is not a repair execution acknowledgement"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "RECEIPT OF SOURCE LOG IS NOT A REPAIR EXECUTION ACKNOWLEDGEMENT"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "receipt of source log is not a repair execution acknowledgement"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "receipt of source log is not a repair execution acknowledgement"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "RECEIPT OF SOURCE LOG IS NOT A REPAIR EXECUTION ACKNOWLEDGEMENT"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "receipt of source log is not a repair execution acknowledgement"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "receipt of source log is not a repair execution acknowledgement"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:6",
+      "text": "RECEIPT OF SOURCE LOG IS NOT A REPAIR EXECUTION ACKNOWLEDGEMENT"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "TRANSPORT INPUT RECEIPT REPORTS DUPLICATE SOURCE SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "transport input receipt reports duplicate source sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "transport input receipt reports duplicate source sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "TRANSPORT INPUT RECEIPT REPORTS DUPLICATE SOURCE SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "transport input receipt reports duplicate source sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "transport input receipt reports duplicate source sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "TRANSPORT INPUT RECEIPT REPORTS DUPLICATE SOURCE SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "transport input receipt reports duplicate source sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "transport input receipt reports duplicate source sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:9",
+      "text": "TRANSPORT INPUT RECEIPT REPORTS DUPLICATE SOURCE SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "FIRMWARE RECEIVED A TELEMETRY FRAME AND RETURNED DELIVERY STATUS"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "firmware received a telemetry frame and returned delivery status"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "firmware received a telemetry frame and returned delivery status"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "FIRMWARE RECEIVED A TELEMETRY FRAME AND RETURNED DELIVERY STATUS"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "firmware received a telemetry frame and returned delivery status"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "firmware received a telemetry frame and returned delivery status"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "FIRMWARE RECEIVED A TELEMETRY FRAME AND RETURNED DELIVERY STATUS"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "firmware received a telemetry frame and returned delivery status"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "firmware received a telemetry frame and returned delivery status"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:8",
+      "text": "FIRMWARE RECEIVED A TELEMETRY FRAME AND RETURNED DELIVERY STATUS"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] DEVICE=SW-256 EPOCH=709876 SEQ=2 RESULT=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] device=sw-487 epoch=177730 seq=2 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] device=sw-760 epoch=579642 seq=2 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] DEVICE=SW-574 EPOCH=848752 SEQ=2 RESULT=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] device=sw-422 epoch=84329 seq=2 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] device=sw-562 epoch=604812 seq=2 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] DEVICE=SW-765 EPOCH=199514 SEQ=2 RESULT=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] device=sw-485 epoch=509438 seq=2 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] device=sw-760 epoch=769232 seq=2 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:0",
+      "text": "[BDI][RECEIPT] DEVICE=SW-143 EPOCH=324104 SEQ=2 RESULT=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "INPUT LOG DELIVERY RECEIPT RESULT ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "input log delivery receipt result accepted"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "input log delivery receipt result accepted"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "INPUT LOG DELIVERY RECEIPT RESULT ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "input log delivery receipt result accepted"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "input log delivery receipt result accepted"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "INPUT LOG DELIVERY RECEIPT RESULT ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "input log delivery receipt result accepted"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "input log delivery receipt result accepted"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:3",
+      "text": "INPUT LOG DELIVERY RECEIPT RESULT ACCEPTED"
+    },
+    {
       "label": "link_down",
       "template_group": "h3c:IFNET/PHY_UPDOWN",
       "source_id": "ifnet",
@@ -13521,6 +14421,3606 @@
       "template_group": "normalized:CPU_HIGH",
       "kind": "synthetic_protocol_adapter",
       "text": "H3C LOG event=CPU_HIGH status=ALARM level=WARN component=GigabitEthernet1/0/2 device=LAB-SW-522"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=651132 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=709094 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=893149 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=720437 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=440536 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=431044 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=542791 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=651822 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=386143 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=906110 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=572232 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=769383 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=311098 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=377649 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=213494 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=674271 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=997645 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=866562 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=580083 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=117413 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=235949 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=328841 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=683589 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=581701 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=609258 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=229753 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=359623 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=246859 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=388102 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=42948 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=348452 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=244318 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=244528 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=194868 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=452726 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=48653 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=1969 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=199895 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=421308 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "protocol:1",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=950835 devices=1 rejected=2 free_heap=50000 sd_state=no_card archive_copy=1"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-142 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=31561"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-835 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LINK_DOWN observed_ms=246002"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-512 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:THERMAL observed_ms=344834"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-694 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=724998"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-285 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:PSU_FAILURE observed_ms=259211"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-217 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LOOP observed_ms=649936"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-159 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=773174"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-402 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:CPU_HIGH observed_ms=160175"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-835 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:STP_PROTECTION observed_ms=754424"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-921 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=901586"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-754 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:AUTH_LOCKED observed_ms=902295"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-927 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LINK_DOWN observed_ms=758983"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-864 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=669358"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-662 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:FAN_FAILURE observed_ms=316605"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-635 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:PSU_FAILURE observed_ms=402763"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-215 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=183852"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-554 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LOGIN_FAILURE observed_ms=448038"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-533 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:CPU_HIGH observed_ms=222792"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-977 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=410495"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-692 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:MAC_MOVE observed_ms=834534"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-160 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:AUTH_LOCKED observed_ms=390028"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-815 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=708815"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-682 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:THERMAL observed_ms=41192"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-572 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:FAN_FAILURE observed_ms=722714"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-659 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=431188"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-720 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LOOP observed_ms=817478"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-927 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LOGIN_FAILURE observed_ms=932604"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-637 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=937824"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-930 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:STP_PROTECTION observed_ms=681340"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-887 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:MAC_MOVE observed_ms=422676"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-289 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=788684"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-880 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LINK_DOWN observed_ms=449131"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-815 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:THERMAL observed_ms=175334"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-731 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=329408"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-769 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:PSU_FAILURE observed_ms=946596"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-885 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:LOOP observed_ms=706739"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-193 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=991261"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-799 kind=server rack=network state=DEGRADED availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:CPU_HIGH observed_ms=810189"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-372 kind=server rack=network state=FAULT availability=ONLINE locked=true healthy=false critical=false link_fault=false incomplete=false active_faults=1 faults=fan1:STP_PROTECTION observed_ms=814255"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:2",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-887 kind=server rack=network state=NORMAL availability=ONLINE locked=false healthy=true critical=false link_fault=false incomplete=false active_faults=0 faults=none observed_ms=317604"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-673 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-600 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LINK_DOWN"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-687 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:THERMAL"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-749 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-125 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:PSU_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-803 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LOOP"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-582 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-562 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:CPU_HIGH"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-388 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:STP_PROTECTION"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-728 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-733 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:AUTH_LOCKED"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-726 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LINK_DOWN"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-540 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-252 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-210 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:PSU_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-478 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-935 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LOGIN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-865 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:CPU_HIGH"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-871 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-467 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:MAC_MOVE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-895 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:AUTH_LOCKED"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-722 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-113 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:THERMAL"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-637 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:FAN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-387 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-934 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LOOP"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-871 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LOGIN_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-254 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-189 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:STP_PROTECTION"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-626 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:MAC_MOVE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-311 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-613 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LINK_DOWN"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-379 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:THERMAL"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-261 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-319 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:PSU_FAILURE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-366 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:LOOP"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-545 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-184 kind=switch state=DEGRADED availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:CPU_HIGH"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-251 kind=switch state=FAULT availability=OFFLINE locked=true healthy=false critical=false active_faults=1 faults=fan1:STP_PROTECTION"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "protocol:3",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][STATE] device=lab-679 kind=switch state=NORMAL availability=OFFLINE locked=false healthy=false critical=false active_faults=0 faults=none"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-687 epoch=190375 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-217 epoch=390154 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-349 epoch=605314 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-226 epoch=151987 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-856 epoch=257366 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-928 epoch=530221 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-496 epoch=288602 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-198 epoch=355421 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-920 epoch=340470 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-369 epoch=305743 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-144 epoch=233279 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-528 epoch=428326 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-693 epoch=466946 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-962 epoch=368146 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-370 epoch=325936 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-223 epoch=935716 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-273 epoch=630775 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-841 epoch=510467 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-278 epoch=988156 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-353 epoch=708870 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-563 epoch=692996 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-452 epoch=846754 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-629 epoch=82362 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-169 epoch=283272 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-199 epoch=684664 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-996 epoch=372806 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-948 epoch=936501 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-938 epoch=275916 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-860 epoch=215382 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-188 epoch=258484 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-459 epoch=217511 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-339 epoch=810636 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-807 epoch=391737 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-817 epoch=456745 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-206 epoch=797179 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-252 epoch=995614 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-545 epoch=970108 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-414 epoch=365121 seq=42 result=DUPLICATE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-259 epoch=671200 seq=42 result=REJECTED"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "protocol:4",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECEIPT] device=lab-739 epoch=331439 seq=42 result=ACCEPTED"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] UNLOCK request_id=boot-92118 device=lab-177 component=GigabitEthernet1/0/5 target=GigabitEthernet1/0/5 fault=AUTH_LOCKED incident=case-16580 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-64089 device=lab-301 component=GigabitEthernet1/0/5 target=GigabitEthernet1/0/5 fault=LINK_DOWN incident=case-60672 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-55193 device=lab-754 component=GigabitEthernet1/0/39 target=GigabitEthernet1/0/39 fault=THERMAL incident=case-29207 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-29965 device=lab-781 component=GigabitEthernet1/0/27 target=GigabitEthernet1/0/27 fault=FAN_FAILURE incident=case-84987 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-50118 device=lab-847 component=GigabitEthernet1/0/5 target=GigabitEthernet1/0/5 fault=PSU_FAILURE incident=case-28468 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-43891 device=lab-744 component=GigabitEthernet1/0/47 target=GigabitEthernet1/0/47 fault=LOOP incident=case-24934 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-83973 device=lab-728 component=GigabitEthernet1/0/6 target=GigabitEthernet1/0/6 fault=LOGIN_FAILURE incident=case-99109 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-92584 device=lab-955 component=GigabitEthernet1/0/46 target=GigabitEthernet1/0/46 fault=CPU_HIGH incident=case-87503 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-11961 device=lab-943 component=GigabitEthernet1/0/8 target=GigabitEthernet1/0/8 fault=STP_PROTECTION incident=case-20331 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-87263 device=lab-896 component=GigabitEthernet1/0/26 target=GigabitEthernet1/0/26 fault=MAC_MOVE incident=case-90954 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] UNLOCK request_id=boot-41338 device=lab-490 component=GigabitEthernet1/0/8 target=GigabitEthernet1/0/8 fault=AUTH_LOCKED incident=case-40127 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-27260 device=lab-375 component=GigabitEthernet1/0/39 target=GigabitEthernet1/0/39 fault=LINK_DOWN incident=case-62037 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-81051 device=lab-534 component=GigabitEthernet1/0/35 target=GigabitEthernet1/0/35 fault=THERMAL incident=case-50331 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-81633 device=lab-868 component=GigabitEthernet1/0/27 target=GigabitEthernet1/0/27 fault=FAN_FAILURE incident=case-98034 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-64865 device=lab-113 component=GigabitEthernet1/0/9 target=GigabitEthernet1/0/9 fault=PSU_FAILURE incident=case-32575 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-44709 device=lab-346 component=GigabitEthernet1/0/29 target=GigabitEthernet1/0/29 fault=LOOP incident=case-59111 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-96636 device=lab-978 component=GigabitEthernet1/0/29 target=GigabitEthernet1/0/29 fault=LOGIN_FAILURE incident=case-21700 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-91427 device=lab-560 component=GigabitEthernet1/0/40 target=GigabitEthernet1/0/40 fault=CPU_HIGH incident=case-68964 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-69824 device=lab-940 component=GigabitEthernet1/0/31 target=GigabitEthernet1/0/31 fault=STP_PROTECTION incident=case-91054 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-66181 device=lab-261 component=GigabitEthernet1/0/3 target=GigabitEthernet1/0/3 fault=MAC_MOVE incident=case-92683 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] UNLOCK request_id=boot-69427 device=lab-638 component=GigabitEthernet1/0/41 target=GigabitEthernet1/0/41 fault=AUTH_LOCKED incident=case-67171 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-49277 device=lab-403 component=GigabitEthernet1/0/9 target=GigabitEthernet1/0/9 fault=LINK_DOWN incident=case-50770 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-73197 device=lab-674 component=GigabitEthernet1/0/29 target=GigabitEthernet1/0/29 fault=THERMAL incident=case-83458 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-53331 device=lab-213 component=GigabitEthernet1/0/10 target=GigabitEthernet1/0/10 fault=FAN_FAILURE incident=case-52873 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-17216 device=lab-126 component=GigabitEthernet1/0/16 target=GigabitEthernet1/0/16 fault=PSU_FAILURE incident=case-34360 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-35388 device=lab-787 component=GigabitEthernet1/0/27 target=GigabitEthernet1/0/27 fault=LOOP incident=case-47970 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-84988 device=lab-253 component=GigabitEthernet1/0/43 target=GigabitEthernet1/0/43 fault=LOGIN_FAILURE incident=case-47127 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-76485 device=lab-478 component=GigabitEthernet1/0/48 target=GigabitEthernet1/0/48 fault=CPU_HIGH incident=case-95172 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-80572 device=lab-849 component=GigabitEthernet1/0/37 target=GigabitEthernet1/0/37 fault=STP_PROTECTION incident=case-17913 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-76346 device=lab-774 component=GigabitEthernet1/0/27 target=GigabitEthernet1/0/27 fault=MAC_MOVE incident=case-39555 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] UNLOCK request_id=boot-15514 device=lab-889 component=GigabitEthernet1/0/16 target=GigabitEthernet1/0/16 fault=AUTH_LOCKED incident=case-60087 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-40689 device=lab-503 component=GigabitEthernet1/0/26 target=GigabitEthernet1/0/26 fault=LINK_DOWN incident=case-80490 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-16376 device=lab-936 component=GigabitEthernet1/0/20 target=GigabitEthernet1/0/20 fault=THERMAL incident=case-76748 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-19940 device=lab-906 component=GigabitEthernet1/0/26 target=GigabitEthernet1/0/26 fault=FAN_FAILURE incident=case-16499 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-40712 device=lab-936 component=GigabitEthernet1/0/47 target=GigabitEthernet1/0/47 fault=PSU_FAILURE incident=case-40643 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-92158 device=lab-984 component=GigabitEthernet1/0/11 target=GigabitEthernet1/0/11 fault=LOOP incident=case-85969 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-64791 device=lab-914 component=GigabitEthernet1/0/9 target=GigabitEthernet1/0/9 fault=LOGIN_FAILURE incident=case-29943 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-61559 device=lab-252 component=GigabitEthernet1/0/28 target=GigabitEthernet1/0/28 fault=CPU_HIGH incident=case-14935 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-44538 device=lab-361 component=GigabitEthernet1/0/41 target=GigabitEthernet1/0/41 fault=STP_PROTECTION incident=case-19077 attempt=1"
+    },
+    {
+      "label": "action_request",
+      "template_group": "protocol:5",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][CMD] RECOVER_INTERFACE request_id=boot-69614 device=lab-561 component=GigabitEthernet1/0/27 target=GigabitEthernet1/0/27 fault=MAC_MOVE incident=case-21427 attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-41974 device=lab-442 component=GigabitEthernet1/0/1 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-60943 device=lab-623 component=GigabitEthernet1/0/30 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-55749 device=lab-555 component=GigabitEthernet1/0/8 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-17046 device=lab-314 component=GigabitEthernet1/0/10 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-82401 device=lab-591 component=GigabitEthernet1/0/16 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-31426 device=lab-534 component=GigabitEthernet1/0/24 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-92218 device=lab-980 component=GigabitEthernet1/0/9 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-66259 device=lab-265 component=GigabitEthernet1/0/12 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-11539 device=lab-997 component=GigabitEthernet1/0/21 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-84727 device=lab-971 component=GigabitEthernet1/0/1 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-64562 device=lab-185 component=GigabitEthernet1/0/35 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-25088 device=lab-340 component=GigabitEthernet1/0/35 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-14274 device=lab-931 component=GigabitEthernet1/0/46 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-42933 device=lab-201 component=GigabitEthernet1/0/33 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-79037 device=lab-975 component=GigabitEthernet1/0/47 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-30344 device=lab-472 component=GigabitEthernet1/0/23 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-99969 device=lab-991 component=GigabitEthernet1/0/18 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-38042 device=lab-177 component=GigabitEthernet1/0/1 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-73017 device=lab-526 component=GigabitEthernet1/0/2 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-84976 device=lab-436 component=GigabitEthernet1/0/1 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-60580 device=lab-126 component=GigabitEthernet1/0/48 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-36688 device=lab-879 component=GigabitEthernet1/0/39 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-91046 device=lab-502 component=GigabitEthernet1/0/6 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-84426 device=lab-490 component=GigabitEthernet1/0/18 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-73141 device=lab-758 component=GigabitEthernet1/0/37 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-91496 device=lab-285 component=GigabitEthernet1/0/32 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-58096 device=lab-118 component=GigabitEthernet1/0/15 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-94261 device=lab-249 component=GigabitEthernet1/0/21 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-91233 device=lab-178 component=GigabitEthernet1/0/12 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-69473 device=lab-114 component=GigabitEthernet1/0/26 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-78508 device=lab-756 component=GigabitEthernet1/0/20 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-13162 device=lab-455 component=GigabitEthernet1/0/9 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-33542 device=lab-569 component=GigabitEthernet1/0/4 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-79320 device=lab-554 component=GigabitEthernet1/0/11 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-25945 device=lab-259 component=GigabitEthernet1/0/14 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-59762 device=lab-575 component=GigabitEthernet1/0/14 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-20793 device=lab-621 component=GigabitEthernet1/0/17 state=VERIFY result=SUCCESS attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-40501 device=lab-514 component=GigabitEthernet1/0/46 state=VERIFY result=FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-23197 device=lab-161 component=GigabitEthernet1/0/31 state=VERIFY result=ATTEMPT_FAILED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:6",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-12904 device=lab-412 component=GigabitEthernet1/0/38 state=VERIFY result=COMMAND_ACCEPTED attempt=1"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-95120 device=lab-865 component=GigabitEthernet1/0/2 fault=AUTH_LOCKED result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-71594 device=lab-973 component=GigabitEthernet1/0/13 fault=LINK_DOWN result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-18026 device=lab-183 component=GigabitEthernet1/0/21 fault=THERMAL result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-99668 device=lab-493 component=GigabitEthernet1/0/41 fault=FAN_FAILURE result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-56153 device=lab-557 component=GigabitEthernet1/0/31 fault=PSU_FAILURE result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-84038 device=lab-500 component=GigabitEthernet1/0/48 fault=LOOP result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-31059 device=lab-813 component=GigabitEthernet1/0/35 fault=LOGIN_FAILURE result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-76152 device=lab-971 component=GigabitEthernet1/0/19 fault=CPU_HIGH result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-13358 device=lab-370 component=GigabitEthernet1/0/19 fault=STP_PROTECTION result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-41267 device=lab-339 component=GigabitEthernet1/0/3 fault=MAC_MOVE result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-50024 device=lab-443 component=GigabitEthernet1/0/38 fault=AUTH_LOCKED result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-51375 device=lab-899 component=GigabitEthernet1/0/18 fault=LINK_DOWN result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-80301 device=lab-782 component=GigabitEthernet1/0/6 fault=THERMAL result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-42978 device=lab-530 component=GigabitEthernet1/0/36 fault=FAN_FAILURE result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-31393 device=lab-521 component=GigabitEthernet1/0/30 fault=PSU_FAILURE result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-58140 device=lab-793 component=GigabitEthernet1/0/2 fault=LOOP result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-57370 device=lab-469 component=GigabitEthernet1/0/1 fault=LOGIN_FAILURE result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-42002 device=lab-979 component=GigabitEthernet1/0/5 fault=CPU_HIGH result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-81451 device=lab-916 component=GigabitEthernet1/0/8 fault=STP_PROTECTION result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-26705 device=lab-439 component=GigabitEthernet1/0/2 fault=MAC_MOVE result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-38557 device=lab-317 component=GigabitEthernet1/0/6 fault=AUTH_LOCKED result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-17769 device=lab-518 component=GigabitEthernet1/0/38 fault=LINK_DOWN result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-77914 device=lab-462 component=GigabitEthernet1/0/5 fault=THERMAL result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-86262 device=lab-874 component=GigabitEthernet1/0/23 fault=FAN_FAILURE result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-15621 device=lab-716 component=GigabitEthernet1/0/23 fault=PSU_FAILURE result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-10320 device=lab-889 component=GigabitEthernet1/0/32 fault=LOOP result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-87952 device=lab-809 component=GigabitEthernet1/0/30 fault=LOGIN_FAILURE result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-58099 device=lab-759 component=GigabitEthernet1/0/48 fault=CPU_HIGH result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-75807 device=lab-459 component=GigabitEthernet1/0/39 fault=STP_PROTECTION result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-78980 device=lab-874 component=GigabitEthernet1/0/13 fault=MAC_MOVE result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=UNLOCK request_id=boot-83953 device=lab-820 component=GigabitEthernet1/0/13 fault=AUTH_LOCKED result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-19157 device=lab-959 component=GigabitEthernet1/0/1 fault=LINK_DOWN result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-18401 device=lab-504 component=GigabitEthernet1/0/37 fault=THERMAL result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-79756 device=lab-500 component=GigabitEthernet1/0/4 fault=FAN_FAILURE result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-92956 device=lab-695 component=GigabitEthernet1/0/37 fault=PSU_FAILURE result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-16661 device=lab-621 component=GigabitEthernet1/0/20 fault=LOOP result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-61067 device=lab-990 component=GigabitEthernet1/0/40 fault=LOGIN_FAILURE result=SUCCESS"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-39320 device=lab-441 component=GigabitEthernet1/0/40 fault=CPU_HIGH result=FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-27870 device=lab-748 component=GigabitEthernet1/0/48 fault=STP_PROTECTION result=ATTEMPT_FAILED"
+    },
+    {
+      "label": "action_ack",
+      "template_group": "protocol:7",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACK] action=RECOVER_INTERFACE request_id=boot-95664 device=lab-937 component=GigabitEthernet1/0/37 fault=MAC_MOVE result=COMMAND_ACCEPTED"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-897 component=GigabitEthernet1/0/22 fault=AUTH_LOCKED incident=case-99951"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-376 component=GigabitEthernet1/0/45 fault=LINK_DOWN incident=case-92290"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-206 component=GigabitEthernet1/0/35 fault=THERMAL incident=case-22587"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-740 component=GigabitEthernet1/0/27 fault=FAN_FAILURE incident=case-23590"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-732 component=GigabitEthernet1/0/45 fault=PSU_FAILURE incident=case-90556"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-555 component=GigabitEthernet1/0/47 fault=LOOP incident=case-65514"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-319 component=GigabitEthernet1/0/21 fault=LOGIN_FAILURE incident=case-97885"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-171 component=GigabitEthernet1/0/25 fault=CPU_HIGH incident=case-29680"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-199 component=GigabitEthernet1/0/13 fault=STP_PROTECTION incident=case-84160"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-254 component=GigabitEthernet1/0/7 fault=MAC_MOVE incident=case-92704"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-910 component=GigabitEthernet1/0/3 fault=AUTH_LOCKED incident=case-56305"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-773 component=GigabitEthernet1/0/30 fault=LINK_DOWN incident=case-93488"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-997 component=GigabitEthernet1/0/15 fault=THERMAL incident=case-42523"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-170 component=GigabitEthernet1/0/39 fault=FAN_FAILURE incident=case-92740"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-521 component=GigabitEthernet1/0/6 fault=PSU_FAILURE incident=case-57902"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-595 component=GigabitEthernet1/0/45 fault=LOOP incident=case-68508"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-917 component=GigabitEthernet1/0/8 fault=LOGIN_FAILURE incident=case-30739"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-510 component=GigabitEthernet1/0/28 fault=CPU_HIGH incident=case-21086"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-295 component=GigabitEthernet1/0/29 fault=STP_PROTECTION incident=case-89971"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-687 component=GigabitEthernet1/0/9 fault=MAC_MOVE incident=case-57429"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-973 component=GigabitEthernet1/0/39 fault=AUTH_LOCKED incident=case-19868"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-391 component=GigabitEthernet1/0/11 fault=LINK_DOWN incident=case-44838"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-788 component=GigabitEthernet1/0/25 fault=THERMAL incident=case-14129"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-291 component=GigabitEthernet1/0/48 fault=FAN_FAILURE incident=case-64123"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-769 component=GigabitEthernet1/0/29 fault=PSU_FAILURE incident=case-44397"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-315 component=GigabitEthernet1/0/26 fault=LOOP incident=case-66099"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-327 component=GigabitEthernet1/0/36 fault=LOGIN_FAILURE incident=case-43795"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-959 component=GigabitEthernet1/0/21 fault=CPU_HIGH incident=case-33792"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-159 component=GigabitEthernet1/0/11 fault=STP_PROTECTION incident=case-67867"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-128 component=GigabitEthernet1/0/22 fault=MAC_MOVE incident=case-78747"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-855 component=GigabitEthernet1/0/30 fault=AUTH_LOCKED incident=case-14106"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-320 component=GigabitEthernet1/0/10 fault=LINK_DOWN incident=case-95697"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-104 component=GigabitEthernet1/0/13 fault=THERMAL incident=case-55441"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-537 component=GigabitEthernet1/0/9 fault=FAN_FAILURE incident=case-74527"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-827 component=GigabitEthernet1/0/31 fault=PSU_FAILURE incident=case-79080"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-134 component=GigabitEthernet1/0/20 fault=LOOP incident=case-42579"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-570 component=GigabitEthernet1/0/38 fault=LOGIN_FAILURE incident=case-31881"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-890 component=GigabitEthernet1/0/7 fault=CPU_HIGH incident=case-20470"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-399 component=GigabitEthernet1/0/8 fault=STP_PROTECTION incident=case-86195"
+    },
+    {
+      "label": "recovery_report",
+      "template_group": "protocol:8",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][RECOVERED] device=lab-705 component=GigabitEthernet1/0/5 fault=MAC_MOVE incident=case-51598"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-824 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-591 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-827 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-478 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-798 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-192 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-258 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-502 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-440 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-259 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-697 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-851 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-439 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-852 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-855 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-964 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-931 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-302 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-150 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-527 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-389 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-989 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-189 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-767 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-372 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-247 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-546 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-781 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-334 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-149 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-225 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-738 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-878 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-574 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-579 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-627 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-794 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-684 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-578 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:9",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][EVENT] device=lab-867 belief=server_healthy value=true"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-969 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-946 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-115 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-132 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-296 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-494 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-475 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-755 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-727 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-886 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-189 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-579 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-391 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-778 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-339 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-485 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-444 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-674 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-372 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-476 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-447 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-234 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-322 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-847 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-608 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-395 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-169 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-171 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-851 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-829 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-353 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-970 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-102 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-973 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-110 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-243 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-388 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-960 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-748 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:10",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][ACTION] device=lab-805 decision=HEALTHY"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-739 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-704 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-423 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-945 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-746 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-964 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-151 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-364 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-713 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-765 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-771 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-522 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-893 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-629 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-804 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-398 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-226 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-932 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-445 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-246 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-252 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-424 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-348 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-952 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-105 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-191 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-155 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-603 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-801 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-464 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-571 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-179 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-222 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-350 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-721 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-390 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-271 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-642 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-148 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:11",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][READY] device=lab-766 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-85526 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-18875 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-85066 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-86857 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-43486 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-46331 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-71553 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-25599 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-29002 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-96426 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-57478 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-20481 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-83037 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-78366 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-97178 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-96174 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-75798 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-24597 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-52924 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-96797 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-68141 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-83372 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-41340 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-93931 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-40230 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-83556 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-55597 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-21983 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-29081 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-30168 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-58130 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-41099 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-84964 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-81490 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-39252 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-59775 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-16134 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-57212 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-41629 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:12",
+      "kind": "authored_firmware_adapter",
+      "text": "[BDI][BOOT] boot=boot-40909 protocol=2 max_devices=32"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-14291 boot=case-18764 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-38423 boot=case-29584 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-19407 boot=case-22849 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-70174 boot=case-99135 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-75007 boot=case-96606 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-55007 boot=case-21191 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-39734 boot=case-88753 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-75686 boot=case-54405 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-25663 boot=case-90965 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-21490 boot=case-54648 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-78296 boot=case-90332 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-66456 boot=case-45248 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-67354 boot=case-86294 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-40285 boot=case-58673 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-55118 boot=case-40579 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-45341 boot=case-51084 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-85940 boot=case-86867 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-55768 boot=case-52634 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-90862 boot=case-22867 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-97895 boot=case-12750 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-54875 boot=case-75081 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-56952 boot=case-66805 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-85568 boot=case-45282 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-89127 boot=case-90575 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-83398 boot=case-58633 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-73616 boot=case-96765 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-23595 boot=case-55956 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-77321 boot=case-80350 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-64729 boot=case-39721 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-43435 boot=case-11094 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-24554 boot=case-14392 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-95476 boot=case-62181 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-92215 boot=case-92860 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-23032 boot=case-30874 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-45758 boot=case-50645 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-71399 boot=case-69046 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-61037 boot=case-52418 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-21838 boot=case-75253 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-63743 boot=case-33959 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:13",
+      "kind": "authored_firmware_adapter",
+      "text": "H3C PONG nonce=boot-95046 boot=case-50982 transport=USB"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "normal",
+      "template_group": "protocol:14",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=ready dropped=0"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
+    },
+    {
+      "label": "record_gap",
+      "template_group": "protocol:15",
+      "kind": "authored_firmware_adapter",
+      "text": "[STORAGE] state=write_error dropped=4"
     }
   ],
   "validation": [
@@ -15173,6 +19673,306 @@
       "label": "resource_pressure",
       "template_group": "resource_pressure:7",
       "text": "PROCESSOR CORE USAGE IS EXCESSIVE"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "FIRMWARE STATUS CONTAINS REASONING CYCLE AND ATTACHED DEVICE COUNT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "firmware status contains reasoning cycle and attached device count"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "firmware status contains reasoning cycle and attached device count"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "FIRMWARE STATUS CONTAINS REASONING CYCLE AND ATTACHED DEVICE COUNT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "firmware status contains reasoning cycle and attached device count"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "firmware status contains reasoning cycle and attached device count"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "FIRMWARE STATUS CONTAINS REASONING CYCLE AND ATTACHED DEVICE COUNT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "firmware status contains reasoning cycle and attached device count"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "firmware status contains reasoning cycle and attached device count"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:5",
+      "text": "FIRMWARE STATUS CONTAINS REASONING CYCLE AND ATTACHED DEVICE COUNT"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS UPTIME MEMORY SD_STATE ARCHIVE_COPY TELEMETRY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS uptime memory sd_state archive_copy telemetry"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS uptime memory sd_state archive_copy telemetry"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS UPTIME MEMORY SD_STATE ARCHIVE_COPY TELEMETRY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS uptime memory sd_state archive_copy telemetry"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS uptime memory sd_state archive_copy telemetry"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS UPTIME MEMORY SD_STATE ARCHIVE_COPY TELEMETRY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS uptime memory sd_state archive_copy telemetry"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS uptime memory sd_state archive_copy telemetry"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:6",
+      "text": "BDI STATUS UPTIME MEMORY SD_STATE ARCHIVE_COPY TELEMETRY"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE AVAILABILITY ONLINE HEALTHY TRUE CURRENT MODEL SNAPSHOT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE availability online healthy true current model snapshot"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE availability online healthy true current model snapshot"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE AVAILABILITY ONLINE HEALTHY TRUE CURRENT MODEL SNAPSHOT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE availability online healthy true current model snapshot"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE availability online healthy true current model snapshot"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE AVAILABILITY ONLINE HEALTHY TRUE CURRENT MODEL SNAPSHOT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE availability online healthy true current model snapshot"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE availability online healthy true current model snapshot"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:3",
+      "text": "BDI STATE AVAILABILITY ONLINE HEALTHY TRUE CURRENT MODEL SNAPSHOT"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "CURRENT MODEL STATE REPORTS FAULT STATUS AND LOCKED FLAG"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "current model state reports fault status and locked flag"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "current model state reports fault status and locked flag"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "CURRENT MODEL STATE REPORTS FAULT STATUS AND LOCKED FLAG"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "current model state reports fault status and locked flag"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "current model state reports fault status and locked flag"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "CURRENT MODEL STATE REPORTS FAULT STATUS AND LOCKED FLAG"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "current model state reports fault status and locked flag"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "current model state reports fault status and locked flag"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:9",
+      "text": "CURRENT MODEL STATE REPORTS FAULT STATUS AND LOCKED FLAG"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "PROTOCOL SEQUENCE DUPLICATE RECEIPT ACKNOWLEDGED BY FIRMWARE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "protocol sequence duplicate receipt acknowledged by firmware"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "protocol sequence duplicate receipt acknowledged by firmware"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "PROTOCOL SEQUENCE DUPLICATE RECEIPT ACKNOWLEDGED BY FIRMWARE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "protocol sequence duplicate receipt acknowledged by firmware"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "protocol sequence duplicate receipt acknowledged by firmware"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "PROTOCOL SEQUENCE DUPLICATE RECEIPT ACKNOWLEDGED BY FIRMWARE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "protocol sequence duplicate receipt acknowledged by firmware"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "protocol sequence duplicate receipt acknowledged by firmware"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:4",
+      "text": "PROTOCOL SEQUENCE DUPLICATE RECEIPT ACKNOWLEDGED BY FIRMWARE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT INPUT ACCEPTED EPOCH SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT input accepted epoch sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT input accepted epoch sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT INPUT ACCEPTED EPOCH SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT input accepted epoch sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT input accepted epoch sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT INPUT ACCEPTED EPOCH SEQUENCE"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT input accepted epoch sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT input accepted epoch sequence"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:7",
+      "text": "BDI RECEIPT INPUT ACCEPTED EPOCH SEQUENCE"
     },
     {
       "label": "link_down",
@@ -18219,6 +23019,306 @@
       "label": "resource_pressure",
       "template_group": "resource_pressure:4",
       "text": "CPU CORE UTILIZATION ABOVE WARNING BOUNDARY"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE TRANSPORT=USB UPTIME_MS=2080 DEVICES=1 REJECTED=0 FREE_HEAP=44000 SD_STATE=READY ARCHIVE_COPY=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=44128 devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=990557 devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE TRANSPORT=USB UPTIME_MS=15269 DEVICES=1 REJECTED=0 FREE_HEAP=44000 SD_STATE=READY ARCHIVE_COPY=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=135763 devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=495736 devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE TRANSPORT=USB UPTIME_MS=454217 DEVICES=1 REJECTED=0 FREE_HEAP=44000 SD_STATE=READY ARCHIVE_COPY=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=329752 devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] reasoning_cycle=ACTIVE transport=USB uptime_ms=817190 devices=1 rejected=0 free_heap=44000 sd_state=ready archive_copy=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:0",
+      "text": "[BDI][STATUS] REASONING_CYCLE=ACTIVE TRANSPORT=USB UPTIME_MS=986069 DEVICES=1 REJECTED=0 FREE_HEAP=44000 SD_STATE=READY ARCHIVE_COPY=1"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "RUNTIME STATUS REJECTED INPUT COUNTER AND FREE HEAP INFORMATION"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "runtime status rejected input counter and free heap information"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "runtime status rejected input counter and free heap information"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "RUNTIME STATUS REJECTED INPUT COUNTER AND FREE HEAP INFORMATION"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "runtime status rejected input counter and free heap information"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "runtime status rejected input counter and free heap information"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "RUNTIME STATUS REJECTED INPUT COUNTER AND FREE HEAP INFORMATION"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "runtime status rejected input counter and free heap information"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "runtime status rejected input counter and free heap information"
+    },
+    {
+      "label": "runtime_status",
+      "template_group": "runtime_status:9",
+      "text": "RUNTIME STATUS REJECTED INPUT COUNTER AND FREE HEAP INFORMATION"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] STATE=DEGRADED DEVICE=SW-991 AVAILABILITY=ONLINE HEALTHY=FALSE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] state=DEGRADED device=sw-317 availability=ONLINE healthy=false"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] state=DEGRADED device=sw-384 availability=ONLINE healthy=false"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] STATE=DEGRADED DEVICE=SW-803 AVAILABILITY=ONLINE HEALTHY=FALSE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] state=DEGRADED device=sw-519 availability=ONLINE healthy=false"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] state=DEGRADED device=sw-702 availability=ONLINE healthy=false"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] STATE=DEGRADED DEVICE=SW-370 AVAILABILITY=ONLINE HEALTHY=FALSE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] state=DEGRADED device=sw-865 availability=ONLINE healthy=false"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] state=DEGRADED device=sw-958 availability=ONLINE healthy=false"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:6",
+      "text": "[BDI][STATE] STATE=DEGRADED DEVICE=SW-452 AVAILABILITY=ONLINE HEALTHY=FALSE"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "OBSERVED DEVICE SNAPSHOT STATE AND TRACKED FAULT LIST"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "observed device snapshot state and tracked fault list"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "observed device snapshot state and tracked fault list"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "OBSERVED DEVICE SNAPSHOT STATE AND TRACKED FAULT LIST"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "observed device snapshot state and tracked fault list"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "observed device snapshot state and tracked fault list"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "OBSERVED DEVICE SNAPSHOT STATE AND TRACKED FAULT LIST"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "observed device snapshot state and tracked fault list"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "observed device snapshot state and tracked fault list"
+    },
+    {
+      "label": "state_snapshot",
+      "template_group": "state_snapshot:8",
+      "text": "OBSERVED DEVICE SNAPSHOT STATE AND TRACKED FAULT LIST"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] RESULT=REJECTED DEVICE=SW-821 SEQ=4 EPOCH=87065"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] result=REJECTED device=sw-208 seq=4 epoch=422929"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] result=REJECTED device=sw-323 seq=4 epoch=929730"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] RESULT=REJECTED DEVICE=SW-296 SEQ=4 EPOCH=894392"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] result=REJECTED device=sw-136 seq=4 epoch=100984"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] result=REJECTED device=sw-871 seq=4 epoch=762676"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] RESULT=REJECTED DEVICE=SW-959 SEQ=4 EPOCH=238637"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] result=REJECTED device=sw-266 seq=4 epoch=904955"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] result=REJECTED device=sw-462 seq=4 epoch=6939"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:5",
+      "text": "[BDI][RECEIPT] RESULT=REJECTED DEVICE=SW-766 SEQ=4 EPOCH=769170"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI RECEIPT CONFIRMS INPUT FRAME DELIVERY ONLY"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI receipt confirms input frame delivery only"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI receipt confirms input frame delivery only"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI RECEIPT CONFIRMS INPUT FRAME DELIVERY ONLY"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI receipt confirms input frame delivery only"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI receipt confirms input frame delivery only"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI RECEIPT CONFIRMS INPUT FRAME DELIVERY ONLY"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI receipt confirms input frame delivery only"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI receipt confirms input frame delivery only"
+    },
+    {
+      "label": "delivery_receipt",
+      "template_group": "delivery_receipt:2",
+      "text": "BDI RECEIPT CONFIRMS INPUT FRAME DELIVERY ONLY"
     },
     {
       "label": "stp_protection",

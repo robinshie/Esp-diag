@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {parseReport, ReportHistory, applyReport, reportSummary, reportSeverity} from "../src/reports.js";
-import {telemetryOnline, applyTelemetry} from "../src/telemetry.js";
+import {parseReport, ReportHistory, applyReport, reportSummary, reportSeverity, archiveTime, reportTimeText} from "../backend/reports.js";
+import {telemetryOnline, applyTelemetry} from "../backend/telemetry.js";
 
 const report = () => ({schema_version: 1, report_id: "one", status: {reasoning_cycle: "ACTIVE", seen_at_ms: "1000", transport: "USB", uptime_ms: "5000"},
   observations: [{device: "a", state: "DEGRADED", healthy: "false", locked: "true", critical: "false", active_faults: "1"}],
@@ -54,4 +54,16 @@ test("a cached report cannot override a newer offline notification", () => {
   assert.equal(telemetryOnline(d, true, 2000), false);
   applyReport(d, {...report(), status: {...report().status, seen_at_ms: "2500"}}, 3000);
   assert.equal(telemetryOnline(d, true, 3000), true);
+});
+test("native evidence keeps uptime and cannot clear faults or refresh telemetry", () => {
+  const native = {schema_version:1,source:"esp_native",clock:"uptime",boot:"b1",report_id:"native",sent_at_ms:12500,
+    lines:[{at_ms:12500,text:"[SSH] state=connected"}]};
+  const parsed = parseReport(JSON.stringify(native));
+  assert.deepEqual(parsed,native);
+  const device = {kind:"agent",lastSeen:1000,availability:"OFFLINE",faults:2};
+  applyReport(device,parsed,20000);
+  assert.equal(device.lastSeen,1000);assert.equal(device.faults,2);assert.equal(device.availability,"OFFLINE");
+  assert.equal(reportTimeText(parsed),"本次开机 +12.5 秒");assert.doesNotMatch(reportSummary(parsed),/故障 0|1970/);
+  assert.equal(archiveTime({report:parsed}),null);assert.equal(archiveTime({report:parsed,archive_at_ms:1793500000000}),1793500000000);
+  assert.equal(reportSeverity(parsed),"info");
 });

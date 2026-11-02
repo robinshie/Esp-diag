@@ -49,4 +49,4 @@ PLATFORMIO_SETTING_ENABLE_TELEMETRY=no \
 
 echo
 echo "烧录完成。"
-echo "启动网关：$PYTHON -m esp_gateway run --config ${ESP_CONFIG:-config/local.json}"
+echo "正式版可独立运行：连按三下 BOOT 开启日志热点，连接 ESP-Logs 后访问 http://192.168.4.1/archive。"

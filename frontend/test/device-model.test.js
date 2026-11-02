@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {DeviceModel, deviceProfile} from "../src/models/device-model.js";
-import {applyReport} from "../src/reports.js";
-import {renderLoopView} from "../src/views/loop-view.js";
-import {demoLoopReports, loopIncidents} from "../src/loops.js";
+import {DeviceModel, deviceProfile} from "../backend/models/device-model.js";
+import {applyReport} from "../backend/reports.js";
+import {renderLoopView} from "../backend/views/loop-view.js";
+import {loopIncidents} from "../backend/loops.js";
+import {demoLoopReports} from "./fixtures/loop-reports.js";
 
 test("editable device number stays separate from identity, state and other devices", () => {
   const model = new DeviceModel({'edge-1': {name: '机架 A', device_number: 'ESP-001'}});

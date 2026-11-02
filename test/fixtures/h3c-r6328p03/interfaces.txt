@@ -1,0 +1,68 @@
+display interface brief
+Brief information on interfaces in route mode:
+Link: ADM - administratively down; Stby - standby
+Protocol: (s) - spoofing
+Interface            Link Protocol Primary IP      Description                
+InLoop0              UP   UP(s)    --              
+NULL0                UP   UP(s)    --              
+Vlan1                DOWN DOWN     --              
+Vlan10               UP   UP       192.168.10.2    
+Brief information on interfaces in bridge mode:
+Link: ADM - administratively down; Stby - standby
+Speed: (a) - auto
+Duplex: (a)/A - auto; H - half; F - full
+Type: A - access; T - trunk; H - hybrid
+Interface            Link Speed   Duplex Type PVID Description                
+GE1/0/1              UP   100M(a) F(a)   A    10   
+GE1/0/2              DOWN auto    A      A    10   
+GE1/0/3              DOWN auto    A      A    10   
+GE1/0/4              DOWN auto    A      A    10   
+GE1/0/5              DOWN auto    A      A    10   
+GE1/0/6              DOWN auto    A      A    10   
+GE1/0/7              DOWN auto    A      A    1    
+GE1/0/8              DOWN auto    A      A    1    
+GE1/0/9              DOWN auto    A      A    1    
+GE1/0/10             DOWN auto    A      A    1    
+GE1/0/11             DOWN auto    A      A    1    
+GE1/0/12             DOWN auto    A      A    1    
+GE1/0/13             DOWN auto    A      A    1    
+GE1/0/14             DOWN auto    A      A    1    
+GE1/0/15             DOWN auto    A      A    1    
+GE1/0/16             DOWN auto    A      A    1    
+GE1/0/17             DOWN auto    A      A    1    
+GE1/0/18             DOWN auto    A      A    1    
+GE1/0/19             DOWN auto    A      A    1    
+GE1/0/20             DOWN auto    A      A    1    
+GE1/0/21             DOWN auto    A      A    1    
+GE1/0/22             DOWN auto    A      A    1    
+GE1/0/23             DOWN auto    A      A    1    
+GE1/0/24             DOWN auto    A      A    1    
+GE1/0/25             DOWN auto    A      A    1    
+GE1/0/26             DOWN auto    A      A    1    
+GE1/0/27             DOWN auto    A      A    1    
+GE1/0/28             DOWN auto    A      A    1    
+GE1/0/29             DOWN auto    A      A    1    
+GE1/0/30             DOWN auto    A      A    1    
+GE1/0/31             DOWN auto    A      A    1    
+GE1/0/32             DOWN auto    A      A    1    
+GE1/0/33             DOWN auto    A      A    1    
+GE1/0/34             DOWN auto    A      A    1    
+GE1/0/35             DOWN auto    A      A    1    
+GE1/0/36             DOWN auto    A      A    1    
+GE1/0/37             DOWN auto    A      A    1    
+GE1/0/38             DOWN auto    A      A    1    
+GE1/0/39             DOWN auto    A      A    1    
+GE1/0/40             DOWN auto    A      A    1    
+GE1/0/41             DOWN auto    A      A    1    
+GE1/0/42             DOWN auto    A      A    1    
+GE1/0/43             DOWN auto    A      A    1    
+GE1/0/44             DOWN auto    A      A    1    
+GE1/0/45             DOWN auto    A      A    1    
+GE1/0/46             DOWN auto    A      A    1    
+GE1/0/47             DOWN auto    A      A    1    
+GE1/0/48             DOWN auto    A      A    1    
+XGE1/0/49            DOWN auto    A      A    1    
+XGE1/0/50            DOWN auto    A      A    1    
+XGE1/0/51            DOWN auto    A      A    1    
+XGE1/0/52            DOWN auto    A      A    1    
+<H3C>

@@ -36,8 +36,8 @@
   </header>
   <main>
     <section>
-      <div class="heading"><h2><span id="espName">ESP32</span> <span id="espState" class="state">等待串口状态</span></h2>
-        <div class="stats">传输 <span id="serialLabel">USB</span> · 实际硬件输出</div>
+      <div class="heading"><h2><span id="espName">ESP32</span> <span id="espState" class="state">等待设备状态</span></h2>
+        <div class="stats">传输 <span id="serialLabel">等待上报</span> · 实际硬件输出</div>
         <div id="espStats" class="stats">等待设备上报运行时间、堆内存和推理状态…</div>
         <div id="observations" class="stats">等待 ESP32 上报监测结果…</div>
         <div id="espLast" class="stats">尚未收到日志</div>
@@ -45,7 +45,7 @@
       <div id="espLogs" class="logs" role="log" aria-label="ESP32 实时日志"></div>
     </section>
   </main>
-  <footer><span id="archiveState">正在读取当前连接数据…</span> · 每次打包上报显示一条，展开可查看真实 ESP32 USB 原文与网关诊断。<a href="/history.html">历史查询</a> · <a href="/">设备仪表盘</a></footer>
-  <script type="module" src="/src/console.js"></script>
+  <footer><span id="archiveState">正在读取当前连接数据…</span> · 每次打包上报显示一条，展开可查看ESP32 现场原文与处置证据。<a href="/history.html">历史查询</a> · <a href="/">设备仪表盘</a></footer>
+  <script type="module" src="/backend/console.js"></script>
 </body>
 </html>

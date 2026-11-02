@@ -1,9 +1,10 @@
-#include "../src/switch_settings.h"
+#include "../src/config/switch_settings.h"
 #include <cassert>
 int main(){
-  SwitchSettings s,copy;assert(s.protocol=="none"&&s.validate().empty());
+  SwitchSettings s,copy;assert(s.protocol=="ssh"&&s.host=="192.168.10.2"&&s.username=="admin"&&s.port==22&&s.validate().empty());
+  assert(s.validateNetwork(NetworkSettings{}).empty());
   assert(copy.decode(s.encode()));
-  s.protocol="ssh";assert(!s.validate().empty());
+  s.host="";assert(!s.validate().empty());
   s.host="192.168.23.2";s.username="admin";s.password="a|&=+ secret";
   assert(s.validate().empty()); // SSH credentials can be saved without a host fingerprint.
   s.fingerprint="SHA256:"+std::string(43,'A');assert(s.validate().empty());

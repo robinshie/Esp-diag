@@ -3,8 +3,11 @@ import hashlib
 import re
 import base64
 import json
+import threading
 
-from pymongo import ASCENDING, DESCENDING, MongoClient
+from pymongo import ASCENDING, DESCENDING, MongoClient, ReturnDocument
+from esp_protocol.report_limits import MAX_REPORT_LINES, MAX_REPORT_BYTES
+from .native_contract import native_report, validate_native_report, validate_status
 
 
 def agent_id(value):
@@ -14,23 +17,27 @@ def agent_id(value):
 
 
 def validate_report(value):
-    if not isinstance(value, dict) or value.get("schema_version") != 1:
+    if not isinstance(value, dict) or type(value.get("schema_version")) is not int or value["schema_version"] != 1:
         raise ValueError("invalid report schema")
     if not isinstance(value.get("report_id"), str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", value["report_id"]):
         raise ValueError("invalid report identity")
     timestamp = value.get("sent_at_ms")
     if type(timestamp) is not int or timestamp < 0:
         raise ValueError("invalid report timestamp")
-    observations, lines = value.get("observations"), value.get("lines")
-    if not isinstance(observations, list) or len(observations) > 32 or not isinstance(lines, list) or len(lines) > 64:
+    if native_report(value):
+        validate_native_report(value)
+    observations, lines = value.get("observations", [] if native_report(value) else None), value.get("lines")
+    if not isinstance(observations, list) or len(observations) > 32 or not isinstance(lines, list) or len(lines) > MAX_REPORT_LINES:
         raise ValueError("report exceeds firmware capacity")
     if not all(isinstance(item, dict) and isinstance(item.get("device"), str) for item in observations):
         raise ValueError("invalid observations")
     if not all(isinstance(item, dict) and isinstance(item.get("text"), str) and len(item["text"]) <= 9000
                and type(item.get("at_ms")) is int for item in lines):
-        raise ValueError("invalid USB lines")
+        raise ValueError("invalid report lines")
     if value.get("status") is not None and not isinstance(value["status"], dict):
         raise ValueError("invalid ESP32 runtime status")
+    if len(json.dumps(value, ensure_ascii=False, separators=(',', ':')).encode()) > MAX_REPORT_BYTES:
+        raise ValueError('report exceeds SD copy capacity')
     return value
 
 
@@ -40,10 +47,15 @@ def public_device(row):
             "enabled": row.get("enabled", True), "kind": "agent", "manuallyAdded": row.get("manuallyAdded", False),
             "metadata_custom": row.get("metadata_custom", False), "availability": row.get("availability"),
             "availability_at_ms": row.get("availability_at_ms", 0), "latest_report": row.get("latest_report"),
+            "latest_report_at_ms": row.get("latest_report_at_ms", row.get("snapshot_at_ms", 0)),
+            "telemetry": row.get("telemetry"), "telemetry_at_ms": row.get("telemetry_at_ms", 0),
+            "telemetry_retained": row.get("telemetry_retained", False),
             "report_count": row.get("report_count", 0)}
 
 
 def connection_session(report):
+    if native_report(report):
+        return "boot:" + report["boot"]
     status = report.get("status") or {}
     if status.get("reasoning_cycle") != "ACTIVE":
         return None
@@ -65,6 +77,8 @@ class MongoRepository:
         self.devices = self.db.devices
         self.reports = self.db.reports
         self.registrations = self.db.agent_registrations
+        self.copy_sequences = self.db.archive_sequences
+        self.copy_lock = threading.RLock()
         self.history_days = settings.history_days
 
     def initialize(self):
@@ -80,6 +94,15 @@ class MongoRepository:
                                    ("report.status.connection_id", ASCENDING), ("report.boot", ASCENDING),
                                    ("sent_at_ms", DESCENDING), ("_id", DESCENDING)])
         self.reports.create_index("expires_at", expireAfterSeconds=0, name="history_retention")
+        self.reports.create_index([('topic_root', 1), ('agent_id', 1), ('mirror_sequence', 1)])
+        # A native clock restarts at every boot. The archive's independent time
+        # axis uses receipt time; legacy gateway reports already carry epoch ms.
+        self.reports.update_many({"topic_root": self.root, "archive_at_ms": {"$exists": False}},
+                                 [{"$set": {"archive_at_ms": {"$cond": [
+                                     {"$eq": ["$report.source", "esp_native"]},
+                                     {"$toLong": "$received_at"}, "$sent_at_ms"]}}}])
+        self.reports.create_index([("topic_root", 1), ("archive_at_ms", -1), ("_id", -1)])
+        self.reports.create_index([("topic_root", 1), ("agent_id", 1), ("archive_at_ms", -1), ("_id", -1)])
         if not self.history_days:
             # Remove old TTL deadlines when long-term retention is selected.
             self.reports.update_many({"topic_root": self.root, "expires_at": {"$exists": True}},
@@ -92,11 +115,11 @@ class MongoRepository:
         for identity in identities:
             self.remember_agent(identity)
             latest = self.reports.find_one({"topic_root": self.root, "agent_id": identity},
-                                          sort=[("sent_at_ms", DESCENDING), ("_id", DESCENDING)])
+                                          sort=[("archive_at_ms", DESCENDING), ("_id", DESCENDING)])
             if latest:
                 self.registrations.update_one({"_id": self.key(identity), "last_session": {"$exists": False}},
                     {"$set": {"last_session": connection_session(latest["report"]),
-                              "last_session_at_ms": latest["sent_at_ms"]}})
+                              "last_session_at_ms": latest["archive_at_ms"]}})
 
     def remember_agent(self, identity):
         self.registrations.update_one({"_id": self.key(identity)}, {"$setOnInsert": {
@@ -108,24 +131,33 @@ class MongoRepository:
     def key(self, identity):
         return self.root + "/" + agent_id(identity)
 
-    def register_report(self, identity, report, retained=False, name=None):
+    def register_report(self, identity, report, retained=False, name=None, received_at_ms=None):
         identity = agent_id(identity)
         validate_report(report)
-        now = datetime.now(timezone.utc)
+        now = (datetime.fromtimestamp(received_at_ms / 1000, timezone.utc) if received_at_ms is not None
+               else datetime.now(timezone.utc))
+        archive_at_ms = int(now.timestamp() * 1000) if native_report(report) else report["sent_at_ms"]
         key = self.key(identity)
         registration = self.registrations.find_one({"_id": key})
         session = connection_session(report)
         reconnected = (registration is not None and session and registration.get("last_session")
                        and session != registration["last_session"] and not retained
-                       and report["sent_at_ms"] > registration.get("last_session_at_ms", 0))
+                       and archive_at_ms > registration.get("last_session_at_ms", 0)
+                       and session not in registration.get("past_sessions", []))
         report_key = hashlib.sha256((key + "/" + report["report_id"]).encode()).hexdigest()
         # Idempotent across MQTT redelivery and a crash between insert and inbox ACK.
         archived = {
-            "topic_root": self.root, "agent_id": identity, "sent_at_ms": report["sent_at_ms"],
+            "topic_root": self.root, "agent_id": identity, "sent_at_ms": report["sent_at_ms"], "archive_at_ms": archive_at_ms,
             "received_at": now, "retained": retained, "report": report}
         if self.history_days:
             archived["expires_at"] = now + timedelta(days=self.history_days)
         self.reports.update_one({"_id": report_key}, {"$setOnInsert": archived}, upsert=True)
+        # Redelivery must not make old uptime evidence look newly received.
+        archived = self.reports.find_one({"_id": report_key}, {"archive_at_ms": 1})
+        archive_at_ms = archived["archive_at_ms"]
+        if registration and archive_at_ms <= registration.get("last_session_at_ms", 0):
+            reconnected = False
+        self._copy_sequence(report_key, identity)
         if registration is None or reconnected:
             self.devices.update_one({"_id": key}, {"$setOnInsert": {
                 "topic_root": self.root, "agent_id": identity, "name": name or f"ESP32 · {identity}", "location": "未设置",
@@ -133,18 +165,50 @@ class MongoRepository:
             self.remember_agent(identity)
         # Retained snapshots and late reports cannot create a new connection or
         # advance discovery memory ahead of the next live USB status report.
-        if session and not retained:
+        if session and not retained and (not registration or session not in registration.get("past_sessions", [])):
+            previous = registration.get("last_session") if registration else None
+            update = {"$set": {"last_session": session, "last_session_at_ms": archive_at_ms}}
+            if previous and previous != session:
+                update["$push"] = {"past_sessions": {"$each": [previous], "$slice": -32}}
             self.registrations.update_one({"_id": key, "$or": [
-                {"last_session_at_ms": {"$lt": report["sent_at_ms"]}},
+                {"last_session_at_ms": {"$lt": archive_at_ms}},
                 {"last_session_at_ms": {"$exists": False}}]},
-                {"$set": {"last_session": session, "last_session_at_ms": report["sent_at_ms"]}})
-        self.devices.update_one({"_id": key, "$or": [{"snapshot_at_ms": {"$lte": report["sent_at_ms"]}},
+                update)
+        self.devices.update_one({"_id": key, "$or": [{"snapshot_at_ms": {"$lte": archive_at_ms}},
                                                       {"snapshot_at_ms": {"$exists": False}}]},
-                                {"$set": {"latest_report": report, "snapshot_at_ms": report["sent_at_ms"], "updated_at": now}})
+                                {"$set": {"latest_report": report, "snapshot_at_ms": archive_at_ms, "updated_at": now}})
+
+    def record_telemetry(self, identity, payload, at_ms, retained=False):
+        validate_status(payload)
+        key = self.key(identity)
+        registration = self.registrations.find_one({"_id": key})
+        if registration is None:
+            self.devices.update_one({"_id": key}, {"$setOnInsert": {
+                "topic_root": self.root, "agent_id": identity, "name": f"ESP32 · {identity}",
+                "created_at": datetime.now(timezone.utc)}}, upsert=True)
+            self.remember_agent(identity)
+        self.devices.update_one({"_id": key, "$or": [{"telemetry_at_ms": {"$lt": at_ms}},
+                                                     {"telemetry_at_ms": {"$exists": False}}]},
+                                {"$set": {"telemetry": payload, "telemetry_at_ms": at_ms,
+                                          "telemetry_retained": bool(retained)}})
+
+    def device_telemetry(self, identity):
+        row = self.devices.find_one({"_id": self.key(identity)})
+        if row is None:
+            return None
+        return {"device_id": identity, "source": "mqtt", "availability": row.get("availability"),
+                "availability_at_ms": row.get("availability_at_ms", 0), "status": row.get("telemetry"),
+                "received_at_ms": row.get("telemetry_at_ms", 0), "retained": row.get("telemetry_retained", False)}
 
     def record_availability(self, identity, state, at_ms):
         if state not in {"ONLINE", "OFFLINE"}:
             raise ValueError("invalid availability")
+        key = self.key(identity)
+        if self.registrations.find_one({"_id": key}) is None:
+            self.devices.update_one({"_id": key}, {"$setOnInsert": {
+                "topic_root": self.root, "agent_id": identity, "name": f"ESP32 · {identity}",
+                "created_at": datetime.now(timezone.utc)}}, upsert=True)
+            self.remember_agent(identity)
         self.devices.update_one({"_id": self.key(identity), "$or": [{"availability_at_ms": {"$lte": at_ms}},
                                                                  {"availability_at_ms": {"$exists": False}}]},
                                 {"$set": {"availability": state, "availability_at_ms": at_ms}})
@@ -170,13 +234,15 @@ class MongoRepository:
         # browser receipts or a counter which could drift after a crash/TTL expiry.
         archives = {row["_id"]: row for row in self.reports.aggregate([
             {"$match": self.live_query() if scope == "live" else {"topic_root": self.root}},
-            {"$sort": {"agent_id": 1, "sent_at_ms": -1, "_id": -1}},
-            {"$group": {"_id": "$agent_id", "count": {"$sum": 1}, "latest_report": {"$first": "$report"}}}])}
+            {"$sort": {"agent_id": 1, "archive_at_ms": -1, "_id": -1}},
+            {"$group": {"_id": "$agent_id", "count": {"$sum": 1}, "latest_report": {"$first": "$report"},
+                        "latest_report_at_ms": {"$first": "$archive_at_ms"}}}])}
         rows = self.devices.find({"topic_root": self.root}).sort("agent_id", ASCENDING)
         # The cached device snapshot may refer to a report removed in MongoDB's
         # manager or by TTL. Read the latest surviving archive record instead.
         return [public_device({**row, "_id": row["agent_id"],
                                "report_count": archives.get(row["agent_id"], {}).get("count", 0),
+                               "latest_report_at_ms": archives.get(row["agent_id"], {}).get("latest_report_at_ms", 0),
                                "latest_report": archives.get(row["agent_id"], {}).get("latest_report")}) for row in rows]
 
     def save_device(self, identity, metadata):
@@ -205,7 +271,7 @@ class MongoRepository:
         if identity:
             query["agent_id"] = agent_id(identity)
         if start_ms is not None or end_ms is not None:
-            query["sent_at_ms"] = {**({"$gte": start_ms} if start_ms is not None else {}),
+            query["archive_at_ms"] = {**({"$gte": start_ms} if start_ms is not None else {}),
                                    **({"$lte": end_ms} if end_ms is not None else {})}
         total = self.reports.count_documents(query)
         if cursor:
@@ -215,18 +281,85 @@ class MongoRepository:
                     raise ValueError()
             except Exception as error:
                 raise ValueError("Invalid history cursor") from error
-            query = {"$and": [query, {"$or": [{"sent_at_ms": {"$lt": at}}, {"sent_at_ms": at, "_id": {"$lt": key}}]}]}
-        rows = list(self.reports.find(query).sort([("sent_at_ms", DESCENDING), ("_id", DESCENDING)]).limit(limit + 1))
+            query = {"$and": [query, {"$or": [{"archive_at_ms": {"$lt": at}}, {"archive_at_ms": at, "_id": {"$lt": key}}]}]}
+        rows = list(self.reports.find(query).sort([("archive_at_ms", DESCENDING), ("_id", DESCENDING)]).limit(limit + 1))
         next_cursor = None
         if len(rows) > limit:
             last = rows[limit - 1]
-            next_cursor = base64.urlsafe_b64encode(json.dumps([last["sent_at_ms"], last["_id"]]).encode()).decode().rstrip("=")
+            next_cursor = base64.urlsafe_b64encode(json.dumps([last["archive_at_ms"], last["_id"]]).encode()).decode().rstrip("=")
         return {"reports": [{"agent_id": row["agent_id"], "received_at": row["received_at"].isoformat(),
-                             "retained": row["retained"], "report": row["report"]} for row in rows[:limit]],
+                             "archive_at_ms": row["archive_at_ms"], "retained": row["retained"], "report": row["report"]} for row in rows[:limit]],
                 "total": total, "next_cursor": next_cursor, "scope": scope, "history_days": self.history_days}
 
     def history(self, identity=None, limit=50):
         return self.history_page(identity, limit)["reports"]
+
+    def saved_report(self, identity, report_id):
+        if not isinstance(report_id, str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,128}', report_id):
+            return None
+        row = self.reports.find_one({'topic_root': self.root, 'agent_id': agent_id(identity), 'report.report_id': report_id})
+        return row['report'] if row else None
+
+    def report_context(self, identity, report_id):
+        target = self.saved_report(identity, report_id)
+        if target is None:
+            return None
+        boot = target.get('boot')
+        if not isinstance(boot, str) or not boot:
+            return {'source': 'database', 'report_id': report_id, 'reports': [target], 'limited': False}
+        query = {'topic_root': self.root, 'agent_id': agent_id(identity), 'report.boot': boot,
+                 'sent_at_ms': {'$gte': max(0, target['sent_at_ms'] - 600000), '$lte': target['sent_at_ms']},
+                 'report.report_id': {'$ne': report_id}}
+        if native_report(target):
+            query['report.source'] = 'esp_native'
+            query['report.clock'] = 'uptime'
+        connection = (target.get('status') or {}).get('connection_id')
+        if isinstance(connection, str) and connection:
+            query['report.status.connection_id'] = connection
+        rows = self.reports.find(query, {'report': 1}).sort([('sent_at_ms', -1), ('_id', -1)]).limit(12)
+        reports, size, limited = [target], 0, False
+        for row in rows:
+            packet = row['report']
+            size += len(json.dumps(packet, ensure_ascii=False).encode())
+            if size > 512 * 1024 or len(reports) >= 12:
+                limited = True
+                break
+            reports.append(packet)
+        reports.sort(key=lambda packet: packet['sent_at_ms'])
+        return {'source': 'database', 'report_id': report_id, 'reports': reports, 'limited': limited,
+                'window_ms': 600000}
+
+    def _copy_sequence(self, key, identity):
+        with self.copy_lock:
+            self._assign_copy_sequence(key, identity)
+
+    def _assign_copy_sequence(self, key, identity):
+        row = self.reports.find_one({'_id': key}, {'mirror_sequence': 1})
+        if not row or 'mirror_sequence' in row:
+            return
+        counter = self.copy_sequences.find_one_and_update({'_id': self.key(identity)},
+            {'$inc': {'value': 1}, '$set': {'topic_root': self.root}}, upsert=True, return_document=ReturnDocument.AFTER)
+        self.reports.update_one({'_id': key, 'mirror_sequence': {'$exists': False}},
+                                {'$set': {'mirror_sequence': counter['value']}})
+
+    def next_sd_copy(self, identity, after, received_after_ms=None):
+        with self.copy_lock:
+            return self._next_sd_copy(identity, after, received_after_ms)
+
+    def _next_sd_copy(self, identity, after, received_after_ms=None):
+        query = {'topic_root': self.root, 'agent_id': agent_id(identity)}
+        if received_after_ms is not None:
+            query['received_at'] = {'$gte': datetime.fromtimestamp(received_after_ms / 1000, timezone.utc)}
+        # Upgrade old archives in bounded batches. Sequence follows DB insertion,
+        # so late reports and equal timestamps cannot fall behind a time cursor.
+        for row in self.reports.find({**query, 'mirror_sequence': {'$exists': False}}, {'_id': 1}).sort('received_at', 1).limit(100):
+            self._copy_sequence(row['_id'], identity)
+        row = self.reports.find_one({**query, 'mirror_sequence': {'$gt': after}}, sort=[('mirror_sequence', 1)])
+        if not row:
+            return {'copy': None}
+        payload = json.dumps(row['report'], ensure_ascii=False, separators=(',', ':'), sort_keys=True)
+        return {'copy': {'sequence': row['mirror_sequence'], 'report_id': row['report']['report_id'],
+                         'sha256': hashlib.sha256(payload.encode()).hexdigest(), 'payload': payload}}
 
     def close(self):
         self.client.close()

@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from esp_gateway.reports import ReportBatcher
@@ -16,7 +17,7 @@ class ReportBatchingTest(unittest.TestCase):
         self.addCleanup(self.store.close)
         self.now = 0
         self.topic = "site/esp/report"
-        self.batch = ReportBatcher(self.store, self.topic, clock=lambda: self.now)
+        self.batch = ReportBatcher(self.store, self.topic, clock=lambda: self.now, wall_clock=lambda: 1000 + self.now)
 
     def test_sample_and_receipt_and_runtime_are_one_packet_without_duplicate_lines(self):
         state = "[BDI][STATE] device=a state=DEGRADED locked=true active_faults=1"
@@ -27,7 +28,7 @@ class ReportBatchingTest(unittest.TestCase):
         self.batch.ingest("observation/a", state + " seen_at_ms=1000")
         self.batch.ingest("status", status + " seen_at_ms=1100 connection_id=usb-one")
         self.assertIsNone(self.store.first())
-        self.now = 0.26
+        self.now = 60
         self.assertTrue(self.batch.flush())
         rows = self.store.db.execute("SELECT topic,payload,retain FROM outbox").fetchall()
         self.assertEqual(len(rows), 1)
@@ -44,10 +45,13 @@ class ReportBatchingTest(unittest.TestCase):
         self.batch.ingest("serial", "[BDI][ACK] result=FAILED")
         other_store = Store(self.path)
         try:
-            reopened = ReportBatcher(other_store, self.topic, clock=lambda: self.now)
+            self.now = 30
+            reopened = ReportBatcher(other_store, self.topic, clock=lambda: self.now, wall_clock=lambda: 1000 + self.now)
+            self.assertFalse(reopened.flush())
+            self.now = 60
             self.assertTrue(reopened.flush())
             self.assertIn("result=FAILED", other_store.first()[2])
-            again = ReportBatcher(other_store, self.topic, clock=lambda: self.now)
+            again = ReportBatcher(other_store, self.topic, clock=lambda: self.now, wall_clock=lambda: 1000 + self.now)
             self.assertFalse(again.flush(force=True))
         finally:
             other_store.close()
@@ -73,13 +77,17 @@ class ReportBatchingTest(unittest.TestCase):
         self.assertIsNone(report["status"])
         self.assertEqual(report["observations"], [])
 
-    def test_busy_input_is_bounded_and_not_postponed_forever(self):
+    def test_over_sixty_four_lines_remain_one_packet_at_the_deadline(self):
         for index in range(130):
             self.batch.ingest("serial", f"[BDI][EVENT] index={index}")
-        self.batch.flush(force=True)
+        self.now = 59.99
+        self.assertFalse(self.batch.flush())
+        self.assertIsNone(self.store.first())
+        self.now = 60
+        self.batch.flush()
         reports = [json.loads(row[0]) for row in self.store.db.execute("SELECT payload FROM outbox ORDER BY id")]
-        self.assertEqual([len(report["lines"]) for report in reports], [64, 64, 2])
-        self.assertEqual(len({report["report_id"] for report in reports}), 3)
+        self.assertEqual([len(report["lines"]) for report in reports], [130])
+        self.assertEqual(len({report["report_id"] for report in reports}), 1)
 
     def test_semantic_copy_does_not_duplicate_raw_action(self):
         raw = "[BDI][ACK] action=UNLOCK result=SUCCESS"
@@ -88,7 +96,7 @@ class ReportBatchingTest(unittest.TestCase):
         self.batch.flush(force=True)
         self.assertEqual(len(json.loads(self.store.first()[2])["lines"]), 1)
 
-    def test_normal_updates_wait_for_one_interval_but_faults_flush_quickly(self):
+    def test_fault_commands_do_not_bypass_the_storage_interval(self):
         self.batch.ingest("status", "reasoning_cycle=ACTIVE seen_at_ms=1000")
         self.batch.flush(force=True)
         self.store.delivered(self.store.first()[0])
@@ -98,33 +106,39 @@ class ReportBatchingTest(unittest.TestCase):
         self.assertFalse(self.batch.flush())
         self.batch.ingest("serial", "[BDI][CMD] UNLOCK request_id=one")
         self.now = 1.26
+        self.assertFalse(self.batch.flush())
+        self.now = 60
         self.assertTrue(self.batch.flush())
         report = json.loads(self.store.first()[2])
         self.assertEqual(len(report["lines"]), 2)
 
     def test_gateway_diagnostic_is_preserved_and_marked_separately(self):
         self.batch.ingest("action", "reason=USB_OUTPUT_TOO_LONG")
-        self.now = 0.26
+        self.now = 60
         self.assertTrue(self.batch.flush())
         self.assertEqual(json.loads(self.store.first()[2])["lines"][0]["text"], "[GATEWAY] reason=USB_OUTPUT_TOO_LONG")
 
     def test_sixty_second_reports_include_interval_and_retain_urgent_events(self):
         self.batch.set_interval(60000)
         self.batch.ingest("status", "reasoning_cycle=ACTIVE seen_at_ms=1000")
-        self.batch.flush(force=True)  # initial discovery remains immediate
+        self.assertFalse(self.batch.flush())  # Initial discovery uses the same deadline.
+        self.now = 60
+        self.batch.flush()
         self.store.delivered(self.store.first()[0])
         self.batch.ingest("serial", "[BDI][STATUS] reasoning_cycle=ACTIVE")
-        self.now = 59.9
+        self.now = 119.9
         self.assertFalse(self.batch.flush())
-        self.now = 60
+        self.now = 120
         self.assertTrue(self.batch.flush())
         self.assertEqual(json.loads(self.store.first()[2])["report_interval_ms"], 60000)
         self.store.delivered(self.store.first()[0])
         self.batch.ingest("serial", "[BDI][RECOVERED] device=a component=admin fault=AUTH_LOCKED")
-        self.now = 60.26
+        self.now = 120.26
+        self.assertFalse(self.batch.flush())
+        self.now = 180
         self.assertTrue(self.batch.flush())
 
-    def test_live_interval_changes_reschedule_normal_batches_without_delaying_alarm(self):
+    def test_live_interval_changes_reschedule_all_records_including_alarms(self):
         self.batch.ingest("serial", "[BDI][STATUS] reasoning_cycle=ACTIVE")
         self.now = 1
         self.batch.set_interval(60000)
@@ -133,5 +147,39 @@ class ReportBatchingTest(unittest.TestCase):
         self.batch.ingest("serial", "[BDI][CMD] UNLOCK request_id=one")
         self.batch.set_interval(120000)
         self.now = 5.26
+        self.assertFalse(self.batch.flush())
+        self.now = 125
         self.assertTrue(self.batch.flush())
         self.assertEqual(json.loads(self.store.first()[2])["report_interval_ms"], 120000)
+
+    def test_line_capacity_retains_pending_data_without_early_packet(self):
+        with patch('esp_gateway.reports.MAX_REPORT_LINES', 2):
+            for index in range(2): self.batch.ingest('serial', f'[BDI][EVENT] index={index}')
+            with self.assertRaises(BufferError): self.batch.ingest('serial', '[BDI][EVENT] index=2')
+        self.assertIsNone(self.store.first())
+        self.assertEqual(len(self.batch.data['lines']), 2)
+        self.assertEqual(len(json.loads(self.store.db.execute('SELECT data FROM report_state').fetchone()[0])['lines']), 2)
+        self.now = 60
+        self.assertTrue(self.batch.flush())
+
+    def test_restart_after_completed_packet_preserves_next_deadline(self):
+        self.batch.ingest('serial', '[BDI][STATUS] reasoning_cycle=ACTIVE')
+        self.now = 60
+        self.batch.flush()
+        self.store.delivered(self.store.first()[0])
+        self.now = 65
+        other = ReportBatcher(self.store, self.topic, clock=lambda: self.now, wall_clock=lambda: 1000 + self.now)
+        other.ingest('serial', '[BDI][ACK] result=FAILED')
+        self.now = 119.99
+        self.assertFalse(other.flush())
+        self.now = 120
+        self.assertTrue(other.flush())
+
+    def test_first_data_after_long_unplugged_window_opens_a_full_interval(self):
+        self.now = 300
+        self.batch.ingest('serial', '[BDI][BOOT] boot=plugged-in')
+        self.assertFalse(self.batch.flush())
+        self.now = 359.99
+        self.assertFalse(self.batch.flush())
+        self.now = 360
+        self.assertTrue(self.batch.flush())

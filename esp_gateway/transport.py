@@ -18,6 +18,7 @@ import serial
 from .store import Store, fields
 from .topology import Topology
 from .serial_device import resolve_port
+from .archive_copy import ArchiveCopy
 
 TOPIC_LOG = "h3c/server/sim-01/log"  # legacy import only; runtime topics use device identity
 TOPIC_HEALTH = "h3c/server/sim-01/health"
@@ -65,7 +66,7 @@ class GatewayTransport:
         if getattr(args, "batch_reports", False):
             from .reports import ReportBatcher
             self.reports = ReportBatcher(self.store, self.agent_topic + "/report", getattr(args, "report_batch_ms", 250),
-                                         interval_ms=getattr(args, "report_interval_ms", 5000))
+                                         interval_ms=getattr(args, "report_interval_ms", 60000))
         self.world = {}  # restored from the durable source snapshot on start
         for device, raw in self.store.db.execute("SELECT device,data FROM world"):
             self.world[device] = dict(json.loads(raw)["faults"])
@@ -79,6 +80,7 @@ class GatewayTransport:
         self.mqtt.on_connect = self._on_mqtt_connect
         self.mqtt.on_disconnect = self._on_mqtt_disconnect
         self.threads = []
+        self.archive_copy = ArchiveCopy(self)
 
 
     def _on_mqtt_connect(self, client, userdata, flags, reason_code, properties):
@@ -114,7 +116,7 @@ class GatewayTransport:
         self.store.enqueue(topic, payload, retain)
 
     def _reporter(self):
-        from .reporting_config import ReportingConfig
+        from esp_protocol.reporting_config import ReportingConfig
         path = getattr(self.args, "reporting_config_path", None)
         config = ReportingConfig(path) if path else None
         next_check, previous_error = 0, None
@@ -160,6 +162,7 @@ class GatewayTransport:
         port.port = resolve_port(self.args.port, getattr(self.args, "serial_number", None))
         port.open()
         self.serial = port
+        self.archive_copy.supported = False
         print(f"[USB] connected port={port.port}", flush=True)
         # The simulator's deterministic seed must not reuse a USB connection
         # identity when the gateway process restarts.
@@ -229,6 +232,8 @@ class GatewayTransport:
 
 
     def _handle_line(self, line):
+        if self.archive_copy.accept(line):
+            return  # Copy ACKs must never become reports and feed back into SD.
         logging.getLogger(__name__).info("ESP32 -> GATEWAY %s", line)
         if getattr(self.args, "serial_log", False):
             self.publish_mqtt(self.agent_topic + "/serial", line)
@@ -292,6 +297,7 @@ class GatewayTransport:
         elif line.startswith("[BDI][EVENT]"):
             self.publish_mqtt(self.agent_topic + "/event", line)
         elif line.startswith("[BDI][STATUS]"):
+            self.archive_copy.supported = f.get('archive_copy') == '1'
             ttl = getattr(self.args, "protocol", {}).get("stale_ms", 90000)
             self.publish_mqtt(self.agent_topic + "/status", line +
                               f" seen_at_ms={int(time.time() * 1000)} source_ttl_ms={ttl} connection_id={self.nonce}", True)
@@ -414,6 +420,7 @@ class GatewayTransport:
                 self.error = exc
                 self.stop_event.set()
         targets = [self._reader, self._publisher, self._sender, *self.extra_workers()]
+        targets.append(self.archive_copy.run)
         if self.reports is not None:
             targets.append(self._reporter)
         self.threads = [threading.Thread(target=worker, args=(target,), daemon=True) for target in targets]
@@ -444,7 +451,7 @@ class GatewayTransport:
                 thread.join(timeout=getattr(self.args, "worker_shutdown_timeout", 5))
             if self.reports is not None:
                 try:
-                    self.reports.flush(force=True)
+                    self.reports.flush()  # Shutdown retains a partial interval in SQLite.
                 except Exception as exc:
                     logging.getLogger(__name__).error("pending report retained: %s", type(exc).__name__)
             if self.mqtt_connected.is_set():

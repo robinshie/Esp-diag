@@ -1,5 +1,5 @@
 #include <iostream>
-#include "cluster_runtime.h"
+#include "../src/legacy/cluster_runtime.h"
 std::string bdi_device;
 std::function<void(const std::string&)> bdi_output;
 std::function<void()> bdi_request_action;

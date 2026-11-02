@@ -10,15 +10,18 @@ from .repository import MongoRepository
 from .models import DeviceMetadata, ReportingInterval  # public import compatibility
 from .controllers.devices import device_router
 from .controllers.reports import report_router
+from .controllers.ai import ai_router
+from .ai_provider import ExplanationService
 
 
-def create_app(settings, repository=None, ingestor=None):
+def create_app(settings, repository=None, ingestor=None, explanations=None):
     @asynccontextmanager
     async def lifespan(app):
         repo = repository or MongoRepository(settings)
         repo.initialize()
         intake = ingestor or ReportIngestor(settings, repo)
         app.state.repository, app.state.ingestor = repo, intake
+        app.state.explanations = explanations or ExplanationService(getattr(settings, "ai", None))
         intake.start()
         try:
             yield
@@ -49,5 +52,6 @@ def create_app(settings, repository=None, ingestor=None):
 
     app.include_router(device_router(settings, authenticated))
     app.include_router(report_router(authenticated))
+    app.include_router(ai_router(authenticated))
 
     return app
