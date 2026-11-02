@@ -9,13 +9,18 @@
 #include "../device/network_portal.h"
 #include "../net/ethernet_mqtt.h"
 #include "../net/switch_ssh.h"
+#include "../adapters/h3c/device_adapter.h"
+#include "../application/switch_runtime.h"
+#include "../application/action_ledger.h"
+#include "../bdi/strategies/loop_discovery.h"
+#include "../bdi/strategies/loop_isolation.h"
+#include "../config/site_policy.h"
 #include "../net/switch_heartbeat.h"
+#include "../bdi/strategies/heartbeat.h"
 #include "../storage/local_journal.h"
 #include "../ai/tiny_log_service.h"
 #include "../security/ssh_trust_store.h"
 #if ESP_STANDALONE
-#include "../h3c/runtime.h"
-#include "../h3c/action_ledger.h"
 #include "../ai/device_analysis.h"
 #endif
 
@@ -29,21 +34,26 @@ ClusterRuntime* runtime;
 #endif
 NetworkPortal networkPortal;
 EthernetMqtt ethernetMqtt;
-SwitchSsh switchSsh;
+h3c::DeviceAdapter deviceAdapter;
+SwitchSsh switchSsh{deviceAdapter};
 SshTrustStore sshTrust;
 std::string bootId;
-SwitchHeartbeat switchHeartbeat;
+switchbdi::HeartbeatStrategy heartbeatStrategy;
+SwitchHeartbeat switchHeartbeat{heartbeatStrategy};
 #if ESP_STANDALONE
 LocalJournal sdJournal;
-h3c::Runtime h3cRuntime;
-h3c::ActionLedger actionLedger;
+switchbdi::LoopDiscoveryStrategy loopDiscovery;
+switchbdi::LoopIsolationStrategy loopIsolation;
+switchbdi::StrategySet strategies{&loopDiscovery,&loopIsolation};
+switchapp::SwitchRuntime switchRuntime{deviceAdapter,strategies,site::switchPolicy()};
+switchapp::ActionLedger actionLedger;
 NvsTextStore actionStore;
 DeviceAnalysis deviceAnalysis;
 std::string endpoint(){const auto& profile=networkPortal.switchConfig();return SshHostKey::endpoint(profile.host,profile.port);}
-std::string deviceExtraStatus(){return "\"bdi\":"+h3cRuntime.json()+",\"analysis\":"+deviceAnalysis.json()+",\"mqtt\":{\"state\":"+journal::quote(ethernetMqtt.stateName())+",\"enabled\":"+(networkPortal.mqttConfig().enabled?"true":"false")+"}";}
-void configureH3c(){
+std::string deviceExtraStatus(){return "\"bdi\":"+switchRuntime.json()+",\"analysis\":"+deviceAnalysis.json()+",\"mqtt\":{\"state\":"+journal::quote(ethernetMqtt.stateName())+",\"enabled\":"+(networkPortal.mqttConfig().enabled?"true":"false")+"}";}
+void configureSwitch(){
   const auto& profile=networkPortal.switchConfig();actionLedger.disconnected();deviceAnalysis.reset();
-  h3cRuntime.configure(profile.host,networkPortal.switchRevision(),bootId,profile.transport=="shell");
+  switchRuntime.configure(profile.host,networkPortal.switchRevision(),bootId,profile.transport=="shell");
 }
 #else
 SdJournal sdJournal;
@@ -59,7 +69,7 @@ bool sshRequest(const std::string& line){
   cluster::Fields fields;bool valid=cluster::parse(line,fields)&&fields.size()==2;
   auto id=cluster::get(fields,"request_id"),name=cluster::get(fields,"command");
   std::string result=!valid||!switchcli::identifier(id)?"invalid_request":!usbSshId.empty()?"busy":switchSsh.submit(id,name);
-  Serial.printf("[SSH][REQUEST] request_id=%s command=%s state=%s\n",switchcli::identifier(id)?id.c_str():"invalid",switchcli::command(name)?name.c_str():"invalid",result.c_str());
+  Serial.printf("[SSH][REQUEST] request_id=%s command=%s state=%s\n",switchcli::identifier(id)?id.c_str():"invalid",deviceAdapter.readCommand(name)?name.c_str():"invalid",result.c_str());
   if(result=="queued"||result=="running"||switchSsh.resultReady(id)){usbSshId=id;usbSshStarted=false;usbSshOffset=0;}
   return true;
 }
@@ -120,20 +130,20 @@ void setup() {
   actionLedger.read=[](const std::string& key,std::string& value){return actionStore.read(key,value);};
   actionLedger.write=[](const std::string& key,const std::string& value){return actionStore.write(key,value);};
   actionLedger.erase=[](const std::string& key){return actionStore.erase(key);};
-  h3cRuntime.log=firmware::println;
-  h3cRuntime.submitRead=[](const std::string& id,const std::string& command){return switchSsh.submit(id,command);};
-  h3cRuntime.submitIsolation=[](const std::string& id,const std::string& port){return switchSsh.submitIsolation(id,port);};
-  h3cRuntime.resultReady=[](const std::string& id){return switchSsh.resultReady(id);};
-  h3cRuntime.result=[](const std::string& id){return switchSsh.result(id);};
-  h3cRuntime.claimIntent=[](const h3c::ActionPlan& plan,const std::string& incident){return actionLedger.claim(endpoint(),plan,incident);};
-  h3cRuntime.alreadyClaimed=[](const std::string& port){return actionLedger.alreadyClaimed(endpoint(),port);};
-  h3cRuntime.observeLedger=[](const h3c::Snapshot& snapshot,const h3c::Policy& policy,uint64_t now){
+  switchRuntime.log=firmware::println;
+  switchRuntime.submitRead=[](const std::string& id,const std::string& command){return switchSsh.submit(id,command);};
+  switchRuntime.submitIsolation=[](const std::string& id,const std::string& port){return switchSsh.submitIsolation(id,port);};
+  switchRuntime.resultReady=[](const std::string& id){return switchSsh.resultReady(id);};
+  switchRuntime.result=[](const std::string& id){return switchSsh.result(id);};
+  switchRuntime.claimIntent=[](const switchmodel::ActionPlan& plan,const std::string& incident){return actionLedger.claim(endpoint(),plan,incident);};
+  switchRuntime.alreadyClaimed=[](const std::string& port){return actionLedger.alreadyClaimed(endpoint(),port);};
+  switchRuntime.observeLedger=[](const switchmodel::Snapshot& snapshot,const switchmodel::Policy& policy,uint64_t now){
     for(const auto& entry:snapshot.interfaces.ports)if(actionLedger.observeHealthy(endpoint(),entry.first,snapshot,policy,now))
       firmware::println("[BDI][LEDGER] port="+entry.first+" state=healthy_incident_cleared");
   };
   deviceAnalysis.save=[](const std::string& json){return sdJournal.appendAnalysis(json);};
-  h3cRuntime.analyse=[](const std::string& text,uint64_t at,uint64_t cycle){deviceAnalysis.observe(text,at,cycle);};
-  configureH3c();
+  switchRuntime.analyse=[](const std::string& text,uint64_t at,uint64_t cycle){deviceAnalysis.observe(text,at,cycle);};
+  configureSwitch();
   networkPortal.setDeviceExtraStatus([](){return String(deviceExtraStatus().c_str());});
 #endif
   networkPortal.setSwitchStatus([](){return String(switchSsh.stateName());});
@@ -175,7 +185,7 @@ void loop() {
   if(switchRevision!=networkPortal.switchRevision()){
     switchRevision=networkPortal.switchRevision();switchSsh.configure(networkPortal.switchConfig(),true);
 #if ESP_STANDALONE
-    configureH3c();
+    configureSwitch();
 #endif
     switchHeartbeat.configure(networkPortal.switchConfig().host,networkPortal.switchConfig().protocol=="ssh");
   }
@@ -195,7 +205,7 @@ void loop() {
   static bool lastConnected=false;
   const bool connected=switchSsh.connected();
   if(lastConnected&&!connected)actionLedger.disconnected();lastConnected=connected;
-  h3cRuntime.tick(monotonic_ms,connected,std::string(switchSsh.hostKeyState())=="trusted");
+  switchRuntime.tick(monotonic_ms,connected,std::string(switchSsh.hostKeyState())=="trusted");
 #endif
 #if !ESP_STANDALONE
   sshReplyTick();
@@ -225,7 +235,7 @@ void loop() {
   if (monotonic_ms - last_status >= 5000) {
     last_status = monotonic_ms;
 #if ESP_STANDALONE
-    const auto& hb=switchHeartbeat.bdi.evidence;
+    const auto& hb=switchHeartbeat.bdi.state();
     const std::string telemetry="{\"schema_version\":1,\"source\":\"esp_native\",\"boot\":"+journal::quote(bootId)+",\"uptime_ms\":"+std::to_string(monotonic_ms)+",\"ip\":"+journal::quote(ETH.localIP().toString().c_str())+",\"ssh_state\":"+journal::quote(switchSsh.stateName())+",\"heartbeat\":{\"state\":"+journal::quote(switchHeartbeat.stateName())+",\"rtt_ms\":"+std::to_string(hb.rtt)+",\"misses\":"+std::to_string(hb.misses)+"},"+deviceExtraStatus()+"}";
     ethernetMqtt.publishStatus(telemetry);
 #endif

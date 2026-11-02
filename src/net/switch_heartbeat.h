@@ -3,7 +3,8 @@
 #include <ETH.h>
 #include <atomic>
 #include <ping/ping_sock.h>
-#include "../bdi/switch_heartbeat_bdi.h"
+#include "../bdi/heartbeat_strategy.h"
+#include "../common/firmware_log.h"
 
 // The IDF ping task only publishes one POD result. All BDI reasoning stays in loop().
 class SwitchHeartbeat {
@@ -26,15 +27,15 @@ class SwitchHeartbeat {
   }
   static void ended(esp_ping_handle_t,void* arg){static_cast<SwitchHeartbeat*>(arg)->completed.store(true,std::memory_order_release);}
   void report(uint64_t now){
-    const auto& state=bdi.evidence;
-    bdi_output("[BDI][HEARTBEAT] target="+target+" transport=ICMP state="+state.name()+
+    const auto& state=bdi.state();
+    firmware::println("[BDI][HEARTBEAT] target="+target+" transport=ICMP state="+state.name()+
       " rtt_ms="+std::to_string(state.rtt)+" misses="+std::to_string(state.misses)+
       " successes="+std::to_string(state.successes)+" reason="+state.reason+" observed_ms="+std::to_string(now));
   }
   void error(uint64_t now){bdi.probeError();report(now);}
 public:
-  SwitchHeartbeatBdi bdi;
-  SwitchHeartbeat(){bdi.requestPing=[this](){requested=true;};}
+  switchbdi::IHeartbeatStrategy& bdi;
+  explicit SwitchHeartbeat(switchbdi::IHeartbeatStrategy& strategy):bdi(strategy){bdi.requestPing=[this](){requested=true;};}
   void configure(const std::string& host,bool active){
     ++revision;target=host;enabled=active;requested=false;bdi.reset(host);
     // An old one-shot completes within its timeout; discard by revision before reuse.
@@ -68,9 +69,9 @@ public:
     completed.store(false,std::memory_order_relaxed);result=Result();inFlight=true;
     if(esp_ping_start(session)!=ESP_OK){inFlight=false;esp_ping_delete_session(session);session=nullptr;error(now);}
   }
-  const char* stateName() const{return enabled?bdi.evidence.name():"disabled";}
+  const char* stateName() const{return enabled?bdi.state().name():"disabled";}
   String status() const{
-    return String("heartbeat_state=")+stateName()+"&heartbeat_rtt_ms="+String(bdi.evidence.rtt)+
-      "&heartbeat_misses="+String(bdi.evidence.misses)+"&heartbeat_reason="+bdi.evidence.reason;
+    return String("heartbeat_state=")+stateName()+"&heartbeat_rtt_ms="+String(bdi.state().rtt)+
+      "&heartbeat_misses="+String(bdi.state().misses)+"&heartbeat_reason="+bdi.state().reason;
   }
 };

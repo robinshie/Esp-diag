@@ -22,6 +22,8 @@ flowchart LR
   BACK -. 默认 disabled .-> PROVIDER[Ollama 等解释接口]
 ```
 
+开发接口与策略/设备替换方式见 [固件策略开发结构](firmware-strategies.md)。
+
 ## 三层职责
 
 | 层 / 路径 | 职责 |
@@ -31,8 +33,11 @@ flowchart LR
 | `src/device/` | 独立 BOOT 采样、长按配置/三击日志、十分钟窗口、HTTP 与按需 BLE |
 | `src/net/` | SSH 独占工作任务、命令白名单、ICMP、可选网口 MQTT 与发布游标 |
 | `src/security/` | 主机公钥首次配对、按目标持久信任与换钥阻止登录 |
-| `src/bdi/` | 实际心跳 BDI 的信念、目标与计划；不据此清除业务故障 |
-| `src/h3c/` | 真实命令解析、同轮新鲜证据、H3C Embedded-BDI、持久化动作账本与处置后验证 |
+| `src/domain/` | 标准化证据、现场策略、语义动作与结果验证 |
+| `src/bdi/` | 策略接口及心跳、探索、隔离三个实际 BDI 策略 |
+| `src/application/` | 与品牌无关的采集调度、策略调用、动作闭环与持久账本 |
+| `src/adapters/h3c/` | H3C 型号身份、命令、返回解析、终端视图和动作翻译 |
+| `src/h3c/` | 历史头文件路径与类型别名兼容转发 |
 | `src/storage/` | 原生报告、PSRAM 队列、独占 TF 任务和 NVS 文本持久化适配 |
 | `src/common/` | 统一事件出口、脱敏与日志文本等公共辅助能力 |
 | `src/ai/` | 本机推理、合格模型、设备分类服务；没有动作调用权限 |
@@ -50,7 +55,7 @@ flowchart LR
 
 ## 真实采集、决策与验证
 
-自动轮询按固定顺序读取 `display version`、`display interface brief`、`display interface brief down`、`display loopback-detection`、`display stp brief`、`display link-aggregation verbose`、`display logbuffer reverse`、`display cpu-usage`、`display memory`。每项按实际完成时间标记 cycle 与目标版本，输出截断、未知格式、混轮、过期或切换目标均不能成为写操作的依据。手动查询复用同一串行 SSH 工作任务。
+自动轮询按固定顺序读取 `display version`、`display interface brief`、`display interface brief down`、`display loopback-detection`、`display stp brief`、`display link-aggregation verbose`、`display logbuffer reverse`、`display cpu-usage`、`display memory`、`display mac-address mac-move`。每项按实际完成时间标记 cycle 与目标版本，输出截断、未知格式、混轮、过期或切换目标均不能成为写操作的依据。手动查询复用同一串行 SSH 工作任务。
 
 已确认支持的身份为现场 S5130S-52S-EI / R6328P03；其他身份保留只读。H3C BDI 和心跳 BDI 使用分离的信念与计划。真实环路处置要求 `loop_confirmed`、`action_allowed`、`ssh_ready` 同时满足，执行前再次核对证据。
 
@@ -72,7 +77,7 @@ SSH 首次登录后，心跳每五秒一次，连续三次失败告警、两次�
 
 新目录 `/esp-native` 只保存实际设备事件，包标注 `source=esp_native`、`transport=ETH`、`boot`、`clock=uptime`。原文时间保持 64 位单调运行时间，页面显示“本次开机 +…秒”；跨 boot 不混合关联。旧 `/esp-db-mirror` 和 `/esp-journal` 保留，不混入正式原生日志。
 
-固定 PSRAM 队列 96 条，每条最多约 1 KiB；每 30 秒或读取时请求提交，单包最多 64 条、约 48 KiB。TF 独占任务临时写入后重命名，约 12 MiB、最多 256 包循环保留并预留约 1 MiB。断电可能丢失未提交记录；卡异常不阻塞采样，缺口明确报告。动作意图账本独立于日志展示；意图持久化不可用时，自动动作不能继续执行。
+固定 PSRAM 队列 384 条，每条最多约 1 KiB；每 30 秒或读取时请求提交，单包最多 64 条、约 48 KiB。TF 独占任务临时写入后重命名，约 12 MiB、最多 256 包循环保留并预留约 1 MiB。断电可能丢失未提交记录；卡异常不阻塞采样，缺口明确报告。动作意图账本独立于日志展示；意图持久化不可用时，自动动作不能继续执行。
 
 MQTT 默认关闭，启用后使用 `esp-switch/<设备ID>/status`、`report`、`availability`。已提交 TF 报告以 QoS 1 发送，只有匹配 PUBACK 才前进游标；断线后可补发仍在 TF 保留窗口内的报告，超出循环窗口的记录不能承诺找回。状态/Last Will 与报告分别处理，不重复复制 USB 数据。
 
@@ -232,3 +237,39 @@ r2 实机离线采集成功导出 40 包，其中 29 包来自当前 boot。整�
 BDI 无效表已定位为 loops 与 aggregation：设备分别返回 `LPDT is not configured.` 与 `No link aggregation group exists.`。r3 精确支持这两种实机返回，前者表示检测器未配置，不能当作无环路；后者为有效空聚合表。六项同轮实机输出已固化到 `test/fixtures/h3c-r6328p03/`；通过真实 Runtime 回放验证五表有效、monitoring、loop_detection_disabled 和无写动作。PSRAM 队列由 96 扩至 384 槽，uint16_t 索引与超过 256 条突发均通过实际任务回归。
 
 16 项相关测试（含 ASan/UBSan、SSH 验钥/认证/命令、原生任务及离线采集）通过。`native-bdi-20261102-r3` 编译、烧录和写入哈希校验通过，Flash 使用 2,763,259 字节，firmware.bin SHA-256 为 `8962c0187daabe4b9ef9e884a40e1aa6ad75833dcf8afa1e9ff7b61c2b902ac1`。r3 的实机运行读回仍待下一次离线采集；未启用交换机 LPDT，未制造物理环路，也未把软件回放当作真实自动隔离验收。
+
+### r3 实机离线读回验收结果
+
+后续 r3 实机采集成功保存 40 包，其中当前 boot `6861c08f3aaf38a5f4031bd91573b58f` 有 32 包。九次状态采样中 SSH 均 connected、主机钥 trusted，心跳 healthy，RTT 为 1–4 ms、misses 为零。完整同轮决策表已在第 5、6、7、9 轮状态中读回，五表 valid/complete/fresh 均为 true，BDI 为 monitoring，原有 unknown 已消除。首个采样正处于换轮、表 cycle 混合，observation_valid 暂为 false，后续完整轮有效；未将混轮视为可动作证据。
+
+TF 三次采样均 ready，written 从 1249 增至 2608，pending 从 133 降至 4，dropped 始终为零；列表与日志读取通过。原始 logbuffer 超过 8192 字节时仍明确记录 truncated，不等于 TF 丢记录，也不使五项独立决策表失效。当前主机上保存的离线采集文件与自动断言结果分别为 `test/.runtime/esp-offline-diagnostics.json`、`test/.runtime/journal-r3-hardware-result.json`。
+
+本次仅完成真实 SSH、心跳、TF 和 BDI 监测验收。交换机环路检测仍未配置（loop_detection_enabled=false）；当前采样及当前 boot 已读报告中无端口动作。未验证实际环路发生、隔离、恢复或长期耐久，不能据此宣称已完成自动解环。
+
+### r4 多条件环路探索
+
+新增独立 EmbeddedBDI 目标 explore_loop，在原九条只读采集之后读取 `display mac-address mac-move`。同一 MAC/VLAN/端口对的双向增量均至少为 3，端口为同 VLAN 的可用业务 access 口，且本轮 5 秒 CPU 至少 80% 或最近 45 秒发生 STP 表变化时，第一轮 watch、连续第二轮 suspected。累计历史只建立基线，断线、缺轮、失效证据、计数重置会重置进度；稳定的 STP 阻塞不算当前环路信号。直接 LPDT 或 loopback down cause 仍须链路原因一致才报告 confirmed。规则详情与限制见 [多条件环路探索](loop-discovery.md)。
+
+新代理的动作仅 observe_only，没有 SSH 写回调，suspected 不授权原隔离代理。页面增加环路探索状态，`bdi.discovery` 同步进入设备状态、可选 MQTT 和离线采集摘要；TF 记录信念与判断过程。未自动启用 LPDT、MAC 通知或修改 STP。初版间接探索不覆盖管理/保护口、trunk、聚合及 STP 根/保护路径。
+
+18 项 Python 原生/接口回归、108 项前端测试、固定 SSH 命令测试通过；新代理及完整 Runtime 在 ASan/UBSan 下验证两轮疑似、历史重放、计数重置、证据冲突、保护端口、SSH 重连和疑似结果无写动作。精确嵌入页面在真实 Chrome 390 像素视口下验证疑似端口对、无横向溢出与页面异常；接口为受控只读替身，不是实机故障证据。
+
+`native-bdi-20261102-r4` 已编译并烧录，写入哈希校验通过。Flash 使用 2,818,739 / 3,342,336 字节，静态 RAM 69,292 / 327,680 字节；firmware.bin SHA-256 为 `d8f9f9de64768aad92c94ac237e9d93cccd5dcee51ab4be1eaff06b08c2fa887`。USB 仅用于烧录。发布记录位于 `test/.runtime/loop-discovery-r4-release.json`。当前离线采集文件仍为 r3；r4 的真实 MAC 空表返回、探索状态和物理环路发现尚待现场离线采集验收，不沿用 r3 结果宣称新版实机通过。
+
+### r4 实机离线读回结果
+
+后续离线采集取得 40 包，其中当前 r4 boot `5f64d2551d3abe0930bee36953b9266e` 有 20 包；其余 20 包属于上一 boot，未用于当前启动判断。九次状态均为 r4、SSH connected、主机钥 trusted、心跳 healthy，RTT 1–2 ms、misses=0。五项核心表在第 2、3、4、7 轮读回完整同轮有效数据；一次换轮采样混合第 7/6 轮，被正确标为 observation_valid=false，随后第 7 轮完整有效。
+
+新增 `display mac-address mac-move` 已在实机返回 ok，原文包含表头及 `---  0 MAC address moving records found  ---`。九次状态的 mac_moves_valid、cpu_valid 均为 true，CPU 5 秒值为 4–36%。探索代理在完成轮次 2、3、4、6、7 为 monitoring / lpdt_disabled_no_current_multi_signal_evidence / observe_only，未报告疑似或确认环路；首轮日志记录建立基线。交换机 LPDT 仍未配置，空 MAC 历史及当前未触发疑似不能证明不存在物理环路。
+
+TF 三次状态均 ready，written 从 620 增至 2035，dropped 始终为零。状态与已采集当前 boot 报告未出现端口写动作。原始 logbuffer 查询仍按容量报告 truncated；独立核心表与 MAC/CPU 查询完整。实机断言记录为 `test/.runtime/loop-discovery-r4-hardware-result.json`。同轮八项原始返回固化于 `test/fixtures/h3c-r6328p03-r4/`，供完整 Runtime 回放；这是正常网络下采集、解析和只读推理验收，物理环路发现、隔离和恢复仍未实测。
+
+### r5 策略与设备适配重构
+
+新增 `IBdiStrategy`、固定容量 `StrategySet` 和异步心跳输入接口 `IHeartbeatStrategy`。三个具体 BDI 策略统一位于 `src/bdi/strategies/`；标准化证据和公共动作门控在 `domain/`，品牌无关的调度与账本在 `application/`，设备命令和解析在 `adapters/h3c/`。`main.cpp` 显式选择适配器与策略。SSH 通过同一个不可变 `IDeviceAdapter` 获取命令、分页设置、提示符、错误和动作预期视图，具体命令仅由适配器构造；ActionPlan 只保留语义。旧 `h3c/` 包含路径转发到新实现，NVS 意图记录头与键不变。
+
+策略提出动作后仍由公共执行器独立检查当前轮次、目标版本、明确环路证据、端口保护、持久化与后续读回。每轮开始清空证据，避免漏填时沿用上一轮；观察阶段的建议不进入执行。状态增加 device_profile 和 strategy_ids，现有 discovery 字段保持。完整开发契约与新增策略/设备的步骤见 [固件策略开发结构](firmware-strategies.md)。
+
+20 项相关 Python 回归和 108 项前端测试通过；最后修改涉及的九项原生测试、两项策略契约及八项采集器测试另行通过。ASan/UBSan 覆盖策略替换、两项查询且身份最后采集的测试设备、不同 CLI/# 提示符的真实 SSH worker、错误策略动作被阻止、组合容量与重连、漏填数据及原 H3C 实机样本回放。正常状态 JSON 已通过真实序列化后 Python 解码检查。生产适配器仍只有已验证的 H3C；测试适配器不代表另一真实品牌已获得支持。历史 USB 实验入口仅做编译兼容检查，未用于正式运行。
+
+`native-bdi-20261102-r5` 正式构建与烧录成功，写入哈希校验通过，USB 仅用于烧录。Flash 2,822,951 / 3,342,336 字节，静态 RAM 69,340 / 327,680 字节；firmware.bin SHA-256 为 `131e369aec873fea28d8179e14e86de7f7a729998714827c8b9ead0a0d443153`。发布记录为 `test/.runtime/strategy-r5-release.json`。当前离线实机文件仍为 r4，r5 运行读回等待下一次离线采集；没有将软件回放或烧录成功当作新版本 SSH、物理环路或长期耐久验收。

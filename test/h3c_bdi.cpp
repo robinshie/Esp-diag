@@ -41,7 +41,7 @@ static void parsing() {
   assert(normalizePort("XGE1/0/49")=="Ten-GigabitEthernet1/0/49");
   assert(normalizePort("Ten-GigabitEthernet1/0/49")=="Ten-GigabitEthernet1/0/49");
   for(const char* invalid:{"GE1/0/3\nshutdown","GE1/0/3;shutdown","GE1/0/3-4","GE1/0/0","GE1/0/3/1","Vlan10","Bridge-Aggregation1","GE0/0/1","GE1/0/99999"}) assert(normalizePort(invalid).empty());
-  assert(interfaceCommand(port)=="interface GigabitEthernet 1/0/3");
+  assert(h3ccli::interfaceCommand(port)=="interface GigabitEthernet 1/0/3");
   assert(supportedIdentity("H3C Comware Software, Version 7.1.070, Release 6328P03\nH3C S5130S-52S-EI uptime"));
   assert(!supportedIdentity("H3C S5120V2-LI"));
   auto s=snapshot(); assert(usableSnapshot(s,1000,45000));
@@ -77,7 +77,7 @@ static void parsing() {
 }
 static void diagnosisAndGates() {
   auto s=snapshot(); auto p=policy();
-  auto plan=isolationPlan(s,p,port,1000); assert(plan.allowed && plan.commands.size()==4 && plan.commands[2]=="shutdown");
+  auto plan=isolationPlan(s,p,port,1000); assert(plan.allowed && h3c::DeviceAdapter().actionCommands(plan.action,plan.port).size()==4 && h3c::DeviceAdapter().actionCommands(plan.action,plan.port)[2]=="shutdown");
   assert(diagnosePort(s,port,1000).kind==FindingKind::LoopDetected);
   assert(isolationPlan(s,p,"GE1/0/1",1000).reason=="management_port_protected");
   assert(!isolationPlan(s,p,"GE1/0/3\nreturn",1000).allowed);
@@ -135,7 +135,7 @@ static void verifiedLifecycle() {
   assert(tracker.state==RecoveryState::Contained && tracker.ownsIsolation());
   assert(tracker.reason=="isolation_verified_physical_loop_not_declared_repaired");
   assert(!tracker.ownedRestorePlan(isolated,p,5000,false).allowed);
-  auto restore=tracker.ownedRestorePlan(isolated,p,5000,true); assert(restore.allowed && restore.commands[2]=="undo shutdown");
+  auto restore=tracker.ownedRestorePlan(isolated,p,5000,true); assert(restore.allowed && h3c::DeviceAdapter().actionCommands(restore.action,restore.port)[2]=="undo shutdown");
   assert(tracker.beginRestore(restore)); tracker.executionResult(true,5500);
   assert(tracker.state==RecoveryState::VerifyingRecovery);
   tracker.observe(snapshot(4,7000,"UP","",false),p,7000);
@@ -271,7 +271,10 @@ static void ledgerObservationFences() {
   assert(store.erases==erases);
 }
 struct RuntimeHarness {
-  Runtime runtime; LedgerStore store; ActionLedger ledger;
+  h3c::DeviceAdapter adapter;
+  LoopDiscovery discovery;H3cBdiAgent isolation;
+  switchbdi::StrategySet strategies{&discovery,&isolation};
+  Runtime runtime{adapter,strategies,site::switchPolicy()}; LedgerStore store; ActionLedger ledger;
   std::map<std::string,switchcli::Result> replies;
   std::map<std::string,std::string> outputs,states;
   std::set<std::string> truncated;
@@ -316,6 +319,7 @@ struct RuntimeHarness {
     }
     if(command=="stp")return stpHeader+"0 GigabitEthernet1/0/1 DESI FORWARDING NONE\n"+(link=="UP"?"0 GigabitEthernet1/0/3 DESI FORWARDING NONE\n":"")+(secondLoop?"0 GigabitEthernet1/0/4 DESI FORWARDING NONE\n":"")+"<H3C>\n";
     if(command=="aggregation")return "display link-aggregation verbose\n<H3C>\n";
+    if(command=="mac_moves")return "display mac-address mac-move\nMAC address VLAN Current port Source port Last time Times\n--- 0 MAC address moving records found ---\n<H3C>\n";
     if(command=="logs")return "display logbuffer reverse\nLog buffer information\n%Nov 2 10:00:00 H3C IFNET/3/PHY_UPDOWN: Physical state on GigabitEthernet1/0/3 changed to down.\n<H3C>\n";
     if(command=="cpu")return "Slot 1 CPU 0 CPU usage:\n3% in last 5 seconds\n<H3C>\n";
     return "Memory statistics are measured in KB:\nMem: 506412 316704 189708 0 0 112892 37.6%\n<H3C>\n";
@@ -376,7 +380,8 @@ static void runtimeReconnectAndOtherPorts() {
   {RuntimeHarness h;h.runtime.result=nullptr;h.step();h.step(true,true,111000);assert(h.writes.empty());}
 }
 static void managementProfileBinding() {
-  Runtime bare;
+  h3c::DeviceAdapter adapter;switchbdi::StrategySet strategies;
+  Runtime bare{adapter,strategies,site::switchPolicy()};
   bare.configure("192.168.10.2",0,"unbound",true);
   assert(bare.json().find("\"enabled\":false")!=std::string::npos);
   assert(!bare.bindManagementProfile("192.168.10.2",0,"GE1/0/1"));
@@ -391,11 +396,39 @@ static void managementProfileBinding() {
   {RuntimeHarness h;h.runtime.configure(h.target,9,"same-endpoint-new-settings",true,22);
    h.until([&](){return h.writes.size()==1;});assert(h.runtime.json().find("\"topology_confirmed\":true")!=std::string::npos);}
 }
+static void runtimeMultiConditionDiscovery(){
+  RuntimeHarness h;h.mode="disabled";h.secondLoop=true;
+  h.outputs["cpu"]="Slot 1 CPU 0 CPU usage:\n90% in last 5 seconds\n<H3C>\n";
+  auto moving=[&](unsigned n){
+    h.outputs["mac_moves"]="MAC address VLAN Current port Source port Last time Times\n"
+      "0000-0001-002c 10 GE1/0/3 GE1/0/4 2013-05-20 13:40:52 "+std::to_string(n)+"\n"
+      "0000-0001-002c 10 GE1/0/4 GE1/0/3 2013-05-20 13:40:52 "+std::to_string(n)+"\n--- 2 MAC address moving records found ---\n<H3C>\n";
+  };
+  moving(100);h.rounds(1);
+  assert(h.runtime.json().find("baseline_established_history_not_replayed")!=std::string::npos);
+  moving(103);h.rounds(1);
+  assert(h.runtime.json().find("\"discovery\":{\"state\":\"watch\"")!=std::string::npos);
+  moving(106);h.rounds(1);
+  assert(h.runtime.json().find("\"discovery\":{\"state\":\"suspected\"")!=std::string::npos);
+  assert(h.writes.empty()&&h.store.writes==0); // Statistical suspicion never reaches the isolation agent.
+  h.step(false);assert(h.runtime.json().find("waiting_for_observation")!=std::string::npos);
+  moving(200);h.rounds(1);
+  assert(h.runtime.json().find("baseline_established_history_not_replayed")!=std::string::npos);
+  h.outputs["mac_moves"]="Unsupported device response\n<H3C>\n";h.rounds(1);
+  const auto status=h.runtime.json();
+  assert(status.find("mac_move_evidence_unavailable")!=std::string::npos);
+  assert(status.find("\"observation_valid\":true")!=std::string::npos&&h.writes.empty());
+}
 static void replayDeviceCapture(const std::string& directory){
   RuntimeHarness h;
   for(const char* command:{"version","interfaces","down","loops","stp","aggregation"}){
     std::ifstream file(directory+"/"+command+".txt");assert(file);
     h.outputs[command]=std::string((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
+  }
+  bool hasDiscoveryCapture=false;
+  for(const char* command:{"cpu","mac_moves"}){
+    std::ifstream file(directory+"/"+command+".txt");
+    if(file){h.outputs[command]=std::string((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());if(std::string(command)=="mac_moves")hasDiscoveryCapture=true;}
   }
   h.rounds(3);
   const auto status=h.runtime.json();
@@ -403,13 +436,21 @@ static void replayDeviceCapture(const std::string& directory){
   assert(status.find("\"observation_valid\":true")!=std::string::npos);
   assert(status.find("loop_detection_disabled")!=std::string::npos);
   assert(status.find("\"loop_detection_enabled\":false")!=std::string::npos);
+  if(hasDiscoveryCapture){
+    assert(status.find("\"mac_moves_valid\":true")!=std::string::npos);
+    assert(status.find("\"cpu_valid\":true")!=std::string::npos);
+    assert(status.find("lpdt_disabled_no_current_multi_signal_evidence")!=std::string::npos);
+    assert(status.find("\"action\":\"observe_only\"")!=std::string::npos);
+    assert(parseMacMoves(h.outputs["mac_moves"],stamp()).records.empty());
+    std::cout<<"Real r4 MAC/CPU capture replay: valid empty history, read-only monitoring\n";
+  }
   const auto interfaces=parseInterfaces(h.outputs["interfaces"],stamp());
   assert(interfaces.valid&&interfaces.ports.size()==52);
   std::cout<<"Real device capture replay: five tables valid, monitoring with detector unconfigured, no writes\n";
 }
 int main(int argc,char** argv) {
   parsing(); diagnosisAndGates(); verifiedLifecycle(); failuresDoNotReplayOrRecover(); actualEmbeddedBdi(); durableLedger(); ledgerObservationFences();
-  runtimeRealCommandLifecycle();runtimeGatesAndMetadata();runtimeReconnectAndOtherPorts();managementProfileBinding();
+  runtimeRealCommandLifecycle();runtimeGatesAndMetadata();runtimeReconnectAndOtherPorts();managementProfileBinding();runtimeMultiConditionDiscovery();
   if(argc==2) {
     std::ifstream file(argv[1]); const std::string text((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());
     const auto parsed=parseInterfaces(text,stamp()); assert(parsed.valid && parsed.ports.size()==52);

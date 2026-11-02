@@ -63,7 +63,10 @@ def summarize(bundle):
             'heartbeat_healthy': healthy, 'commands_ok_current_boot': commands,
             'bdi_observation_valid': bdi.get('observation_valid') is True,
             'bdi_state': bdi.get('state'), 'bdi_reason': bdi.get('reason'),
+            'bdi_device_profile': bdi.get('device_profile'),
+            'bdi_strategies': bdi.get('strategy_ids', []),
             'loop_detection_enabled': bdi.get('loop_detection_enabled'),
+            'loop_discovery': bdi.get('discovery'),
             'bdi_cycle': bdi.get('cycle'), 'reports_current_boot': len(reports),
             'note': '只读采集；动作执行和物理环路恢复须另核对事件、端口及连续读回。'}
 

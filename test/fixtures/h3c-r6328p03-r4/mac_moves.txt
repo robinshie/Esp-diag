@@ -1,0 +1,4 @@
+display mac-address mac-move
+MAC address    VLAN Current port  Source port   Last time              Times
+---  0 MAC address moving records found  ---
+<H3C>

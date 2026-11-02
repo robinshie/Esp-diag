@@ -19,7 +19,8 @@ const server=http.createServer((req,res)=>{
  else if(url.pathname==='/storage/read'){
   if(url.searchParams.has('job')){const task=reads.get(url.searchParams.get('job'));reply=task.reply;if(!task.polled){task.polled=true;reply={state:'busy'};}}
   else {const payload=payloads[url.searchParams.get('file')];const start=Number(url.searchParams.get('offset')),next=Math.min(payload.length,start+3072),id=String(++job);reads.set(id,{polled:false,reply:{state:'ready',start,next,size:payload.length,eof:next===payload.length,base64:payload.subarray(start,next).toString('base64')}});reply={state:'pending',job:Number(id)};}
- }else if(url.pathname==='/model/explain')reply=fixture.predictions[url.searchParams.get('log')]||{experimental:true,accepted:false};
+ }else if(url.pathname==='/device/status')reply={ai_on_device:true,ssh_state:'connected',heartbeat:'heartbeat_state=healthy',bdi:{state:'monitoring',discovery:{state:'suspected',reason:'persistent_mac_moves_with_corroboration',port:'GigabitEthernet1/0/3',peer:'GigabitEthernet1/0/4',vlan:10,rounds:2}},analysis:{model:'tiny-log-v3-protocol'},mqtt:{enabled:false,state:'disabled'}};
+ else if(url.pathname==='/model/explain')reply=fixture.predictions[url.searchParams.get('log')]||{experimental:true,accepted:false};
  else{res.statusCode=404;reply={error:'unexpected request'};}
  res.end(JSON.stringify(reply));
 });await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -38,6 +39,7 @@ try{
  await call('Page.navigate',{url:base});
  for(let i=0;i<200;i++){if(await evaluate('Boolean(document.getElementById("analyze")&&!document.getElementById("analyze").disabled&&document.getElementById("status").textContent.includes("历史记录"))'))break;await sleep(100);}
  assert.equal(await evaluate('document.getElementById("analyze").textContent'),'一键分析最近日志');
+ if(!live)assert.match(await evaluate('document.getElementById("device-discovery").textContent'),/疑似环路.*GigabitEthernet1\/0\/3.*GigabitEthernet1\/0\/4.*仅观察/);
  await evaluate('document.getElementById("analyze").click()');
  let summary;for(let i=0;i<600;i++){summary=await evaluate(`(()=>({status:document.getElementById('status')?.textContent||'',cards:document.querySelectorAll('.incident-card').length,models:[...document.querySelectorAll('.model-result')].map(n=>n.textContent)}))()`);if(summary.status.includes('AI 分析完成')&&(live||summary.cards)&&summary.models.length&&summary.models.every(t=>!t.startsWith('正在辅助分类')))break;await sleep(100);}
  assert.match(summary.status,/AI 分析完成/);if(!live){assert.match(summary.status,/2 包/);assert.ok(summary.cards>0,JSON.stringify(summary));}assert.ok(summary.models.every(t=>!t.startsWith('正在辅助分类')));assert.ok(summary.models.some(t=>t.includes('tiny-log-v3-protocol')),JSON.stringify(summary));

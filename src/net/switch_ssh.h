@@ -6,11 +6,13 @@
 #include <libssh_esp32.h>
 #include <libssh/libssh.h>
 #include "../config/switch_settings.h"
-#include "ssh_commands.h"
-#include "../h3c/observations.h"
+#include "command_result.h"
+#include "terminal_capture.h"
+#include "../adapters/device_adapter.h"
 
 // All libssh objects belong to the worker; the Arduino loop only publishes profiles.
 class SwitchSsh {
+  const switchdevice::IDeviceAdapter& adapter;
   SemaphoreHandle_t lock=nullptr;
   SwitchSettings pending;
   unsigned revision=0,commandRevision=0;
@@ -36,8 +38,8 @@ class SwitchSsh {
     std::string observed=fingerprint?fingerprint:"";
     ssh_string_free_char(fingerprint);ssh_clean_pubkey_hash(&hash);return observed;
   }
-  bool exchange(ssh_channel channel,const std::string& command,std::string& prompt,unsigned version,unsigned timeout,switchcli::Capture& capture,bool changeView=false){
-    // A PTY accepts CR as Enter; CRLF makes Comware execute two input lines.
+  bool exchange(ssh_channel channel,const std::string& command,std::string& prompt,unsigned version,unsigned timeout,switchcli::TerminalCapture& capture,bool changeView=false){
+    // A PTY accepts CR as Enter; keep one input line per command.
     std::string wire=command+"\r";size_t sent=0;uint32_t started=millis();
     while(sent<wire.size()){
       if(!current(version)||!linkReady()||uint32_t(millis()-started)>=timeout)return false;
@@ -49,7 +51,7 @@ class SwitchSsh {
       char buffer[256];int count=ssh_channel_read_nonblocking(channel,buffer,sizeof(buffer),0);
       if(count==SSH_ERROR||ssh_channel_is_eof(channel)||ssh_channel_is_closed(channel))return false;
       if(count>0){
-        capture.append(buffer,count);auto found=capture.prompt();
+        capture.append(buffer,count);auto found=adapter.prompt(capture.tailText());
         if(!found.empty()&&(prompt.empty()||found==prompt||changeView)){prompt=found;return true;}
       }else vTaskDelay(pdMS_TO_TICKS(10));
     }return false;
@@ -59,28 +61,32 @@ class SwitchSsh {
     if(reply.state!="queued"){xSemaphoreGive(lock);return true;}
     if(commandRevision!=version){reply.state="cancelled";xSemaphoreGive(lock);return true;}
     reply.state="running";auto id=reply.id;auto name=reply.command;auto steps=script;xSemaphoreGive(lock);
-    switchcli::Capture capture;bool ok=false;int exitStatus=0;ssh_channel exec=nullptr;
+    switchcli::TerminalCapture capture;bool ok=false;int exitStatus=0;ssh_channel exec=nullptr;
     if(shell){
-      std::string prompt;switchcli::Capture sync,setup;
-      ok=exchange(shell,"",prompt,version,profile.commandTimeout*1000,sync)&&
-        prompt.front()=='<'&&exchange(shell,"screen-length disable",prompt,version,profile.commandTimeout*1000,setup)&&!setup.failed();
-      if(ok&&steps.empty())ok=exchange(shell,switchcli::command(name),prompt,version,profile.commandTimeout*1000,capture);
+      std::string prompt;switchcli::TerminalCapture sync,setup;
+      ok=exchange(shell,"",prompt,version,profile.commandTimeout*1000,sync)&&adapter.userPrompt(prompt);
+      for(const auto& command:adapter.sessionSetup()){
+        if(!ok)break;
+        setup=switchcli::TerminalCapture();
+        ok=exchange(shell,command,prompt,version,profile.commandTimeout*1000,setup)&&!adapter.failed(setup.output)&&!setup.truncated;
+      }
+      if(ok&&steps.empty())ok=exchange(shell,adapter.readCommand(name),prompt,version,profile.commandTimeout*1000,capture);
       else if(ok){
         const auto userPrompt=prompt;
-        const auto systemName=userPrompt.substr(1,userPrompt.size()-2);
         const auto expectedPort=name.substr(8);
-        const std::string expected[]={"["+systemName+"]","["+systemName+"-"+expectedPort+"]","["+systemName+"-"+expectedPort+"]",userPrompt};
+        const auto expected=adapter.actionPrompts(switchmodel::Action::Isolate,expectedPort,userPrompt);
+        ok=expected.size()==steps.size()&&!expected.empty()&&expected.size()<=16&&expected.back()==userPrompt;
         for(size_t i=0;i<steps.size()&&ok;++i){
-          switchcli::Capture step;
-          ok=exchange(shell,steps[i],prompt,version,profile.commandTimeout*1000,step,true)&&!step.failed()&&!step.truncated;
+          switchcli::TerminalCapture step;
+          ok=exchange(shell,steps[i],prompt,version,profile.commandTimeout*1000,step,true)&&!adapter.failed(step.output)&&!step.truncated;
           capture.append(step.output.data(),step.output.size());
           // Every view transition must finish; returning to user view is mandatory.
-          if(ok)ok=i<4&&prompt==expected[i];
+          if(ok)ok=prompt==expected[i];
         }
       }
     }else{
       exec=ssh_channel_new(session);
-      ok=exec&&ssh_channel_open_session(exec)==SSH_OK&&ssh_channel_request_exec(exec,switchcli::command(name))==SSH_OK;
+      ok=exec&&ssh_channel_open_session(exec)==SSH_OK&&ssh_channel_request_exec(exec,adapter.readCommand(name))==SSH_OK;
       bool finished=false;uint32_t started=millis();
       while(ok&&current(version)&&linkReady()&&uint32_t(millis()-started)<profile.commandTimeout*1000){
         char buffer[256];
@@ -93,9 +99,9 @@ class SwitchSsh {
     bool same=current(version);
     xSemaphoreTake(lock,portMAX_DELAY);
     if(reply.id==id){reply.output=capture.output;reply.truncated=capture.truncated;
-      reply.state=!same?"cancelled":!ok?"timeout_or_disconnected":(capture.failed()||exitStatus!=0)?"command_error":capture.truncated?"truncated":"ok";}
+      reply.state=!same?"cancelled":!ok?"timeout_or_disconnected":(adapter.failed(capture.output)||exitStatus!=0)?"command_error":capture.truncated?"truncated":"ok";}
     xSemaphoreGive(lock);
-    firmware::println("[SSH][COMMAND] request_id="+id+" command="+name+" target="+profile.host+" state="+(!same?"cancelled":!ok?"timeout_or_disconnected":(capture.failed()||exitStatus!=0)?"command_error":capture.truncated?"truncated":"ok"));
+    firmware::println("[SSH][COMMAND] request_id="+id+" command="+name+" target="+profile.host+" state="+(!same?"cancelled":!ok?"timeout_or_disconnected":(adapter.failed(capture.output)||exitStatus!=0)?"command_error":capture.truncated?"truncated":"ok"));
     size_t at=0;while(at<capture.output.size()){
       auto end=capture.output.find('\n',at);if(end==std::string::npos)end=capture.output.size();
       for(size_t offset=at;offset<end;offset+=800)firmware::println("[SSH][OUTPUT] request_id="+id+" command="+name+" target="+profile.host+" text="+capture.output.substr(offset,std::min<size_t>(800,end-offset)));
@@ -117,9 +123,8 @@ class SwitchSsh {
         unsigned port=profile.port;long timeout=profile.connectTimeout;int verbosity=SSH_LOG_NOLOG;
         bool options=ssh_options_set(session,SSH_OPTIONS_HOST,profile.host.c_str())==SSH_OK&&
           ssh_options_set(session,SSH_OPTIONS_PORT,&port)==SSH_OK&&
-          // Older Comware servers advertise only ssh-rsa host signatures.
-          // Append compatibility after the library's preferred modern algorithms.
-          ssh_options_set(session,SSH_OPTIONS_HOSTKEYS,"+ssh-rsa")==SSH_OK&&
+          // Optional device-profile compatibility appended to modern defaults.
+          (!adapter.hostKeyAlgorithms()||ssh_options_set(session,SSH_OPTIONS_HOSTKEYS,adapter.hostKeyAlgorithms())==SSH_OK)&&
           ssh_options_set(session,SSH_OPTIONS_USER,profile.username.c_str())==SSH_OK&&
           ssh_options_set(session,SSH_OPTIONS_TIMEOUT,&timeout)==SSH_OK&&
           ssh_options_set(session,SSH_OPTIONS_LOG_VERBOSITY,&verbosity)==SSH_OK;
@@ -179,6 +184,7 @@ class SwitchSsh {
     }
   }
 public:
+  explicit SwitchSsh(const switchdevice::IDeviceAdapter& device):adapter(device){}
   void setHostKeyVerifier(std::function<std::string(const std::string&,unsigned,const std::string&,const std::string&)> verifier){verifyHostKey=verifier;}
   const char* hostKeyState() const{return keyState.load();}
   void begin(const SwitchSettings& profile) {
@@ -193,7 +199,7 @@ public:
     xSemaphoreGive(lock);
   }
   std::string submit(const std::string& id,const std::string& name){
-    if(!switchcli::identifier(id)||!switchcli::command(name))return "invalid_command";
+    if(!switchcli::identifier(id)||!adapter.readCommand(name))return "invalid_command";
     if(!lock)return "not_ready";
     xSemaphoreTake(lock,portMAX_DELAY);
     std::string answer="queued";
@@ -205,8 +211,9 @@ public:
   }
   // Internal policy-only write capability. HTTP accepts named read commands only.
   std::string submitIsolation(const std::string& id,const std::string& requested){
-    const auto port=h3c::normalizePort(requested);
-    if(port.empty()||!switchcli::identifier(id)||id.compare(0,4,"bdi-")!=0)return "invalid_command";
+    const auto port=adapter.canonicalPort(requested);
+    const auto commands=adapter.actionCommands(switchmodel::Action::Isolate,port);
+    if(port.empty()||commands.empty()||!switchcli::identifier(id)||id.compare(0,4,"bdi-")!=0)return "invalid_command";
     if(!lock)return "not_ready";
     xSemaphoreTake(lock,portMAX_DELAY);
     std::string answer="queued";
@@ -217,8 +224,7 @@ public:
     else {
       if(reply.id.compare(0,4,"bdi-")!=0)userReply=reply;
       reply=switchcli::Result();reply.id=id;reply.command="isolate:"+port;reply.target=pending.host;reply.state="queued";commandRevision=revision;
-      const auto digit=port.find_first_of("0123456789");
-      script={"system-view","interface "+port.substr(0,digit)+" "+port.substr(digit),"shutdown","return"};
+      script=commands;
     }
     xSemaphoreGive(lock);return answer;
   }

@@ -41,6 +41,10 @@ class H3cBdiPolicyTests(unittest.TestCase):
                                 capture_output=True, text=True)
         self.assertEqual(replay.returncode, 0, replay.stdout + replay.stderr)
         self.assertIn('five tables valid, monitoring with detector unconfigured, no writes', replay.stdout)
+        discovery_replay = subprocess.run([str(binary), '--replay', str(ROOT / 'test/fixtures/h3c-r6328p03-r4')],
+                                         capture_output=True, text=True)
+        self.assertEqual(discovery_replay.returncode, 0, discovery_replay.stdout + discovery_replay.stderr)
+        self.assertIn('valid empty history, read-only monitoring', discovery_replay.stdout)
 
 
 if __name__ == "__main__":

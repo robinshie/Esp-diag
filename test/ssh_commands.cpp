@@ -2,6 +2,7 @@
 #include <cassert>
 int main(){
   assert(std::string(switchcli::command("interfaces"))=="display interface brief");
+  assert(std::string(switchcli::command("mac_moves"))=="display mac-address mac-move");
   for(auto bad:{"version;reboot","display version","current-configuration","version\nreboot","reboot",""})assert(!switchcli::command(bad));
   assert(switchcli::identifier("request_123-A"));assert(!switchcli::identifier("a b"));assert(!switchcli::identifier(std::string(33,'a')));
   switchcli::Capture capture;

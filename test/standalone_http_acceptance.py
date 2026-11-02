@@ -47,9 +47,14 @@ def main():
     else:
         raise SystemExit("ESP did not become ready; connect to ESP-Logs and triple-click BOOT to reopen the window.")
 
-    assert device.get("firmware_version") == "native-bdi-20261102-r3", device
+    assert device.get("firmware_version") == "native-bdi-20261102-r5", device
     assert isinstance(device.get("bdi"), dict) and device["bdi"]["cycle"] > 0, device
     assert device['bdi']['observation_valid'] is True, device
+    assert device['bdi'].get('device_profile') == 'h3c-s5130s-r6328p03', device
+    assert set(device['bdi'].get('strategy_ids', [])) == {'loop_discovery', 'loop_isolation'}, device
+    discovery = device['bdi'].get('discovery', {})
+    assert discovery.get('goal') == 'explore_loop' and discovery.get('action') == 'observe_only', device
+    assert discovery.get('state') in {'unknown', 'monitoring', 'watch', 'suspected', 'confirmed'}, device
     assert isinstance(device.get("mqtt"), dict) and isinstance(device.get("analysis"), dict), device
     assert listing["source"] == "esp_native"
     filename = listing["files"][0]["name"]

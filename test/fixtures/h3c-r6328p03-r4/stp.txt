@@ -1,0 +1,4 @@
+display stp brief
+ MST ID   Port                                Role  STP State   Protection
+ 0        GigabitEthernet1/0/1                DESI  FORWARDING  NONE
+<H3C>

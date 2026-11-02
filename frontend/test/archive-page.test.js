@@ -85,3 +85,13 @@ test('unavailable current status does not block reading saved evidence or imply 
  await run('loadDeviceStatus()');assert.match(nodes.get('device-bdi').textContent,/暂不可读/);assert.doesNotMatch(nodes.get('device-bdi').textContent,/正常/);
  assert.equal(nodes.get('analyze').disabled,false);
 });
+test('multi-condition discovery displays suspicion and evidence separately from isolation',async()=>{
+ const {context,nodes,run}=setup();
+ context.fetch=async()=>response({bdi:{state:'monitoring',discovery:{state:'suspected',reason:'persistent_mac_moves_with_corroboration',port:'GigabitEthernet1/0/3',peer:'GigabitEthernet1/0/4',vlan:10,rounds:2}}});
+ await run('loadDeviceStatus()');
+ assert.match(nodes.get('device-discovery').textContent,/疑似环路.*1\/0\/3.*1\/0\/4.*10.*2.*仅观察/);
+ assert.doesNotMatch(nodes.get('device-discovery').textContent,/已确认环路/);
+ context.fetch=async()=>{throw Error('offline');};await run('loadDeviceStatus()');
+ assert.match(nodes.get('device-discovery').textContent,/暂不可读/);
+ assert.doesNotMatch(nodes.get('device-discovery').textContent,/疑似环路/);
+});

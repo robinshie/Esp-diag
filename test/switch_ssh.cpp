@@ -2,6 +2,8 @@
 // Build after pio run:
 // c++ -std=c++11 -Itest/ssh_stubs -I.pio/libdeps/esp32-s3-devkitc-1/LibSSH-ESP32/src test/switch_ssh.cpp -o /tmp/esp-switch-ssh
 #include "../src/net/switch_ssh.h"
+#include "../src/adapters/h3c/device_adapter.h"
+#include "fixture_device_adapter.h"
 #include <cassert>
 #include <cstring>
 #include <deque>
@@ -18,6 +20,7 @@ FakeEthernet ETH;
 unsigned connects=0,auths=0,sessionsFreed=0,channelsFreed=0;
 std::deque<std::string> incoming;
 std::vector<std::string> written;
+bool fixtureDialect=false;
 bool emulateCommands=false,wrongView=false;
 int authResult=SSH_AUTH_SUCCESS,connectResult=SSH_OK,shellResult=SSH_OK;
 void libssh_begin(){}
@@ -45,7 +48,12 @@ int ssh_channel_get_exit_state(ssh_channel,uint32_t* code,char**,int*){*code=0;r
 int ssh_channel_request_exec(ssh_channel,const char*){return SSH_OK;}
 int ssh_channel_write(ssh_channel,const void* data,uint32_t length){
   std::string wire(static_cast<const char*>(data),length);written.push_back(wire);
-  if(emulateCommands){
+  if(fixtureDialect){
+    if(wire=="\r"||wire=="pager off\r"||wire=="end\r")incoming.push_back("\nFixture#");
+    else if(wire=="configure\r")incoming.push_back("\nFixture(config)#");
+    else if(wire=="port Ethernet2\r"||wire=="disable\r")incoming.push_back("\nFixture(port2)#");
+    else incoming.push_back("FixtureSwitch\nFixture#");
+  }else if(emulateCommands){
     if(wire=="\r")incoming.push_back("\r\n<H3C>");
     else if(wire=="screen-length disable\r")incoming.push_back("screen-length disable\r\n<H3C>");
     else if(wire=="system-view\r")incoming.push_back("system-view\r\n[H3C]");
@@ -79,43 +87,44 @@ void prepare(SwitchSsh& ssh){
 void reset(){wrongView=false;trustedKeys.clear();trustWritable=true;incoming.clear();written.clear();emulateCommands=false;fakeMillis=connects=auths=sessionsFreed=channelsFreed=0;serialOutput.clear();ETH.up=true;authResult=connectResult=shellResult=SSH_OK;}
 void execute(){try{worker(workerArg);}catch(const Stop&){}assert(serialOutput.find("Admin@12356")==std::string::npos);}
 int main(){
+  h3c::DeviceAdapter adapter;
   reset();SwitchSettings profile;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);
     onDelay=[&](){if(fakeMillis>=1000)ETH.up=false;if(fakeMillis>=2000)throw Stop{};};execute();
     assert(serialOutput.find("state=connected\n")!=std::string::npos);assert(connects==1&&auths==1&&sessionsFreed==1&&channelsFreed==1);
   }
   reset();authResult=SSH_AUTH_DENIED;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=120000)throw Stop{};};execute();
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=120000)throw Stop{};};execute();
     assert(std::string(ssh.stateName())=="authentication_failed");assert(connects==1&&auths==1&&sessionsFreed==1);
   }
   reset();profile.fingerprint="SHA256:"+std::string(43,'B');
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=120000)throw Stop{};};execute();
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=120000)throw Stop{};};execute();
     assert(std::string(ssh.stateName())=="host_key_mismatch");assert(auths==0&&connects==1&&sessionsFreed==1);
   }
   reset();profile.fingerprint="SHA256:"+std::string(43,'A');
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[&](){if(fakeMillis>=500)ETH.up=false;if(fakeMillis>=1000)throw Stop{};};execute();assert(auths==1&&sessionsFreed==1);
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[&](){if(fakeMillis>=500)ETH.up=false;if(fakeMillis>=1000)throw Stop{};};execute();assert(auths==1&&sessionsFreed==1);
   }
   reset();profile.fingerprint.clear();authResult=SSH_AUTH_DENIED;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);bool changed=false;
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool changed=false;
     onDelay=[&](){if(fakeMillis>=1000&&!changed){changed=true;profile.password="replacement";authResult=SSH_AUTH_SUCCESS;ssh.configure(profile);}if(fakeMillis>=2000)ETH.up=false;if(fakeMillis>=3000)throw Stop{};};execute();
     assert(connects==2&&auths==2&&sessionsFreed==2);assert(serialOutput.find("state=connected\n")!=std::string::npos);
   }
   reset();connectResult=SSH_ERROR;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=61000)throw Stop{};};execute();assert(connects==3&&auths==0&&sessionsFreed==3);
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=61000)throw Stop{};};execute();assert(connects==3&&auths==0&&sessionsFreed==3);
   }
   reset();ETH.up=false;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=1000)throw Stop{};};execute();assert(connects==0&&std::string(ssh.stateName())=="waiting_network");
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=1000)throw Stop{};};execute();assert(connects==0&&std::string(ssh.stateName())=="waiting_network");
   }
   reset();emulateCommands=true;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);bool submitted=false;
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool submitted=false;
     assert(ssh.submit("bad", "version;reboot")=="invalid_command");
     onDelay=[&](){
       if(ssh.connected()&&!submitted){submitted=true;assert(ssh.submit("query1","version")=="queued");assert(ssh.submit("query1","version")=="queued");assert(ssh.submit("query2","memory")=="busy");}
@@ -125,7 +134,7 @@ int main(){
   }
   reset();
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);bool submitted=false;
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool submitted=false;
     onDelay=[&](){
       if(ssh.connected()&&!submitted){submitted=true;assert(ssh.submit("timeout","memory")=="queued");}
       if(fakeMillis>=7000)throw Stop{};
@@ -134,12 +143,12 @@ int main(){
 
   reset();trustWritable=false;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=1000)throw Stop{};};execute();
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=1000)throw Stop{};};execute();
     assert(auths==0&&std::string(ssh.stateName())=="host_key_store_error");
   }
   reset();emulateCommands=true;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);bool submitted=false;
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool submitted=false;
     assert(ssh.submit("web", "isolate:GigabitEthernet1/0/2")=="invalid_command");
     assert(ssh.submitIsolation("bdi-bad","GE1/0/2;reboot")=="invalid_command");
     onDelay=[&](){
@@ -155,7 +164,7 @@ int main(){
 
   reset();emulateCommands=true;wrongView=true;
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);bool submitted=false;
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool submitted=false;
     onDelay=[&](){
       if(ssh.connected()&&!submitted){submitted=true;assert(ssh.submitIsolation("bdi-wrong","GE1/0/2")=="queued");}
       if(fakeMillis>=2000)throw Stop{};
@@ -165,8 +174,25 @@ int main(){
   }
   reset();trustedKeys["192.168.10.2:22"]="SHA256:"+std::string(43,'B');
   {
-    SwitchSsh ssh;prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=1000)throw Stop{};};execute();
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);onDelay=[](){if(fakeMillis>=1000)throw Stop{};};execute();
     assert(auths==0&&std::string(ssh.stateName())=="host_key_mismatch");
   }
-
+  reset();fixtureDialect=true;
+  {
+    FixtureDeviceAdapter other;SwitchSsh ssh{other};prepare(ssh);ssh.begin(profile);bool submitted=false;
+    onDelay=[&](){
+      if(ssh.connected()&&!submitted){submitted=true;assert(ssh.submit("fixture-read","identity")=="queued");}
+      if(ssh.resultReady("fixture-read")){assert(ssh.result("fixture-read").state=="ok");ETH.up=false;}
+      if(fakeMillis>=2000)throw Stop{};
+    };execute();assert(submitted);assert(written.size()==3&&written[1]=="pager off\r"&&written[2]=="show identity\r");
+  }
+  reset();
+  {
+    FixtureDeviceAdapter other;SwitchSsh ssh{other};prepare(ssh);ssh.begin(profile);bool submitted=false;
+    onDelay=[&](){
+      if(ssh.connected()&&!submitted){submitted=true;assert(ssh.submitIsolation("bdi-fixture","Ethernet2")=="queued");}
+      if(ssh.resultReady("bdi-fixture")){assert(ssh.result("bdi-fixture").state=="ok");ETH.up=false;}
+      if(fakeMillis>=2000)throw Stop{};
+    };execute();assert(submitted);assert(written.size()==6&&written[2]=="configure\r"&&written[4]=="disable\r"&&written[5]=="end\r");
+  }
 }

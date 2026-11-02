@@ -13,13 +13,13 @@
 
 正式后台配置示例为 [`config/native.json`](config/native.json)。原生 MQTT 默认关闭，启用后用 `esp-switch/<设备ID>/status`、`report`、`availability` 上报；现场日志与 BDI 不等待后台在线。后台 Ollama / OpenAI-compatible 接口默认 `disabled`，只补充解释，不下发硬件动作。后台启动与连接参数由部署配置明确指定，缺配置不自动连接演示环境。
 
-固件目录按职责分为 `config/`、`device/`、`net/`、`bdi/`、`h3c/`、`storage/`、`security/`、`ai/`、`common/`、`generated/` 和 `legacy/`。默认 PlatformIO 只编译 `src/main.cpp`；USB 入口在 `src/legacy/main.cpp`，不进入正式构建。AI 推理与合格模型部署在 `src/ai/inference.h`、`model.h`，训练保留于 `experiments/tiny_log_explainer/`，以 `python3 tools/sync_log_model.py --check` 核对导出一致性。正式开关为 `ESP_LOG_AI_ENABLED`，默认开启；旧 MQTT / log-ai 环境只是兼容别名，不是必须另烧的实验能力。
+固件采用策略与设备适配分离的结构：`domain/` 定义标准证据和动作，`bdi/strategies/` 实现心跳、探索和隔离策略，`application/` 负责调度与动作闭环，`adapters/h3c/` 实现设备命令和解析；`net/`、`storage/` 等负责基础设施。`main.cpp` 显式选择设备与策略，开发入口见 [固件策略开发结构](docs/firmware-strategies.md)。旧 `src/h3c/` 保留为兼容转发。默认 PlatformIO 只编译 `src/main.cpp`；USB 入口在 `src/legacy/main.cpp`，不进入正式构建。AI 推理与合格模型部署在 `src/ai/inference.h`、`model.h`，训练保留于 `experiments/tiny_log_explainer/`，以 `python3 tools/sync_log_model.py --check` 核对导出一致性。正式开关为 `ESP_LOG_AI_ENABLED`，默认开启；旧 MQTT / log-ai 环境只是兼容别名，不是必须另烧的实验能力。
 
 ## 现场连接与自动处理
 
 默认 ESP 为 `192.168.10.1/24`、网关 `192.168.10.10`，交换机为 `192.168.10.2:22`；已有 NVS 设置优先。配置页一次保存网口、SSH 和可选 MQTT 参数，密码不回显。详见[配置方法](docs/network-setup.md)与[交换机连接和命令](docs/switch-connection.md)。
 
-现场已识别型号为 **H3C S5130S-52S-EI / Comware 7.1.070 R6328P03**。正式固件通过同一个 SSH 会话轮询九项只读命令：版本、接口概要、down 原因、环路检测、STP、聚合、日志缓冲、CPU、内存。身份、输出完整性、时间和采集周期均有效后才允许 BDI 评估。ping 心跳独立反映管理 IP 可达性，不能证明业务正常或解除端口故障。
+现场已识别型号为 **H3C S5130S-52S-EI / Comware 7.1.070 R6328P03**。正式固件通过同一个 SSH 会话轮询十项只读命令：版本、接口概要、down 原因、环路检测、STP、聚合、日志缓冲、CPU、内存、MAC 漂移。身份、输出完整性、时间和采集周期均有效后才允许 BDI 评估。ping 心跳独立反映管理 IP 可达性，不能证明业务正常或解除端口故障。
 
 自动处置覆盖已授权业务口，保护管理口 `GE1/0/1`、trunk/hybrid、聚合成员、STP ROOT/MAST 与已有保护状态。只有明确、尚未被隔离的环路证据才会形成 `shutdown` 计划；先持久化意图，再执行，之后至少两轮完整采集读回才能标记 `contained`。**`contained` 表示隔离状态已验证，不表示物理环路已修复**；不会仅凭成功 ACK 恢复端口，也不自动改 STP、重启交换机或反复开关端口。
 
@@ -266,7 +266,7 @@ Repository。新增管理字段和功能的步骤见 [设备管理 MVC](docs/man
 - `esp_gateway/topology.py`：依赖、故障域和业务模型。
 - `productlines/`：按厂商、设备类型、系列隔离的产品资料、日志与模拟器。
 
-上述历史 USB 模型输入是本项目定义的归一化协议。正式固件的真实 H3C 命令返回由 `src/h3c/` 解析，不经过 USB 归一化网关。
+上述历史 USB 模型输入是本项目定义的归一化协议。正式固件的真实 H3C 命令返回由 `src/adapters/h3c/` 解析，不经过 USB 归一化网关。
 SSH 接入已提供配置驱动采集/解析和授权动作；上线需用真实样本核验命令与规则。
 其他采集协议需要相应适配器。MQTT 的证书、ACL 和 Broker HA 按现场部署。
 Embedded-BDI 上游采用 GPL-3.0，分发时

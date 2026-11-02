@@ -1,0 +1,6 @@
+display cpu-usage
+Slot 1 CPU 0 CPU usage:
+      14% in last 5 seconds
+      13% in last 1 minute
+      18% in last 5 minutes
+<H3C>

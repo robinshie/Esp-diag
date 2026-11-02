@@ -10,6 +10,7 @@ python3 tools/embed_network_page.py
 node --test frontend/test/*.test.js
 npm --prefix frontend run build
 .venv/bin/python -m unittest test.test_h3c_bdi_policy -v
+.venv/bin/python -m unittest test.test_loop_discovery test.test_strategy_composition -v
 .venv/bin/python -m unittest discover -s test -p test_heartbeat_bdi.py
 .venv/bin/python -m unittest discover -s test -p test_local_report.py
 ```
@@ -25,6 +26,8 @@ H3C 原生测试使用真实解析器、策略、恢复状态机与 Embedded-BDI
 `native-bdi-20261102-r2` 修复了持续产生日志时 TF 列表依赖全局待写计数归零而一直 busy 的问题。列表返回原子改名后已落盘的不可变文件快照；刷新请求合并为至少一秒间隔，写任务先处理最多 32 条队列记录，避免每次 HTTP 轮询都单条刷盘。`test.test_local_journal` 在模拟慢 FAT 与持续产生日志、轮询、异步读取下运行真实 `LocalJournal` 任务，使用 ASan/UBSan；不只是检查页面替身。BDI 状态新增五项表各自的 valid/complete/cycle/fresh，解析拒绝会记录 `[BDI][COLLECT] ... state=parse_rejected`；这些字段不放宽动作所需证据。
 
 `native-bdi-20261102-r3` 根据离线实机样本识别 `LPDT is not configured.` 和 `No link aggregation group exists.`。前者是有效的“检测器未配置”证据，不能等同于无环路；后者是有效空聚合表。六项同轮原始输出保存在 `test/fixtures/h3c-r6328p03/`，H3C 回归会通过完整 Runtime 回放，核对 observation_valid、monitoring、loop_detection_disabled 以及没有写动作。另将 PSRAM 日志队列扩为 384 个槽，索引使用 uint16_t，真实任务回归覆盖超过 256 条突发，防止索引回绕及截断。HTTP 验收必须获得五表同轮有效证据，不能仅凭 BDI cycle 大于零通过。
+
+r5 策略/设备替换回归位于 `test.test_strategy_composition`，覆盖固定容量组合、替换设备查询顺序、独立动作门控和无旧轮证据复用。SSH worker 回归另以不同命令和 # 提示符的测试设备验证同一传输实现。开发契约见 `docs/firmware-strategies.md`。
 
 本文件列测试用途和入口；本轮最终数量、构建与烧录结论由实际运行记录另行补充。下面保留原有集群、USB 和数据库实验说明。
 
