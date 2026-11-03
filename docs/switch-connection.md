@@ -138,7 +138,7 @@ ESP 复用已经认证的 SSH 连接，一次执行一个查询。shell 模式�
 
 `display device` 仍作为手动查询保留，不属于这九项自动轮询。前述五项只读实机结果只证明当时的命令返回，不能作为新增自动写操作或故障注入的验收结论。
 
-H3C BDI 使用真实 `Agent / BeliefBase / PlanBase / IntentionBase`，维护 `loop_confirmed / action_allowed / ssh_ready`。当前现场授权全部业务口，保护管理口 `GE1/0/1`；trunk/hybrid、聚合成员、STP ROOT/MAST、已有保护与限制转发的端口仍不允许写入。解析未知、截断、过期、混轮或目标变化时保持 unknown / blocked，不将空闲物理断开的端口视为需要 `undo shutdown` 的故障。
+H3C BDI 使用真实 `Agent / BeliefBase / PlanBase / IntentionBase`，维护 `loop_confirmed / action_allowed / management_ready`。当前现场授权全部业务口，保护管理口 `GE1/0/1`；trunk/hybrid、聚合成员、STP ROOT/MAST、已有保护与限制转发的端口仍不允许写入。解析未知、截断、过期、混轮或目标变化时保持 unknown / blocked，不将空闲物理断开的端口视为需要 `undo shutdown` 的故障。
 
 符合全部条件时，先持久化本目标、端口和 incident 的意图，再执行 `system-view`、指定接口、`shutdown`、`return`。每步核对返回，失败或会话边界不明时停止且不盲目重放。ACK 只是命令结果，后续至少两个不同且完整的采集周期同时确认 ADM 与管理关闭原因，才标记 `contained`。此状态说明端口已隔离，不能声称物理环路已经消除。
 

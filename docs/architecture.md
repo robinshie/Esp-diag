@@ -57,7 +57,7 @@ flowchart LR
 
 自动轮询按固定顺序读取 `display version`、`display interface brief`、`display interface brief down`、`display loopback-detection`、`display stp brief`、`display link-aggregation verbose`、`display logbuffer reverse`、`display cpu-usage`、`display memory`、`display mac-address mac-move`。每项按实际完成时间标记 cycle 与目标版本，输出截断、未知格式、混轮、过期或切换目标均不能成为写操作的依据。手动查询复用同一串行 SSH 工作任务。
 
-已确认支持的身份为现场 S5130S-52S-EI / R6328P03；其他身份保留只读。H3C BDI 和心跳 BDI 使用分离的信念与计划。真实环路处置要求 `loop_confirmed`、`action_allowed`、`ssh_ready` 同时满足，执行前再次核对证据。
+已确认支持的身份为现场 S5130S-52S-EI / R6328P03；其他身份保留只读。H3C BDI 和心跳 BDI 使用分离的信念与计划。真实环路处置要求 `loop_confirmed`、`action_allowed`、`management_ready` 同时满足，执行前再次核对证据。
 
 业务口授权不能覆盖管理口 `GigabitEthernet1/0/1`、trunk/hybrid、聚合成员、STP ROOT/MAST、保护已激活或已限制转发的端口。策略只对明确且尚未隔离的环路形成四步命令：`system-view` → 指定接口 → `shutdown` → `return`。动作意图必须先持久化；持久化失败、会话边界不明或执行失败时不重放写命令。断电后保留认领记录，避免同一端口因重启再次盲目动作。
 
@@ -272,4 +272,49 @@ TF 三次状态均 ready，written 从 620 增至 2035，dropped 始终为零。
 
 20 项相关 Python 回归和 108 项前端测试通过；最后修改涉及的九项原生测试、两项策略契约及八项采集器测试另行通过。ASan/UBSan 覆盖策略替换、两项查询且身份最后采集的测试设备、不同 CLI/# 提示符的真实 SSH worker、错误策略动作被阻止、组合容量与重连、漏填数据及原 H3C 实机样本回放。正常状态 JSON 已通过真实序列化后 Python 解码检查。生产适配器仍只有已验证的 H3C；测试适配器不代表另一真实品牌已获得支持。历史 USB 实验入口仅做编译兼容检查，未用于正式运行。
 
-`native-bdi-20261102-r5` 正式构建与烧录成功，写入哈希校验通过，USB 仅用于烧录。Flash 2,822,951 / 3,342,336 字节，静态 RAM 69,340 / 327,680 字节；firmware.bin SHA-256 为 `131e369aec873fea28d8179e14e86de7f7a729998714827c8b9ead0a0d443153`。发布记录为 `test/.runtime/strategy-r5-release.json`。当前离线实机文件仍为 r4，r5 运行读回等待下一次离线采集；没有将软件回放或烧录成功当作新版本 SSH、物理环路或长期耐久验收。
+`native-bdi-20261102-r5` 正式构建与烧录成功，写入哈希校验通过，USB 仅用于烧录。Flash 2,822,951 / 3,342,336 字节，静态 RAM 69,340 / 327,680 字节；firmware.bin SHA-256 为 `131e369aec873fea28d8179e14e86de7f7a729998714827c8b9ead0a0d443153`。发布记录为 `test/.runtime/strategy-r5-release.json`。构建与烧录后另行通过以下离线运行读回验收；物理环路与长期耐久未实测。
+
+### r5 实机离线读回结果
+
+采集完成且无采集错误，九次状态均为 r5，同一 boot `97966a2692b109fdca8c836db6cdf82b`；40 份 TF 报告均来自该 boot，报告时间覆盖上电后约 299–417 秒。状态明确加载设备适配器 `h3c-s5130s-r6328p03` 与 `loop_discovery`、`loop_isolation` 两个策略。SSH 持续 connected、主机钥 trusted，状态心跳 RTT 1–2 ms、misses=0；报告另有 25 条 healthy 心跳。
+
+五项核心表在第 25、26、27、29、30 轮获得完整、有效、同轮且新鲜的数据。第 26 轮的一次中途采样仅有接口和 down 表，其余表为空且 cycle=0，observation_valid=false；完成采集后恢复有效，符合每轮清空证据的设计。九类独立查询返回 ok，共 78 次；logbuffer 另有九次明确 truncated，未作为完整日志读取通过。没有 SSH 错误或核心表解析拒绝。
+
+探索策略完成轮次为 25、26、27、29，MAC/CPU 证据均有效，状态为 monitoring / observe_only，双向 MAC 迁移增量为零，连续疑似轮次为零。LPDT 仍返回 `LPDT is not configured.`；未发现当前多条件环路证据，不代表已证明不存在环路。状态中的动作均为 none，采集报告只有 bdi-read 查询与 PING_SWITCH，未见端口写动作。设备内分析模型 `tiny-log-v3-protocol` 有状态输出，但本次低分结果 accepted=false；这不构成 AI 准确率验收。
+
+TF 三次采样均 ready，written 从 7165 增至 8443，dropped 始终为零，日志列表和 40 份文件采集完成；pending 为 16、41、128，表示采样时仍在持续写入，不能把本次列表快照解释为全部待写记录已经落盘。状态可用堆内存为 61,272–72,148 字节。16 项离线证据断言通过，记录于 `test/.runtime/strategy-r5-hardware-result.json`，源采集 SHA-256 为 `bbdbe1a4af15efd92a69464fce508411fcbfb469d9c8b3f864a1f8a320188df8`。本次通过范围是正常网络下 r5 采集、策略加载与只读推理；物理环路发现、隔离、恢复及长期运行仍未验收。
+
+### r5 开启 LPDT 后的首次环路测试采集
+
+用户确认在采集期间连接 GE1/0/2 与 GE1/0/3，之后已拔线。新采集 SHA-256 为 `c7eb8a593e915e25b3aa64a9f197c0f7eb8a28d832c3a68f50ce19c369d46b4e`，九次状态与 40 份报告均来自同一 r5 boot。第 80、81、82 轮完整状态确认 LPDT enabled，实际原文为 10 秒检测周期、No loop is detected，解析有效；已下载报告中的 2、3 号口均为 DOWN，没有 ESP 隔离命令或动作确认。最后两次状态变为 SSH disconnected、心跳 lost / misses=3，BDI waiting_ssh，证据清空；TF ready、dropped=0。
+
+该结果不能判定真实环路检测或隔离成功，也不能仅凭 DOWN 推断端口被 ESP 关闭。报告仅覆盖 uptime 1,090,261–1,207,116 ms，采集器下载的是起始列表快照，结束时的状态可能晚于已下载日志。修复主机采集器：历史快照下载后刷新最新列表，按序号去重并有界补采；不改固件，不调用 USB。11 项采集回归通过，新增覆盖下载期间断线的末段日志、分页与数量上限、补采失败时保留证据且标记不完整。现场补采尚待执行，不能用测试替身代替缺失的实机故障记录。首次采集和判定分别保存在 `test/.runtime/loop-test-r5-capture.json` 与 `test/.runtime/loop-test-r5-result.json`。
+
+### r5 补采确认交换机检测到真实环路，ESP 自动隔离未通过
+
+后续采集取得 100 份历史报告和 7 份末段报告，补采未触及 20 份上限，无采集错误，全部属于同一 r5 boot，覆盖 uptime 1,190,048–1,635,321 ms。用户确认这次补采期间测试线一直接入；已要求拔掉测试线，保留 ESP 管理链路。本次采集保存在 `test/.runtime/loop-test-r5-followup-capture.json`，SHA-256 为 `b2ee38cfd708a3b3f5648902c8b2f6922c1b1fbd88361bfbd6321f68864156b0`。
+
+请求 bdi-read-828 的历史 logbuffer 回读含真实 H3C 事件：设备未校时钟的 05:10:47，GE1/0/2、GE1/0/3 先 UP，随后均记录 LPDT_LOOPED 和 LPDT_VLAN_LOOPED / VLAN 10；05:11:35 两端口记录 LPDT_RECOVERED 与物理 DOWN。2013 年设备日期不作为实际日期。这确认交换机 LPDT 检测到了物理环路，不能再把成功查询中的 No loop is detected 或 DOWN 当作从未发生环路的证据。
+
+ESP 的第一段心跳丢失始于 uptime 1,211,438 ms，1,222,768 ms SSH 断开；1,265,446 ms 心跳恢复，1,288,698 ms SSH 自动重连成功。重连后五表与探索状态恢复正常，历史 LPDT 事件未被重放为当前可执行故障。第二段在 1,560,297 ms 再次心跳超时，1,569,524 ms SSH 断开，之后连接超时；最后状态仍 waiting_ssh。物理网口持续 link=up，不能把该故障解释为物理断线，也没有证据确定具体丢包机制。
+
+107 份报告没有 ESP 的隔离意图、ACK 或验证记录，未验证 shutdown 和自动隔离。当前 SSH 处置依赖可用管理通信；失联时缺少新鲜证据，公共门控不执行写操作。该时序与环路期间管理通信受影响相符，但不能仅凭时序断言广播风暴或热点下载是唯一原因。TF dropped 始终为零，主机末段补采已取得断线及重连事件。本次判定保存在 `test/.runtime/loop-test-r5-followup-result.json`；固件未修改，下一步先在拔掉测试线后确认管理通信恢复。
+
+### r6 历史环路风暴风险标记
+
+日志页和后台共享分析组件增加两个标记：“已确认环路 · 风暴风险待核对”和“疑似环路风暴”。只读规则识别精确 H3C LPDT 原文，并通过登录/退出事件与 ESP 的 SSH 重连、断线及 ICMP lost 关联同一时段；缺少可靠关联时不把普通失联、旧环路重放、其他设备或其他 boot 的记录拼成风暴。标记显示设备、VLAN、端口和可展开原文，明确属于已保存日志，不代表当前状态、自动隔离或物理修复；没有流量计数时不确认风暴。规则运行于离线页面，未改变 ESP 模型或 BDI 动作门控。详见 [环路风暴标记](loop-storm-marker.md)。
+
+117 项前端测试通过，包含九项新增风险标记测试；真实 r5 样本精简为 7 包、53 行，回放得到一个 VLAN 10、GE1/0/2 与 GE1/0/3 的疑似风暴标记。精确固件 HTML 在 390 像素 Chrome 视口下通过标记、历史范围、无溢出与零页面异常检查；接口为只读替身，不等于新固件实机运行验收。前端构建亦通过。
+
+`native-bdi-20261102-r6` 编译、烧录及写入哈希校验通过，USB 仅用于刷写。Flash 2,829,559 / 3,342,336 字节，静态 RAM 69,340 字节；firmware.bin SHA-256 为 `83ddbc90cd28699b0f719669306a5bb8fa8483c0fb4a127ca05513ed8169e390`。发布记录为 `test/.runtime/storm-r6-release.json`，手机回放截图为 `test/.runtime/loop-storm-mobile.png`。r6 的实机页面显示与运行状态仍待现场确认；没有新增自动隔离成功的结论。
+
+
+### 2026-11-02：管理通道接口与 Type-C Console 预留
+
+BDI/页面命令通过 `src/net/command_transport.h` 的 `ICommandTransport` 使用当前 SSH 实现；领域状态改为 `managementConnected`，处置信念为 `management_ready`。USB Console 预留接口、物理设备代际校验和会话引擎见 [console-transport.md](console-transport.md)。默认运行仍是 SSH；当前未接入 PL2303 硬件驱动，没有启用 USB Host 或烧录。本次连接判断明确区分普通网口 SSH、RJ45 Console 的 RS232 和原生 Type-C USB Host。
+
+### 通信通道组合（2026-11-02）
+
+`src/net/switch_communication.h` 选择 SSH、UART Console、TCP Console；配置在 `src/config/communication_settings.h`，独立 PlatformIO 环境见 `platformio.ini`。BDI 仅通过 `ICommandTransport` 提交命令，设备命令/解析仍归 `IDeviceAdapter`，UART/TCP 共用 `ConsoleSession`。物理链路生命周期在 `IManagedConsolePort`，具体实现 `console_ports.h`。USB 继续通过 `IUsbSerialHost` 注入，真实驱动未接入。详见 [通信模式](console-transport.md)。
+
+双通道构建 `esp32-s3-ssh-console` 通过 `FailoverTransport` 保留 SSH 与 UART Console 两条物理路径；SSH 会话不可用持续 5 秒且旧请求结束后才启动 UART，Console 登录成功后切换；业务命令只走当前通道且不重放；切入 Console 后暂停 SSH，Console 命令结束且空闲 5 秒后才重新登录 SSH，主机公钥验证及登录通过后立即回切并关闭 Console。切换触发 Runtime 清空旧证据，Console 现场绑定独立，详见通信模式文档。

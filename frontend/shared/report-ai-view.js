@@ -16,6 +16,8 @@ const analysisStyle=`
 .report-analysis pre{max-height:260px;overflow:auto;max-width:100%;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .report-analysis .model-result{padding:10px 12px;background:var(--analysis-bg,#142025);border-radius:8px;font-size:13px}
 .report-analysis .routine-row{padding:5px 0}.report-analysis .model-button{font-size:12px;padding:5px 10px;margin-top:8px}
+.report-analysis .loop-risk{border:1px solid #c47b28;border-left:5px solid #c47b28;border-radius:8px;padding:12px;margin:12px 0;overflow-wrap:anywhere}
+.report-analysis .loop-risk-badge{display:inline-block;font-weight:700;color:#78410c;background:#fff0d4;border-radius:6px;padding:3px 9px}
 @media(max-width:700px){.report-analysis .incident-grid{grid-template-columns:1fr}.report-analysis .analysis-overview,.report-analysis .incident-card{padding:12px}}
 `;
 function node(tag,text='',className=''){const value=document.createElement(tag);value.textContent=text;if(className)value.className=className;return value;}
@@ -28,11 +30,18 @@ export function renderReportAI(report,root,classify,options={}){
  const analysis=buildReportAnalysis(report,options.contextReports||[],options),view=node('div','','report-analysis');
  view.append(node('style',analysisStyle));root.append(view);
  const overview=node('section','','analysis-overview'),unresolved=analysis.incidents.filter(item=>!item.recovered).length;
- overview.append(node('h3',analysis.incidents.length?`本次涉及 ${analysis.incidents.length} 组故障或处置记录`:
+ overview.append(node('h3',analysis.loopRisks.length?'已保存日志中存在环路风险记录':analysis.incidents.length?`本次涉及 ${analysis.incidents.length} 组故障或处置记录`:
   analysis.snapshots.some(item=>Number(item.active_faults)>0)?'期末仍有活动故障，需要核对':analysis.diagnostics.length?'本包包含采集或存储状态提醒':analysis.unknown.length?'本包包含待核对记录':'本包以常规运行记录为主'));
  const stats=node('div','','analysis-stats');
  for(const text of [`原文 ${analysis.rawCount} 条`,`常规记录 ${analysis.routines.length} 条`,`已确认恢复 ${analysis.incidents.filter(item=>item.recovered).length} 组`,`待核对 ${unresolved} 组`])stats.append(node('span',text));
+ if(analysis.loopRisks.length)stats.append(node('span',`历史环路风险 ${analysis.loopRisks.length} 项`));
  overview.append(stats);
+ for(const risk of analysis.loopRisks){
+  const panel=node('section','','loop-risk');
+  panel.append(node('span',risk.title,'loop-risk-badge'),node('p',`历史日志 · ${risk.target} · VLAN ${risk.vlan} · ${risk.ports.join('、')}`),node('p',risk.explanation),node('p',risk.limitation,'analysis-muted'));
+  panel.append(folded('判断依据与关联原文',node('pre',risk.evidence.map(e=>`开机 +${(e.at/1000).toFixed(1)} 秒 · ${e.reportId} #${e.line+1}\n${e.text}`).join('\n\n'))));
+  overview.append(panel);
+ }
  for(const item of analysis.snapshots)overview.append(node('p',`${item.device} · 期末状态 ${item.state||'未知'} · 活动故障 ${item.active_faults??'未提供'} · 锁定 ${item.locked==='true'?'是':item.locked==='false'?'否':'未知'}`));
  if(analysis.snapshots.some(item=>Number(item.active_faults)>0))overview.append(node('p','期末仍跟踪：'+analysis.snapshots.filter(item=>Number(item.active_faults)>0).map(item=>`${item.device} / ${item.faults||'类型未提供'}`).join('；')));
  overview.append(node('p',options.recent?`已分析最近 ${analysis.contextPackets} 包日志，跨开机周期分别核对，不混合事件。`:analysis.contextPackets>1?`已关联 ${analysis.contextPackets} 包历史，按设备、端口、事件标识核对过程。`:'当前仅有本包证据；跨包的起因或处置可能不在这个片段内。','analysis-muted'));

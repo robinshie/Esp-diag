@@ -16,6 +16,8 @@
 
 `bdi` 包含 `state/reason/port/action/enabled`，`analysis` 包含 `model/label/score/accepted`，`mqtt` 包含 `state/enabled`。心跳兼容现有 URL 编码字符串和对象。状态接口失败时显示不可用，不沿用“正常”；已保存的日志仍可读取。当前状态与历史证据分开显示，命令成功或模型分类不代替恢复验证。
 
+日志分析新增历史环路风险标记：明确 LPDT 事件单独显示“已确认环路 · 风暴风险待核对”；结合可关联的同期管理心跳丢失与 SSH 中断时显示“疑似环路风暴”。不标记为当前已确认风暴，也不生成端口动作。判断与读取范围见 [环路风暴标记](../../docs/loop-storm-marker.md)。
+
 `shared/` 模块可嵌入离线设备页面，也可用于后台的历史解释。设备页不导入 `backend/`，不持有 Broker 或后台数据库凭据，不发送后台控制命令。
 
 设备 HTML 与共享模块是源文件；`tools/embed_network_page.py` 输出 `src/generated/network_page.h`、`src/generated/archive_page.h`，这些头文件不手动修改。ESP 模型部署位于 `src/ai/`，设备页面通过同源推理接口使用它，不导入训练目录或后台 provider。

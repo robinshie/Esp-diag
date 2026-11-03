@@ -1,0 +1,298 @@
+[
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2170",
+    "sent_at_ms": 1205533,
+    "lines": [
+      {
+        "at_ms": 1205432,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1205428"
+      }
+    ],
+    "analysis": []
+  },
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2172",
+    "sent_at_ms": 1207729,
+    "lines": [
+      {
+        "at_ms": 1207173,
+        "text": "[SSH][STATUS] state=connected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=59024"
+      }
+    ],
+    "analysis": []
+  },
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2173",
+    "sent_at_ms": 1232196,
+    "lines": [
+      {
+        "at_ms": 1211438,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=suspect rtt_ms=0 misses=1 successes=0 reason=PING_TIMEOUT observed_ms=1211433"
+      },
+      {
+        "at_ms": 1212184,
+        "text": "[SSH][STATUS] state=connected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=71236"
+      },
+      {
+        "at_ms": 1216429,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=suspect rtt_ms=0 misses=2 successes=0 reason=PING_TIMEOUT observed_ms=1216426"
+      },
+      {
+        "at_ms": 1217172,
+        "text": "[SSH][STATUS] state=connected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=71260"
+      },
+      {
+        "at_ms": 1221445,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1221434"
+      },
+      {
+        "at_ms": 1222170,
+        "text": "[SSH][STATUS] state=connected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=86700"
+      },
+      {
+        "at_ms": 1222768,
+        "text": "[SSH] state=disconnected"
+      },
+      {
+        "at_ms": 1226440,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1226437"
+      },
+      {
+        "at_ms": 1227176,
+        "text": "[SSH][STATUS] state=disconnected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=97740"
+      },
+      {
+        "at_ms": 1231438,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1231436"
+      },
+      {
+        "at_ms": 1232195,
+        "text": "[SSH][STATUS] state=disconnected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=97572"
+      }
+    ],
+    "analysis": []
+  },
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2174",
+    "sent_at_ms": 1262186,
+    "lines": [
+      {
+        "at_ms": 1236446,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1236443"
+      },
+      {
+        "at_ms": 1237185,
+        "text": "[SSH][STATUS] state=disconnected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=100212"
+      },
+      {
+        "at_ms": 1241440,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1241437"
+      },
+      {
+        "at_ms": 1242183,
+        "text": "[SSH][STATUS] state=disconnected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=98292"
+      },
+      {
+        "at_ms": 1246438,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1246435"
+      },
+      {
+        "at_ms": 1247185,
+        "text": "[SSH][STATUS] state=disconnected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=97784"
+      },
+      {
+        "at_ms": 1251441,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1251438"
+      },
+      {
+        "at_ms": 1252191,
+        "text": "[SSH][STATUS] state=disconnected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=97260"
+      },
+      {
+        "at_ms": 1252783,
+        "text": "[SSH] state=connecting"
+      },
+      {
+        "at_ms": 1256441,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=lost rtt_ms=0 misses=3 successes=0 reason=PING_TIMEOUT observed_ms=1256439"
+      },
+      {
+        "at_ms": 1257184,
+        "text": "[SSH][STATUS] state=connecting ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=92276"
+      },
+      {
+        "at_ms": 1257790,
+        "text": "[SSH] state=connect_failed"
+      },
+      {
+        "at_ms": 1260447,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=recovering rtt_ms=1 misses=0 successes=1 reason=ECHO_REPLY observed_ms=1260444"
+      },
+      {
+        "at_ms": 1262184,
+        "text": "[SSH][STATUS] state=connect_failed ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=96032"
+      }
+    ],
+    "analysis": []
+  },
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2175",
+    "sent_at_ms": 1291531,
+    "lines": [
+      {
+        "at_ms": 1265452,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1265444"
+      },
+      {
+        "at_ms": 1267185,
+        "text": "[SSH][STATUS] state=connect_failed ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=98512"
+      },
+      {
+        "at_ms": 1270448,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1270446"
+      },
+      {
+        "at_ms": 1272185,
+        "text": "[SSH][STATUS] state=connect_failed ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=97980"
+      },
+      {
+        "at_ms": 1275449,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1275447"
+      },
+      {
+        "at_ms": 1277185,
+        "text": "[SSH][STATUS] state=connect_failed ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=97444"
+      },
+      {
+        "at_ms": 1280451,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1280448"
+      },
+      {
+        "at_ms": 1282186,
+        "text": "[SSH][STATUS] state=connect_failed ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=96900"
+      },
+      {
+        "at_ms": 1285454,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1285451"
+      },
+      {
+        "at_ms": 1287188,
+        "text": "[SSH][STATUS] state=connect_failed ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=96352"
+      },
+      {
+        "at_ms": 1287795,
+        "text": "[SSH] state=connecting"
+      },
+      {
+        "at_ms": 1288243,
+        "text": "[SSH] state=authenticating"
+      },
+      {
+        "at_ms": 1288698,
+        "text": "[SSH] state=connected"
+      },
+      {
+        "at_ms": 1288711,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1288708"
+      }
+    ],
+    "analysis": []
+  },
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2176",
+    "sent_at_ms": 1292279,
+    "lines": [
+      {
+        "at_ms": 1292208,
+        "text": "[SSH][STATUS] state=connected ip=192.168.10.1 link=up target=192.168.10.2:22 free_heap=63260"
+      }
+    ],
+    "analysis": []
+  },
+  {
+    "schema_version": 1,
+    "source": "esp_native",
+    "transport": "ETH",
+    "clock": "uptime",
+    "boot": "97966a2692b109fdca8c836db6cdf82b",
+    "report_id": "97966a2692b109fdca8c836db6cdf82b-2178",
+    "sent_at_ms": 1294361,
+    "lines": [
+      {
+        "at_ms": 1293727,
+        "text": "[BDI][HEARTBEAT] target=192.168.10.2 transport=ICMP state=healthy rtt_ms=1 misses=0 successes=2 reason=ECHO_REPLY observed_ms=1293721"
+      },
+      {
+        "at_ms": 1294258,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:12:07:947 2013 H3C SHELL/5/SHELL_LOGIN: admin logged in from 192.168.10.1."
+      },
+      {
+        "at_ms": 1294282,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:11:35:897 2013 H3C LPDT/5/LPDT_RECOVERED: All loops were removed on GigabitEthernet1/0/2."
+      },
+      {
+        "at_ms": 1294286,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:11:35:897 2013 H3C LPDT/5/LPDT_VLAN_RECOVERED: A loop was removed on GigabitEthernet1/0/2 in VLAN 10."
+      },
+      {
+        "at_ms": 1294295,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:11:35:871 2013 H3C LPDT/5/LPDT_RECOVERED: All loops were removed on GigabitEthernet1/0/3."
+      },
+      {
+        "at_ms": 1294299,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:11:35:870 2013 H3C LPDT/5/LPDT_VLAN_RECOVERED: A loop was removed on GigabitEthernet1/0/3 in VLAN 10."
+      },
+      {
+        "at_ms": 1294312,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:10:59:992 2013 H3C SHELL/5/SHELL_LOGOUT: admin logged out from 192.168.10.1."
+      },
+      {
+        "at_ms": 1294320,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:10:47:557 2013 H3C LPDT/4/LPDT_VLAN_LOOPED: A loop was detected on GigabitEthernet1/0/2 in VLAN 10."
+      },
+      {
+        "at_ms": 1294323,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:10:47:554 2013 H3C LPDT/4/LPDT_LOOPED: A loop was detected on GigabitEthernet1/0/2."
+      },
+      {
+        "at_ms": 1294327,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:10:47:553 2013 H3C LPDT/4/LPDT_VLAN_LOOPED: A loop was detected on GigabitEthernet1/0/3 in VLAN 10."
+      },
+      {
+        "at_ms": 1294330,
+        "text": "[SSH][OUTPUT] request_id=bdi-read-828 command=logs target=192.168.10.2 text=%Jan  1 05:10:47:552 2013 H3C LPDT/4/LPDT_LOOPED: A loop was detected on GigabitEthernet1/0/3."
+      }
+    ],
+    "analysis": []
+  }
+]

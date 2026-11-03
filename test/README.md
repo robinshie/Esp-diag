@@ -21,13 +21,15 @@ H3C 原生测试使用真实解析器、策略、恢复状态机与 Embedded-BDI
 
 实机只读验收：三击 BOOT、连接 `ESP-Logs-…` 后运行 `.venv/bin/python test/standalone_http_acceptance.py`。它通过设备 Wi-Fi HTTP 检查真实 SSH/心跳、本机文件和 ESP 模型，不打开 USB、不修改设备配置。真实交换机 `shutdown` 和物理环路故障需要单独记录端口、事件、命令、两轮读回与现场状态；不可由模拟测试或成功 ACK 代替。
 
-当连接 ESP 热点会断开 GPT 时，先在终端运行 `python3 tools/collect_device_logs.py`，再三击 BOOT 并连接热点。程序无需互联网或 Python 依赖，默认等待 10 分钟；连接后采样 30 秒状态，读取最近最多 40 包 TF 日志，保存到 `test/.runtime/esp-offline-diagnostics.json`。终端提示采集完成后切回联网 Wi-Fi，GPT 可直接读取本地文件继续检查。失败会保留部分结果和错误，不判定验收成功。此入口只读，不改 Wi-Fi、SSH 或端口配置，也不调用 USB。采集程序测试：`python3 -m unittest test.test_offline_diagnostics -v`。
+当连接 ESP 热点会断开 GPT 时，先在终端运行 `python3 tools/collect_device_logs.py`，再三击 BOOT 并连接热点。程序无需互联网或 Python 依赖，默认等待 10 分钟；连接后采样 30 秒状态，读取最近最多 40 包 TF 日志，再刷新列表补采下载期间新增的最多 10 包，保存到 `test/.runtime/esp-offline-diagnostics.json`。`--tail-reports 0–40` 控制补采上限；达到上限会提示并设置 tail_collection.limit_reached。补采只覆盖刷新时已落盘的快照，不承诺所有待写及后续事件已保存。终端提示采集完成后切回联网 Wi-Fi，GPT 可直接读取本地文件继续检查。失败会保留部分结果和错误，不判定验收成功。此入口只读，不改 Wi-Fi、SSH 或端口配置，也不调用 USB。采集程序测试：`python3 -m unittest test.test_offline_diagnostics -v`。
 
 `native-bdi-20261102-r2` 修复了持续产生日志时 TF 列表依赖全局待写计数归零而一直 busy 的问题。列表返回原子改名后已落盘的不可变文件快照；刷新请求合并为至少一秒间隔，写任务先处理最多 32 条队列记录，避免每次 HTTP 轮询都单条刷盘。`test.test_local_journal` 在模拟慢 FAT 与持续产生日志、轮询、异步读取下运行真实 `LocalJournal` 任务，使用 ASan/UBSan；不只是检查页面替身。BDI 状态新增五项表各自的 valid/complete/cycle/fresh，解析拒绝会记录 `[BDI][COLLECT] ... state=parse_rejected`；这些字段不放宽动作所需证据。
 
 `native-bdi-20261102-r3` 根据离线实机样本识别 `LPDT is not configured.` 和 `No link aggregation group exists.`。前者是有效的“检测器未配置”证据，不能等同于无环路；后者是有效空聚合表。六项同轮原始输出保存在 `test/fixtures/h3c-r6328p03/`，H3C 回归会通过完整 Runtime 回放，核对 observation_valid、monitoring、loop_detection_disabled 以及没有写动作。另将 PSRAM 日志队列扩为 384 个槽，索引使用 uint16_t，真实任务回归覆盖超过 256 条突发，防止索引回绕及截断。HTTP 验收必须获得五表同轮有效证据，不能仅凭 BDI cycle 大于零通过。
 
 r5 策略/设备替换回归位于 `test.test_strategy_composition`，覆盖固定容量组合、替换设备查询顺序、独立动作门控和无旧轮证据复用。SSH worker 回归另以不同命令和 # 提示符的测试设备验证同一传输实现。开发契约见 `docs/firmware-strategies.md`。
+
+采集器遇到 `expired` 时，会从同一不可变文件的当前 offset 最多重建三次读取任务，保留已校验分片，并继续检查大小、偏移和 UTF-8 完整性。固件当前只有一个异步读取槽，其他网页或采集进程可能替换已完成但尚未被轮询的任务；建议采集时关闭其他读取页面。持续冲突仍报部分结果，不伪装为完整采集。14 项采集器回归包含任务过期、有限重试与重试后位置异常拒绝。
 
 本文件列测试用途和入口；本轮最终数量、构建与烧录结论由实际运行记录另行补充。下面保留原有集群、USB 和数据库实验说明。
 
@@ -119,3 +121,24 @@ MQTT_BACKEND=local ./test/full_bdi_test.sh
 默认构建独立工作并启用 ESP 离线 AI。连按三下 BOOT、连接 ESP-Logs 热点后，运行 `.venv/bin/python test/standalone_http_acceptance.py`，通过真实 Wi-Fi HTTP 检查 SSH、心跳、TF 原生记录、完整 UTF-8 JSON、只读窗口和板载推理。该验收不打开串口、不发送 USB 命令、不修改设备配置。
 
 `.venv/bin/python -m unittest discover -s test -p test_local_report.py` 验证本机报告格式、容量、凭据脱敏、无效 UTF-8 修复、中文截断边界和单调时间，启用 ASan/UBSan。
+
+
+USB Console 接口模拟测试：`.venv/bin/python -m unittest discover -s test -p test_console_session.py`，包含 16 个带 ASan/UBSan 的会话与 USB 代际场景。它不依赖真实驱动，不代表 PL2303 已在板上运行；接口与硬件限制见 [Console 通道说明](../docs/console-transport.md)。
+
+同一 `test_console_session.py` 还验证 UART/TCP 共用会话的断线撤销和不重放，以及真实 `UartConsolePort`/`TcpConsolePort` 代码在硬件/Socket 桩上的边界。三种固件构建环境和 GPIO17/18、MAX3232 接线见通信模式文档；模拟测试不代表实机验收。
+
+双通道路由测试包含在 `test_console_session.py`，源文件为 `failover_transport.cpp`；模拟主/备会话及执行中隔离命令，验证切换门槛、结果归属、不重放、Console 命令结束并空闲等待 5 秒后尝试 SSH 登录，登录通过后回切并关闭 Console，以及配置变更时对未结束命令的阻断。
+
+双通道 Console 按需启动：路由测试还检查 UART 启停回调次数，确认 SSH 正常不启用备用口，掉线达到阈值且旧请求结束后才尝试登录，SSH 在切换前恢复会取消 Console 尝试。
+
+自动回切还覆盖 Console 隔离命令执行中不抢占、结束后保留原结果且不重放、SSH 主机信任未通过时不回切、等待窗口中有新 Console 命令时重新计时、回切后再次故障可重新启用 Console，以及回切后的新命令确实由 SSH 执行。
+
+顺序恢复还检查：SSH 暂停确认后才接收 Console 业务命令，SSH 重连尝试期间不接收新 Console 命令，连接失败/60 秒截止后保留 Console，以及错误凭据和公钥异常停止自动重复认证。
+
+SSH worker 回归另覆盖 `pause()`→连接/终端资源释放→`stopped()`→`resume(profile)`→重新认证→再次暂停，确保装配层使用明确生命周期接口后仍等待实际停止确认。
+
+## SSH 故障处理实验
+
+`python3 -m unittest test.test_switch_fault_recovery -v` 在本机模拟持续广播风暴、端口隔离与确认修复后的恢复，并回放实机只读计数器样本。覆盖证据连续性、管理口/上联保护、存储失败、SSH 结果不明、重启与故障复发，启用 ASan/UBSan；不连接交换机，不执行实机写命令。结果保存到 `test/.runtime/switch-fault-recovery-experiment.json`。范围、默认禁用的风暴阈值与实机观察见 [说明](../docs/switch-fault-recovery.md)。
+
+只读烧录环境 `esp32-s3-readonly-acceptance` 额外关闭站点 BDI 写授权。`python3 tools/verify_switch_release.py --observe 60` 可在无互联网的 ESP 热点上自动验证真实固件、SSH、心跳、六表采集和日志下载；支持临时连接并恢复原 Wi-Fi。结果保存为 `test/.runtime/r15-hardware-acceptance.json`，不完整下载不会判为整体成功。验收判据测试为 `python3 -m unittest test.test_switch_release_validation -v`，覆盖断连、重启、缺失只读保护、混轮/过期表、写命令、核心命令截断与受限日志缓冲区。

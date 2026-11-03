@@ -10,7 +10,7 @@ using namespace switchmodel;
 // by the caller. Its beliefs/plans are separate from the heartbeat agent.
 class LoopIsolationStrategy final:public IBdiStrategy {
   enum PropositionId : uint8_t {
-    LOOP_CONFIRMED, ACTION_ALLOWED, SSH_READY, ISOLATE_GOAL, DISPATCH_ACTION
+    LOOP_CONFIRMED, ACTION_ALLOWED, SESSION_READY, ISOLATE_GOAL, DISPATCH_ACTION
   };
   BeliefBase beliefs_{3};
   EventBase events_{8};
@@ -57,7 +57,7 @@ public:
   std::function<void(const ActionPlan&)> dispatch;
 
   LoopIsolationStrategy() {
-    for(uint8_t id=LOOP_CONFIRMED;id<=SSH_READY;++id) {
+    for(uint8_t id=LOOP_CONFIRMED;id<=SESSION_READY;++id) {
       beliefs_.add_belief(Belief(Proposition(id),nullptr,false));
       isolateContext_.add_context(ContextCondition(Proposition(id)));
     }
@@ -76,7 +76,7 @@ public:
     if(current()) return;
     attempted_.clear(); lastCycle_=0; targetRevision_=0; candidate_=ActionPlan();
     snapshot_=nullptr; policy_=nullptr; loopConfirmed_=false; dispatched_=false;
-    for(uint8_t id=LOOP_CONFIRMED;id<=SSH_READY;++id) beliefs_.change_belief_state(Proposition(id),false);
+    for(uint8_t id=LOOP_CONFIRMED;id<=SESSION_READY;++id) beliefs_.change_belief_state(Proposition(id),false);
   }
 
   void deliberate(const Snapshot& snapshot,const Policy& policy,uint64_t now) {
@@ -97,7 +97,7 @@ public:
     }
     belief(LOOP_CONFIRMED,loopConfirmed_,"loop_confirmed");
     belief(ACTION_ALLOWED,candidate_.allowed,"action_allowed");
-    belief(SSH_READY,snapshot.sshConnected && snapshot.identityVerified,"ssh_ready");
+    belief(SESSION_READY,snapshot.managementConnected && snapshot.identityVerified,"management_ready");
     if(loopConfirmed_ && !candidate_.allowed)
       emit("[BDI][H3C][BLOCKED] port="+candidate_.port+" reason="+candidate_.reason);
     Scope scope(this);

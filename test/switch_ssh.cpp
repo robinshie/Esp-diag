@@ -58,7 +58,7 @@ int ssh_channel_write(ssh_channel,const void* data,uint32_t length){
     else if(wire=="screen-length disable\r")incoming.push_back("screen-length disable\r\n<H3C>");
     else if(wire=="system-view\r")incoming.push_back("system-view\r\n[H3C]");
     else if(wire=="interface GigabitEthernet 1/0/2\r")incoming.push_back(wire+(wrongView?"\n[H3C-GigabitEthernet1/0/3]":"\n[H3C-GigabitEthernet1/0/2]"));
-    else if(wire=="shutdown\r")incoming.push_back(wire+"\n[H3C-GigabitEthernet1/0/2]");
+    else if(wire=="shutdown\r"||wire=="undo shutdown\r")incoming.push_back(wire+"\n[H3C-GigabitEthernet1/0/2]");
     else if(wire=="return\r")incoming.push_back(wire+"\n<H3C>");
     else incoming.push_back(wire+"H3C Comware Software, Version test\r\n<H3C>");
   }return length;
@@ -89,6 +89,17 @@ void execute(){try{worker(workerArg);}catch(const Stop&){}assert(serialOutput.fi
 int main(){
   h3c::DeviceAdapter adapter;
   reset();SwitchSettings profile;
+  {
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);unsigned phase=0;
+    onDelay=[&](){
+      if(phase==0&&ssh.connected()){ssh.pause();assert(!ssh.connected());phase=1;}
+      else if(phase==1&&ssh.stopped()){assert(connects==1&&sessionsFreed==1);ssh.resume(profile);phase=2;}
+      else if(phase==2&&ssh.sessionAccepted()){ssh.pause();phase=3;}
+      else if(phase==3&&ssh.stopped()){phase=4;throw Stop{};}
+      if(fakeMillis>10000)throw Stop{};
+    };execute();assert(phase==4&&connects==2&&auths==2&&sessionsFreed==2&&channelsFreed==2);
+  }
+  reset();
   {
     SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);
     onDelay=[&](){if(fakeMillis>=1000)ETH.up=false;if(fakeMillis>=2000)throw Stop{};};execute();
@@ -162,6 +173,19 @@ int main(){
     };execute();assert(written.size()==6);assert(written[2]=="system-view\r");assert(written[4]=="shutdown\r");assert(written[5]=="return\r");
   }
 
+  for(auto action:{switchmodel::Action::StormIsolate,switchmodel::Action::RestoreOwned}){
+    reset();emulateCommands=true;
+    SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool submitted=false;
+    assert(ssh.submit("web","restore:GigabitEthernet1/0/2")=="invalid_command");
+    assert(ssh.submitAction("web",action,"GE1/0/2")=="invalid_command");
+    onDelay=[&](){
+      if(ssh.connected()&&!submitted){submitted=true;assert(ssh.submitAction("bdi-new",action,"GE1/0/2")=="queued");}
+      if(ssh.resultReady("bdi-new")){assert(ssh.result("bdi-new").state=="ok");assert(ssh.result("bdi-new").command==switchmodel::actionCommandKey(action,"GigabitEthernet1/0/2"));ETH.up=false;}
+      if(fakeMillis>=2000)throw Stop{};
+    };
+    execute();assert(submitted&&written.size()==6);
+    assert(written[4]==(action==switchmodel::Action::RestoreOwned?"undo shutdown\r":"shutdown\r"));
+  }
   reset();emulateCommands=true;wrongView=true;
   {
     SwitchSsh ssh{adapter};prepare(ssh);ssh.begin(profile);bool submitted=false;

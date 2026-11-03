@@ -1,19 +1,22 @@
 #pragma once
 #include "mqtt_settings.h"
+#include "communication_timing.h"
 #include <cctype>
 
 // Connection profile only. No protocol selection starts a session or executes commands.
 struct SwitchSettings {
   std::string protocol="ssh", host="192.168.10.2", username="admin", password="Admin@12356", enablePassword, fingerprint;
   std::string transport="shell";
-  unsigned port=22, connectTimeout=5, commandTimeout=5;
+  unsigned port=22, connectTimeout=5, commandTimeout=5, failoverWaitSeconds=switchconfig::DEFAULT_FAILOVER_WAIT_SECONDS;
   static bool timeout(const std::string& s,unsigned& out) {
     unsigned n; if(!MqttSettings::parsePort(s,n)||n>30)return false;out=n;return true;
   }
+  static bool failoverWait(const std::string& s,unsigned& out){unsigned n;if(!MqttSettings::parsePort(s,n)||!switchconfig::validFailoverWait(n))return false;out=n;return true;}
   std::string validate() const {
     if(protocol!="none"&&protocol!="ssh"&&protocol!="telnet")return "请选择 SSH、Telnet 或暂不配置";
     if(!port||port>65535)return "交换机端口必须为 1–65535";
     if(connectTimeout<1||connectTimeout>30||commandTimeout<1||commandTimeout>30)return "连接和命令超时必须为 1–30 秒";
+    if(!switchconfig::validFailoverWait(failoverWaitSeconds))return "Console 切换等待必须为 1–300 秒";
     if(transport!="shell"&&transport!="exec")return "SSH 会话类型无效";
     if(!MqttSettings::printable(username,64)||!MqttSettings::printable(password,128)||!MqttSettings::printable(enablePassword,128))return "账号密码过长或含控制字符";
     if(!host.empty()) {
@@ -38,15 +41,16 @@ struct SwitchSettings {
     return "";
   }
   std::string encode() const {
-    return protocol+"\n"+host+"\n"+std::to_string(port)+"\n"+username+"\n"+password+"\n"+enablePassword+"\n"+fingerprint+"\n"+transport+"\n"+std::to_string(connectTimeout)+"\n"+std::to_string(commandTimeout);
+    return protocol+"\n"+host+"\n"+std::to_string(port)+"\n"+username+"\n"+password+"\n"+enablePassword+"\n"+fingerprint+"\n"+transport+"\n"+std::to_string(connectTimeout)+"\n"+std::to_string(commandTimeout)+"\n"+std::to_string(failoverWaitSeconds);
   }
   bool decode(const std::string& raw) {
     if(raw.size()>600)return false;
     std::vector<std::string> f;size_t start=0;
     for(size_t i=0;i<=raw.size();++i)if(i==raw.size()||raw[i]=='\n'){f.push_back(raw.substr(start,i-start));start=i+1;}
-    if(f.size()!=10)return false;
+    if(f.size()!=10&&f.size()!=11)return false;
     SwitchSettings n;n.protocol=f[0];n.host=f[1];n.username=f[3];n.password=f[4];n.enablePassword=f[5];n.fingerprint=f[6];n.transport=f[7];
     if(!MqttSettings::parsePort(f[2],n.port)||!timeout(f[8],n.connectTimeout)||!timeout(f[9],n.commandTimeout)||!n.validate().empty())return false;
+    if(f.size()==11&&!failoverWait(f[10],n.failoverWaitSeconds))return false;
     *this=n;return true;
   }
 };

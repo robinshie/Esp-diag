@@ -19,7 +19,7 @@ inline const char* findingName(FindingKind kind) {
 }
 struct Finding { std::string port,reason; FindingKind kind=FindingKind::Unknown; };
 inline bool usableSnapshot(const Snapshot& s,uint64_t now,uint64_t maxAgeMs) {
-  if(!s.sshConnected || !s.identityVerified || !s.interfaces.valid || !s.down.valid || !s.loops.valid || !s.stp.valid || !s.aggregation.valid) return false;
+  if(!s.managementConnected || !s.identityVerified || !s.interfaces.valid || !s.down.valid || !s.loops.valid || !s.stp.valid || !s.aggregation.valid) return false;
   const Stamp* stamps[]={&s.interfaces.stamp,&s.down.stamp,&s.loops.stamp,&s.stp.stamp,&s.aggregation.stamp};
   for(const auto* stamp:stamps)
     if(!fresh(*stamp,now,s.targetRevision,maxAgeMs) || stamp->cycle!=s.interfaces.stamp.cycle) return false;
@@ -77,8 +77,13 @@ struct Policy {
   bool automationEnabled=false, topologyConfirmed=false;
   std::string managementPort;
   std::set<std::string> allowedPorts,protectedPorts;
+  std::map<std::string,unsigned> requiredPvids;
   uint64_t maxAgeMs=45000, verificationTimeoutMs=120000;
   uint64_t minObservationGapMs=1000;
+  // No global guess: only explicitly calibrated per-port thresholds authorize writes.
+  std::map<std::string,unsigned> stormBroadcastLimits;
+  unsigned stormRequiredRounds=3;
+  uint64_t stormMinWindowMs=10000,stormRecoveryHoldMs=60000;
 };
 inline bool containsPort(const std::set<std::string>& ports,const std::string& name) {
   for(const auto& port:ports) if(normalizePort(port)==name) return true;
@@ -95,6 +100,8 @@ inline std::string policyGate(const Snapshot& s,const Policy& p,const std::strin
   auto port=s.interfaces.ports.find(name);
   if(port==s.interfaces.ports.end()) return "port_missing";
   if(port->second.type!='A') return "trunk_or_hybrid_protected";
+  const auto requiredPvid=p.requiredPvids.find(name);
+  if(requiredPvid!=p.requiredPvids.end()&&port->second.pvid!=requiredPvid->second)return "required_access_vlan_mismatch";
   if(s.aggregation.members.count(name)) return "aggregation_member_protected";
   auto stp=s.stp.ports.find(name);
   if(stp!=s.stp.ports.end()) for(const auto& row:stp->second) {
@@ -104,14 +111,16 @@ inline std::string policyGate(const Snapshot& s,const Policy& p,const std::strin
   }
   return "";
 }
-enum class Action { None, Isolate, RestoreOwned };
+enum class Action { None, Isolate, RestoreOwned, StormIsolate };
+inline bool isolationAction(Action a){return a==Action::Isolate||a==Action::StormIsolate;}
+inline std::string actionCommandKey(Action a,const std::string& port){return (a==Action::RestoreOwned?"restore:":a==Action::StormIsolate?"storm-isolate:":"isolate:")+port;}
 struct ActionPlan {
   bool allowed=false; Action action=Action::None;
   std::string port,reason;
   uint64_t cycle=0,targetRevision=0,createdAtMs=0;
 };
 inline void allowPlan(ActionPlan& plan,Action action,const Snapshot& s,uint64_t now) {
-  plan.allowed=true; plan.action=action; plan.reason=action==Action::Isolate?"confirmed_loop_on_authorized_edge":"restore_owned_isolation_after_repair";
+  plan.allowed=true; plan.action=action; plan.reason=action==Action::Isolate?"confirmed_loop_on_authorized_edge":action==Action::StormIsolate?"sustained_broadcast_storm_on_authorized_edge":"restore_owned_isolation_after_repair";
   plan.cycle=s.interfaces.stamp.cycle; plan.targetRevision=s.targetRevision; plan.createdAtMs=now;
 }
 inline ActionPlan isolationPlan(const Snapshot& s,const Policy& p,const std::string& requested,uint64_t now) {
@@ -143,6 +152,7 @@ inline const char* recoveryName(RecoveryState state) {
 // after an ambiguous SSH result; a reboot loses ownership and never opens ports.
 class RecoveryTracker {
   ActionPlan plan_;
+  Action isolatedAction_=Action::None;
   uint64_t completedAt_=0,lastCycle_=0,lastAt_=0,firstGoodAt_=0;
   unsigned good_=0;
   bool ownsIsolation_=false;
@@ -151,10 +161,12 @@ public:
   std::string reason="idle";
   const std::string& port() const { return plan_.port; }
   bool ownsIsolation() const { return ownsIsolation_; }
+  Action isolatedAction() const {return isolatedAction_;}
+  Action lastAction() const {return plan_.action;}
   bool begin(const ActionPlan& plan) {
-    if(!plan.allowed || plan.action!=Action::Isolate || normalizePort(plan.port)!=plan.port || !plan.cycle || !plan.targetRevision ||
+    if(!plan.allowed || !isolationAction(plan.action) || normalizePort(plan.port)!=plan.port || !plan.cycle || !plan.targetRevision ||
        (state!=RecoveryState::Idle && state!=RecoveryState::Recovered)) return false;
-    plan_=plan; state=RecoveryState::AwaitingExecution; reason="awaiting_ssh_result"; ownsIsolation_=false; good_=0; return true;
+    plan_=plan; isolatedAction_=plan.action; state=RecoveryState::AwaitingExecution; reason="awaiting_command_result"; ownsIsolation_=false; good_=0; return true;
   }
   void executionResult(bool success,uint64_t now) {
     const bool restore=state==RecoveryState::AwaitingRestoreExecution;
@@ -184,9 +196,15 @@ public:
       reason=good?"administrative_isolation_observed":"isolation_not_observed";
     } else {
       const auto kind=diagnosePort(s,plan_.port,now,p.maxAgeMs).kind;
-      good=it->second.link==Link::Up && down==s.down.ports.end() && s.loops.enabled && s.loops.intervalSeconds &&
+      good=it->second.link==Link::Up && down==s.down.ports.end() &&
         !s.loops.ports.count(plan_.port) && kind==FindingKind::Up;
-      reason=good?"clear_link_observed_waiting_detection_interval":"recovery_not_observed";
+      if(isolatedAction_==Action::StormIsolate){
+        const auto limit=p.stormBroadcastLimits.find(plan_.port);const auto measured=s.storm.ports.find(plan_.port);
+        const bool measuredNow=s.storm.valid&&fresh(s.storm.stamp,now,s.targetRevision,p.maxAgeMs)&&s.storm.stamp.cycle==stamp.cycle&&measured!=s.storm.ports.end()&&measured->second.measured;
+        good=good&&measuredNow&&limit!=p.stormBroadcastLimits.end()&&limit->second&&measured->second.broadcastPps<limit->second;
+        if(measuredNow&&limit!=p.stormBroadcastLimits.end()&&limit->second&&measured->second.broadcastPps>=limit->second){state=RecoveryState::NeedsReview;reason="storm_recurred_after_restore";return;}
+      }else good=good&&s.loops.enabled&&s.loops.intervalSeconds;
+      reason=good?(isolatedAction_==Action::StormIsolate?"low_broadcast_observed_waiting_hold_interval":"clear_link_observed_waiting_detection_interval"):"recovery_not_observed";
       if(s.loops.ports.count(plan_.port)) { state=RecoveryState::NeedsReview; reason="loop_recurred_after_restore"; return; }
     }
     if(!good) { good_=0; firstGoodAt_=0; return; }
@@ -194,9 +212,9 @@ public:
     ++good_;
     if(good_<2) return;
     if(state==RecoveryState::VerifyingIsolation) {
-      state=RecoveryState::Contained; ownsIsolation_=true; reason="isolation_verified_physical_loop_not_declared_repaired";
-    } else if(stamp.atMs-firstGoodAt_>=uint64_t(s.loops.intervalSeconds)*2000) {
-      state=RecoveryState::Recovered; ownsIsolation_=false; reason="recovery_verified_across_two_detection_intervals";
+      state=RecoveryState::Contained; ownsIsolation_=true; reason=isolatedAction_==Action::StormIsolate?"storm_isolation_verified_source_not_declared_repaired":"isolation_verified_physical_loop_not_declared_repaired";
+    } else if(stamp.atMs-firstGoodAt_>=(isolatedAction_==Action::StormIsolate?p.stormRecoveryHoldMs:uint64_t(s.loops.intervalSeconds)*2000)) {
+      state=RecoveryState::Recovered; ownsIsolation_=false; reason=isolatedAction_==Action::StormIsolate?"storm_recovery_verified_across_hold_interval":"recovery_verified_across_two_detection_intervals";
     }
   }
   ActionPlan ownedRestorePlan(const Snapshot& s,const Policy& p,uint64_t now,bool repairConfirmed) const {

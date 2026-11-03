@@ -7,7 +7,7 @@ root = Path(__file__).resolve().parents[1]
 for name, symbol in (("network", "NETWORK_PAGE"), ("archive", "ARCHIVE_PAGE")):
     page = (root / f"frontend/device/{name}.html").read_text()
     if name == 'archive':
-        modules = ['fault-explainer.js', 'model-descriptions.js', 'report-analysis.js', 'report-ai-view.js']
+        modules = ['fault-explainer.js', 'model-descriptions.js', 'loop-storm.js', 'report-analysis.js', 'report-ai-view.js']
         scripts = []
         for module in modules:
             source = (root / 'frontend/shared' / module).read_text()

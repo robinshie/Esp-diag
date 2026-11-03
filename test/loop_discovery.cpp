@@ -5,7 +5,7 @@ using namespace h3c;
 static const std::string A="GigabitEthernet1/0/2",B="GigabitEthernet1/0/3";
 static Stamp at(unsigned cycle){Stamp stamp;stamp.cycle=cycle;stamp.atMs=cycle*10000;stamp.complete=true;stamp.targetRevision=1;return stamp;}
 static Snapshot sample(unsigned cycle){
-  auto st=at(cycle);Snapshot s;s.targetRevision=1;s.sshConnected=s.identityVerified=true;
+  auto st=at(cycle);Snapshot s;s.targetRevision=1;s.managementConnected=s.identityVerified=true;
   s.interfaces=parseInterfaces("Brief information on interfaces in bridge mode:\nInterface Link Speed Duplex Type PVID Description\nGE1/0/2 UP 1G F A 10\nGE1/0/3 UP 1G F A 10\n",st);
   s.down=parseDownCauses("Brief information on interfaces in bridge mode:\nInterface Link Cause\n",st);
   s.loops=parseLoops("LPDT is not configured.\n",st);

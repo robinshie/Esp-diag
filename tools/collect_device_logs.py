@@ -19,8 +19,18 @@ def read_report(get, filename, pause=time.sleep):
         offset = len(data)
         reply = get('/storage/read?' + urlencode({'file': filename, 'offset': offset}))
         job = reply.get('job')
+        restarts = 0
         for _ in range(80):
-            if reply.get('state') not in ('pending', 'busy'):
+            if reply.get('state') == 'expired':
+                # The firmware has one asynchronous read slot. Another viewer
+                # can replace it after completion but before this client polls.
+                # Restart only this immutable file/offset, retaining validated
+                # earlier chunks; never loop forever under competing readers.
+                if restarts >= 3:
+                    break
+                restarts += 1
+                job = None
+            elif reply.get('state') not in ('pending', 'busy'):
                 break
             pause(.1)
             reply = get('/storage/read?' + urlencode({'job': job} if job else {'file': filename, 'offset': offset}))
@@ -71,10 +81,13 @@ def summarize(bundle):
             'note': '只读采集；动作执行和物理环路恢复须另核对事件、端口及连续读回。'}
 
 
-def collect(get, output, wait=600, observe=30, limit=40, pause=time.sleep, clock=time.monotonic):
+def collect(get, output, wait=600, observe=30, limit=40, pause=time.sleep, clock=time.monotonic,
+            tail_limit=10):
     bundle = {'schema_version': 1, 'kind': 'esp_offline_diagnostics',
               'statuses': [], 'reports': [], 'errors': [], 'storage_samples': [],
-              'listing_samples': [], 'collection_complete': False}
+              'listing_samples': [], 'collection_complete': False,
+              'tail_collection': {'requested': tail_limit, 'reports': 0,
+                                  'snapshot_checked': False, 'limit_reached': False}}
     # Preserve the previous run, including evidence that this attempt may miss.
     if output.exists():
         backup = output.with_name(output.stem + '-' + str(time.time_ns()) + output.suffix)
@@ -112,6 +125,28 @@ def collect(get, output, wait=600, observe=30, limit=40, pause=time.sleep, clock
             bundle['storage_samples'].append({'error': str(error)})
         save()
 
+    def list_files(before):
+        listing = None
+        for attempt in range(121):
+            listing = get('/storage/files?' + urlencode({'before': before}))
+            sample = {'before': before, 'response': listing}
+            if not bundle['listing_samples'] or bundle['listing_samples'][-1] != sample:
+                bundle['listing_samples'].append(sample)
+                save()
+            if listing.get('state') not in ('busy', 'starting'):
+                break
+            if attempt % 20 == 0:
+                print('等待 TF 列表：' + str(listing.get('state')), flush=True)
+                storage_status()
+                bundle['statuses'].append(get('/device/status'))
+                save()
+            if attempt < 120:
+                pause(.5)
+        if listing.get('state') != 'ready' or listing.get('source') != 'esp_native':
+            storage_status()
+            raise ValueError('TF 日志列表未就绪，原始响应：' + json.dumps(listing, ensure_ascii=False))
+        return listing
+
     try:
         storage_status()
         end = clock() + observe
@@ -120,29 +155,12 @@ def collect(get, output, wait=600, observe=30, limit=40, pause=time.sleep, clock
             bundle['statuses'].append(get('/device/status'))
             save()
         before, seen = 0, set()
+        initial_head = None
         while len(bundle['reports']) < limit:
-            listing = None
-            # Continuous SSH output can keep the firmware's flush-before-list
-            # endpoint busy longer than the original eight-second retry window.
-            for attempt in range(121):
-                listing = get('/storage/files?' + urlencode({'before': before}))
-                sample = {'before': before, 'response': listing}
-                if not bundle['listing_samples'] or bundle['listing_samples'][-1] != sample:
-                    bundle['listing_samples'].append(sample)
-                    save()
-                if listing.get('state') not in ('busy', 'starting'):
-                    break
-                if attempt % 20 == 0:
-                    print('等待 TF 列表：' + str(listing.get('state')), flush=True)
-                    storage_status()
-                    bundle['statuses'].append(get('/device/status'))
-                    save()
-                if attempt < 120:
-                    pause(.5)
-            if listing.get('state') != 'ready' or listing.get('source') != 'esp_native':
-                storage_status()
-                raise ValueError('TF 日志列表未就绪，原始响应：' + json.dumps(listing, ensure_ascii=False))
+            listing = list_files(before)
             files = listing.get('files', [])
+            if initial_head is None and files:
+                initial_head = files[0]['sequence']
             for item in files:
                 if len(bundle['reports']) >= limit:
                     break
@@ -162,6 +180,46 @@ def collect(get, output, wait=600, observe=30, limit=40, pause=time.sleep, clock
                 raise ValueError('日志分页游标异常')
             before = next_before
         bundle['statuses'].append(get('/device/status'))
+        # Reading the initial immutable snapshot takes time. Capture a fresh,
+        # bounded snapshot too, so failures during download are not represented
+        # only by the last status while all saved logs precede the failure.
+        if tail_limit:
+            print('正在补采下载期间产生的最新日志。', flush=True)
+            pause(1)
+            tail_before, tail_seen = 0, set()
+            while True:
+                listing = list_files(tail_before)
+                bundle['tail_collection']['snapshot_checked'] = True
+                files = listing.get('files', [])
+                reached_initial = False
+                for item in files:
+                    sequence = item['sequence']
+                    if type(sequence) is not int or sequence <= 0:
+                        raise ValueError('末段日志序号异常')
+                    if initial_head is not None and sequence <= initial_head:
+                        reached_initial = True
+                        break
+                    if item['name'] in tail_seen:
+                        raise ValueError('末段日志分页重复')
+                    tail_seen.add(item['name'])
+                    if bundle['tail_collection']['reports'] >= tail_limit:
+                        bundle['tail_collection']['limit_reached'] = True
+                        reached_initial = True
+                        break
+                    bundle['reports'].append(read_report(get, item['name'], pause))
+                    bundle['tail_collection']['reports'] += 1
+                    print('已补采末段日志 ' + str(bundle['tail_collection']['reports'])
+                          + '/' + str(tail_limit), flush=True)
+                    save()
+                if reached_initial or not files or not listing.get('has_older'):
+                    break
+                next_before = files[-1]['sequence']
+                if type(next_before) is not int or next_before <= 0 or (tail_before and next_before >= tail_before):
+                    raise ValueError('末段日志分页游标异常')
+                tail_before = next_before
+            if bundle['tail_collection']['limit_reached']:
+                print('末段日志达到上限，下载期间的新增日志未全部保存；可增大 --tail-reports。', flush=True)
+            bundle['statuses'].append(get('/device/status'))
         storage_status()
         bundle['collection_complete'] = bool(bundle['reports']) and not bundle['errors']
         if not bundle['reports']:
@@ -183,12 +241,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--url', default='http://192.168.4.1')
     parser.add_argument('--wait', type=float, default=600, help='等待切换热点的秒数')
-    parser.add_argument('--observe', type=float, default=30, help='前后状态采样时长')
+    parser.add_argument('--observe', type=float, default=30, help='开始阶段状态采样时长')
     parser.add_argument('--reports', type=int, default=40)
+    parser.add_argument('--tail-reports', type=int, default=10, help='下载后补采的最新日志上限；0 表示关闭')
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'test/.runtime/esp-offline-diagnostics.json')
     args = parser.parse_args()
-    if not (0 < args.wait <= 3600 and 0 <= args.observe <= 120 and 1 <= args.reports <= 100):
-        parser.error('等待 1–3600 秒、观察 0–120 秒、日志 1–100 包')
+    if not (0 < args.wait <= 3600 and 0 <= args.observe <= 120 and 1 <= args.reports <= 100
+            and 0 <= args.tail_reports <= 40):
+        parser.error('等待 1–3600 秒、观察 0–120 秒、日志 1–100 包、末段日志 0–40 包')
     base = args.url.rstrip('/')
     parsed = urlsplit(base)
     if parsed.scheme != 'http' or not parsed.hostname or parsed.username or parsed.password or parsed.path or parsed.query or parsed.fragment:
@@ -205,7 +265,8 @@ def main():
                 return {key: values[-1] for key, values in parse_qs(text).items()}
             return json.loads(text)
 
-    return 0 if collect(get, args.output, args.wait, args.observe, args.reports) else 1
+    return 0 if collect(get, args.output, args.wait, args.observe, args.reports,
+                       tail_limit=args.tail_reports) else 1
 
 
 if __name__ == '__main__':

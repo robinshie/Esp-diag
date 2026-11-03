@@ -7,7 +7,7 @@ body{font:16px/1.6 system-ui,sans-serif;color:#183047;background:#eef3f7;margin:
 </style></head><body><main>
 <h1>故障分析</h1><p class="muted">查看故障现象、可能原因和处置过程。离线小模型辅助分类，原文证据随时可查。</p>
 <section aria-label="设备当前状态"><h2>设备独立运行</h2><p id="device-ai">正在读取本机 AI 状态…</p><p id="device-bdi">正在读取 BDI 状态…</p><p id="device-discovery">正在读取环路探索状态…</p><p id="device-link">正在读取交换机连接…</p><p id="device-mqtt">正在读取可选后台连接…</p><small class="muted">本区显示当前设备状态；下方分析只依据已保存日志。环路探索综合 MAC 漂移、端口、VLAN、STP 和 CPU，疑似线索仅供观察，不代表环路已经确认。管理连接受保护，业务口处置须通过后续采集确认结果。</small></section>
-<button id="analyze" type="button">一键分析最近日志</button><p class="muted">读取最近最多 10 包、10 分钟内的已保存日志，调用 ESP 离线小模型，汇总故障和处置过程。</p><p id="status" role="status" aria-live="polite">正在加载最近一次记录…</p>
+<button id="analyze" type="button">一键分析最近日志</button><p class="muted">读取最近最多 10 包、10 分钟内的已保存日志，调用 ESP 离线小模型，汇总故障和处置过程。环路与同期管理通信中断证据相符时，显示“疑似环路风暴”；历史标记不代表当前故障。</p><p id="status" role="status" aria-live="polite">正在加载最近一次记录…</p>
 <div id="report"></div>
 <details id="history"><summary>其他时间的记录与存储信息</summary><p id="storage" class="muted">正在检查 TF 卡…</p><button id="refresh">刷新最新记录</button><button id="older" disabled>更早记录</button><button id="newer" disabled>返回较新记录</button><p><select id="file" aria-label="选择历史记录"><option value="">暂无记录</option></select></p><p class="muted">正式版记录由 ESP 本机采集并直接写入 TF 卡，无需电脑或 USB。约 12 MiB 循环保留，空间不足覆盖最早记录。历史记录不代表当前状态。</p></details>
 <p class="muted">连按三下 BOOT可再次打开；查看入口十分钟后隐藏。</p><button id="close">关闭查看入口</button>
@@ -39,7 +39,7 @@ function normalizeRecord(input){
  const record=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
  const text=value(record.text); // Full frames below are bounded separately, not truncated before parsing.
  const raw=typeof record.text==='string'?record.text.slice(0,2048):'';
- const accepted=/^(?:H3C (?:LOG|PONG) |\[BDI\]\[(?:CMD|ACK|RECEIPT|RECOVERED|STATE|ACTION|EVENT|WARN|STATUS|BOOT|READY|HEARTBEAT|OBSERVE|VERIFY|H3C|BLOCKED|COLLECT)\]|\[(?:STORAGE|NETWORK|SSH|BOOT|MEMORY|LOG-AI)\])/.test(raw);
+ const accepted=/^(?:H3C (?:LOG|PONG) |\[BDI\]\[(?:CMD|ACK|RECEIPT|RECOVERED|STATE|ACTION|EVENT|WARN|STATUS|BOOT|READY|HEARTBEAT|OBSERVE|VERIFY|H3C|BLOCKED|COLLECT)\]|\[(?:STORAGE|NETWORK|SSH|CONSOLE|BOOT|MEMORY|LOG-AI)\])/.test(raw);
  const f=accepted?fields(raw):Object.create(null);
  const get=key=>value(f?.[key]);
  const rawEvent=get('event'),event=value(record.event)||rawEvent||(/^\[BDI\]\[BOOT\]/.test(raw)?'BOOT':'');
@@ -61,7 +61,7 @@ function normalizeRecord(input){
  else if(/^\[BDI\]\[STATE\]/.test(raw))phase='snapshot';
  else if(/^\[BDI\]\[STATUS\]/.test(raw))phase='runtime';
  else if(/^\[BDI\]\[HEARTBEAT\]/.test(raw))phase='heartbeat';
- else if(/^\[SSH\]/.test(raw))phase='connection';
+ else if(/^\[(?:SSH|CONSOLE)\]/.test(raw))phase='connection';
  else if(/^\[BOOT\]/.test(raw))phase='network';
  else if(/^\[(?:MEMORY|LOG-AI)\]/.test(raw))phase='runtime';
  else if(/^\[BDI\]\[RECEIPT\]/.test(raw))phase='receipt';
@@ -263,6 +263,81 @@ const modelDescriptions = {
     "日志仅确认输入帧被接受、重复或拒绝。ACCEPTED 不是处置成功，也不是故障恢复；REJECTED 需检查输入协议。"
   ]
 };
+// Display-only assessment of saved evidence. Never produces CLI capabilities.
+// Comware's clock may be unset: align a login with the observed SSH reconnect,
+// then require a matching logout and local ICMP loss before labeling suspicion.
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function switchTime(text){
+ const m=/^%?(\w{3})\s+(\d{1,2}) (\d{2}):(\d{2}):(\d{2}):(\d{3}) (\d{4}) H3C /.exec(text);
+ if(!m)return null;
+ const month=months.indexOf(m[1]),day=Number(m[2]),hour=Number(m[3]),minute=Number(m[4]),second=Number(m[5]);
+ if(month<0||day<1||day>31||hour>23||minute>59||second>59)return null;
+ const at=Date.UTC(Number(m[7]),month,day,hour,minute,second,Number(m[6]));
+ return new Date(at).getUTCDate()===day?at:null;
+}
+const stormFields=text=>Object.fromEntries([...text.matchAll(/(?:^|\s)([a-z_]+)=([^\s]+)/g)].map(m=>[m[1],m[2]]));
+function assessLoopStorms(reports){
+ const rows=[];
+ for(const report of reports){
+  if(report.source!=='esp_native'||report.transport!=='ETH'||report.clock!=='uptime'||!report.boot)continue;
+  report.lines.forEach((line,index)=>{
+   if(Number.isFinite(line.at_ms)&&line.at_ms>=0&&line.at_ms<=report.sent_at_ms)rows.push({boot:report.boot,at:line.at_ms,text:line.text,reportId:report.report_id,line:index});
+  });
+ }
+ rows.sort((a,b)=>a.at-b.at);
+ const statuses=[],connections=[],heartbeats=[],events=[],seen=new Set();
+ for(const row of rows){
+  const f=stormFields(row.text);
+  if(row.text.startsWith('[SSH][STATUS] ')&&f.target&&f.ip){
+   const target=/^([^:]+):\d+$/.exec(f.target)?.[1];
+   if(target)statuses.push({...row,target,ip:f.ip});
+  }
+  if(/^\[SSH\] state=(connected|disconnected)$/.test(row.text)){
+   const status=[...statuses].reverse().find(s=>s.boot===row.boot&&row.at-s.at<=10000);
+   if(status)connections.push({...row,target:status.target,ip:status.ip,state:f.state});
+  }
+  if(row.text.startsWith('[BDI][HEARTBEAT] ')&&f.target&&f.state==='lost')heartbeats.push({...row,target:f.target});
+  const output=/^\[SSH\]\[OUTPUT\] request_id=(\S+) command=logs target=(\S+) text=(.*)$/.exec(row.text);
+  if(!output)continue;
+  const [,requestId,target,text]=output,at=switchTime(text),key=JSON.stringify([row.boot,target,text]);
+  if(at===null||seen.has(key))continue;
+  seen.add(key);
+  const loop=/ H3C LPDT\/\d\/LPDT_VLAN_LOOPED: A loop was detected on (GigabitEthernet\d+\/\d+\/\d+|Ten-GigabitEthernet\d+\/\d+\/\d+) in VLAN (\d+)\.$/.exec(text);
+  const session=/ H3C SHELL\/\d\/SHELL_(LOGIN|LOGOUT): \S+ logged (?:in|out) from ([\d.]+)\.$/.exec(text);
+  if(loop&&Number(loop[2])>=1&&Number(loop[2])<=4094)events.push({...row,target,requestId,switchAt:at,kind:'loop',port:loop[1],vlan:Number(loop[2])});
+  else if(session)events.push({...row,target,requestId,switchAt:at,kind:session[1],ip:session[2]});
+ }
+ const groups=[];
+ for(const loop of events.filter(e=>e.kind==='loop')){
+  let group=groups.find(g=>g.boot===loop.boot&&g.target===loop.target&&g.vlan===loop.vlan&&Math.abs(g.switchAt-loop.switchAt)<=1000);
+  if(!group){group={boot:loop.boot,target:loop.target,vlan:loop.vlan,switchAt:loop.switchAt,ports:[],loops:[]};groups.push(group);}
+  if(!group.ports.includes(loop.port))group.ports.push(loop.port);
+  group.loops.push(loop);
+ }
+ return groups.slice(-16).map(group=>{
+  let match=null;
+  for(const loop of group.loops){
+   for(const login of events.filter(e=>e.kind==='LOGIN'&&e.boot===group.boot&&e.target===group.target&&e.requestId===loop.requestId)){
+    for(const connected of connections.filter(c=>c.state==='connected'&&c.boot===group.boot&&c.target===group.target&&c.ip===login.ip&&c.at<=login.at&&login.at-c.at<=60000)){
+     const estimate=loop.switchAt+connected.at-login.switchAt;
+     const logout=events.find(e=>e.kind==='LOGOUT'&&e.boot===group.boot&&e.target===group.target&&e.ip===login.ip&&e.requestId===loop.requestId&&e.switchAt>=loop.switchAt&&e.switchAt-loop.switchAt<=60000);
+     if(!logout||estimate<0||estimate>loop.at)continue;
+     const disconnect=connections.find(c=>c.state==='disconnected'&&c.boot===group.boot&&c.target===group.target&&c.ip===login.ip&&Math.abs(c.at-(logout.switchAt+connected.at-login.switchAt))<=10000);
+     const heartbeat=heartbeats.find(h=>h.boot===group.boot&&h.target===group.target&&h.at>=estimate&&h.at-estimate<=60000&&disconnect&&Math.abs(h.at-disconnect.at)<=15000);
+     if(disconnect&&heartbeat){match={loop,login,connected,logout,disconnect,heartbeat,estimatedAt:estimate};break;}
+    }
+    if(match)break;
+   }
+   if(match)break;
+  }
+  return {boot:group.boot,target:group.target,vlan:group.vlan,ports:group.ports.sort(),
+   state:match?'suspected':'loop_confirmed',historical:true,
+   title:match?'疑似环路风暴':'已确认环路 · 风暴风险待核对',
+   evidence:match?[...group.loops,match.logout,match.disconnect,match.heartbeat,match.login,match.connected]:group.loops,
+   explanation:match?'交换机确认环路；经登录事件对齐的同一时段内，管理心跳丢失且 SSH 断开。缺少广播速率与丢包计数，尚不能确认风暴或唯一根因。':'交换机日志明确记录过环路，但当前分析范围缺少可关联的管理通信中断证据，不能据此认定风暴。',
+   limitation:'这是已保存日志的历史标记，不代表当前仍有风暴，也不证明 ESP 已隔离端口或物理环路已修复。'};
+ });
+}
 
 const faultLabels={AUTH_LOCKED:'auth_lock',LINK_DOWN:'link_down',THERMAL:'thermal',FAN_FAILURE:'fan',PSU_FAILURE:'power',
  LOOP:'loop',LOOP_DETECTED:'loop',LOGIN_FAILURE:'login_failure',STP_PROTECTION:'stp_protection',STP_CHANGE:'stp_protection',
@@ -359,7 +434,7 @@ function buildReportAnalysis(report, contextReports=[], options={}) {
   if(message&&!seenDiagnostics.has(message)){seenDiagnostics.add(message);diagnostics.push(message);}
  }
  return {report,incidents,routines:routines.filter(item=>recent||item.evidence.current),unknown:unknown.filter(item=>recent||item.evidence.current),
-  diagnostics,
+  diagnostics,loopRisks:assessLoopStorms(reports),
   snapshots:[...snapshots].map(([device,fields])=>({device,...fields})),contextPackets:reports.length,
   simulated:items.some(item=>/^sim(?:[-_]|$)|^switch-demo(?:[-_]|$)/i.test(item.device)),
   rawCount:recent?reports.reduce((count,packet)=>count+packet.lines.length,0):report.lines.length};
@@ -380,6 +455,8 @@ const analysisStyle=`
 .report-analysis pre{max-height:260px;overflow:auto;max-width:100%;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .report-analysis .model-result{padding:10px 12px;background:var(--analysis-bg,#142025);border-radius:8px;font-size:13px}
 .report-analysis .routine-row{padding:5px 0}.report-analysis .model-button{font-size:12px;padding:5px 10px;margin-top:8px}
+.report-analysis .loop-risk{border:1px solid #c47b28;border-left:5px solid #c47b28;border-radius:8px;padding:12px;margin:12px 0;overflow-wrap:anywhere}
+.report-analysis .loop-risk-badge{display:inline-block;font-weight:700;color:#78410c;background:#fff0d4;border-radius:6px;padding:3px 9px}
 @media(max-width:700px){.report-analysis .incident-grid{grid-template-columns:1fr}.report-analysis .analysis-overview,.report-analysis .incident-card{padding:12px}}
 `;
 function node(tag,text='',className=''){const value=document.createElement(tag);value.textContent=text;if(className)value.className=className;return value;}
@@ -392,11 +469,18 @@ function renderReportAI(report,root,classify,options={}){
  const analysis=buildReportAnalysis(report,options.contextReports||[],options),view=node('div','','report-analysis');
  view.append(node('style',analysisStyle));root.append(view);
  const overview=node('section','','analysis-overview'),unresolved=analysis.incidents.filter(item=>!item.recovered).length;
- overview.append(node('h3',analysis.incidents.length?`本次涉及 ${analysis.incidents.length} 组故障或处置记录`:
+ overview.append(node('h3',analysis.loopRisks.length?'已保存日志中存在环路风险记录':analysis.incidents.length?`本次涉及 ${analysis.incidents.length} 组故障或处置记录`:
   analysis.snapshots.some(item=>Number(item.active_faults)>0)?'期末仍有活动故障，需要核对':analysis.diagnostics.length?'本包包含采集或存储状态提醒':analysis.unknown.length?'本包包含待核对记录':'本包以常规运行记录为主'));
  const stats=node('div','','analysis-stats');
  for(const text of [`原文 ${analysis.rawCount} 条`,`常规记录 ${analysis.routines.length} 条`,`已确认恢复 ${analysis.incidents.filter(item=>item.recovered).length} 组`,`待核对 ${unresolved} 组`])stats.append(node('span',text));
+ if(analysis.loopRisks.length)stats.append(node('span',`历史环路风险 ${analysis.loopRisks.length} 项`));
  overview.append(stats);
+ for(const risk of analysis.loopRisks){
+  const panel=node('section','','loop-risk');
+  panel.append(node('span',risk.title,'loop-risk-badge'),node('p',`历史日志 · ${risk.target} · VLAN ${risk.vlan} · ${risk.ports.join('、')}`),node('p',risk.explanation),node('p',risk.limitation,'analysis-muted'));
+  panel.append(folded('判断依据与关联原文',node('pre',risk.evidence.map(e=>`开机 +${(e.at/1000).toFixed(1)} 秒 · ${e.reportId} #${e.line+1}\n${e.text}`).join('\n\n'))));
+  overview.append(panel);
+ }
  for(const item of analysis.snapshots)overview.append(node('p',`${item.device} · 期末状态 ${item.state||'未知'} · 活动故障 ${item.active_faults??'未提供'} · 锁定 ${item.locked==='true'?'是':item.locked==='false'?'否':'未知'}`));
  if(analysis.snapshots.some(item=>Number(item.active_faults)>0))overview.append(node('p','期末仍跟踪：'+analysis.snapshots.filter(item=>Number(item.active_faults)>0).map(item=>`${item.device} / ${item.faults||'类型未提供'}`).join('；')));
  overview.append(node('p',options.recent?`已分析最近 ${analysis.contextPackets} 包日志，跨开机周期分别核对，不混合事件。`:analysis.contextPackets>1?`已关联 ${analysis.contextPackets} 包历史，按设备、端口、事件标识核对过程。`:'当前仅有本包证据；跨包的起因或处置可能不在这个片段内。','analysis-muted'));
@@ -477,7 +561,7 @@ async function request(url,options={}){
  }catch(error){if(error.name==='AbortError')throw Error('设备响应超时，请确认仍连接 ESP-Logs 热点，再点一键分析最近日志。');throw error;}
  finally{clearTimeout(timer);}
 }
-const bdiNames={idle:'等待观察',monitoring:'持续监测',unknown:'证据不足',loop_detected:'观察到环路',verifying:'处置后验证中',contained:'隔离已验证，物理环路仍待处理',needs_review:'需要现场核对',recovered:'已验证恢复',disabled:'未启用'};
+const bdiNames={idle:'等待观察',waiting_transport:'等待交换机连接',monitoring:'持续监测',unknown:'证据不足',loop_detected:'观察到环路',verifying:'处置后验证中',contained:'隔离已验证，物理环路仍待处理',needs_review:'需要现场核对',recovered:'已验证恢复',disabled:'未启用'};
 const heartbeatNames={disabled:'未启用',waiting_ssh:'等待 SSH 首次登录',unknown:'未知',healthy:'正常',suspect:'等待失败确认',lost:'丢失',recovering:'恢复验证中'};
 const discoveryNames={unknown:'证据不足',monitoring:'持续探索',watch:'线索待核对',suspected:'疑似环路',confirmed:'交换机已提供明确环路证据'};
 const discoveryReasons={waiting_for_observation:'等待采集',incomplete_stale_or_mixed_observation:'本轮证据不完整或已过期',contradictory_loop_and_port_evidence:'环路与端口证据冲突',explicit_switch_loop_evidence:'当前环路表和端口状态相符',switch_loopback_protection_active:'端口已被交换机环路保护关闭',mac_move_evidence_unavailable:'MAC 漂移记录不可用，不能完成间接研判',baseline_established_history_not_replayed:'已建立基线，历史累计次数不作为当前故障',mac_counter_reset_rebaseline:'漂移计数重置，重新建立基线',no_current_multi_signal_loop_evidence:'未发现当前多条件线索，不代表没有环路',lpdt_disabled_no_current_multi_signal_evidence:'LPDT 未配置，暂未发现多条件线索，不代表没有环路',mac_moves_need_independent_corroboration:'双向 MAC 漂移，仍需独立证据',multi_signal_waiting_second_round:'多条件相符，等待下一轮确认',persistent_mac_moves_with_corroboration:'连续两轮双向 MAC 漂移，伴随高 CPU 或近期 STP 变化',discovery_observation_stale:'探索结果已过期，等待新采集'};
@@ -491,7 +575,10 @@ async function loadDeviceStatus(){
   const discovery=bdi.discovery;
   $('device-discovery').textContent=discovery?'环路探索：'+(discoveryNames[discovery.state]||discovery.state||'未知')+' · '+(discoveryReasons[discovery.reason]||discovery.reason||'等待证据')+(discovery.port?' · '+discovery.port+(discovery.peer?' ↔ '+discovery.peer:''):'')+(discovery.vlan?' · VLAN '+discovery.vlan:'')+(discovery.rounds?' · 连续 '+discovery.rounds+' 轮':'')+' · 仅观察':'环路探索：当前固件尚未提供状态';
   const heartbeat=typeof value.heartbeat==='string'?new URLSearchParams(value.heartbeat).get('heartbeat_state'):value.heartbeat?.state;
-  $('device-link').textContent='SSH：'+(value.ssh_state==='connected'?'已登录':value.ssh_state||'未知')+' · ping 心跳：'+(heartbeatNames[heartbeat]||heartbeat||'未知');
+  const management=value.management||{transport:'ssh',state:value.ssh_state};
+  const channelNames={ssh:'SSH',uart_console:'GPIO Console',tcp_console:'TCP Console',usb_console:'USB Console'};
+  $('device-link').textContent=(channelNames[management.transport]||management.transport)+'：'+(management.state==='connected'?'已登录':management.state||'未知')+(management.transport==='ssh'?' · ping 心跳：'+(heartbeatNames[heartbeat]||heartbeat||'未知'):' · 会话心跳：'+(management.session_accepted?'正常':'等待验证'));
+  if(management.policy==='ssh_uart_failover')$('device-link').textContent+=' · 双通道：SSH '+(management.ssh_state||'未知')+' / Console '+(management.console_state||'未知');
   $('device-mqtt').textContent='后台 MQTT：'+(mqtt.enabled===false?'未启用（不影响本机工作）':mqtt.state||'未知');
  }catch(error){
   for(const [id,label] of [['device-ai','本机 AI'],['device-bdi','BDI'],['device-discovery','环路探索'],['device-link','交换机连接'],['device-mqtt','后台 MQTT']])$(id).textContent=label+'：当前状态暂不可读。';
@@ -568,7 +655,7 @@ async function analyzeRecent(){
  const {analysis,ready}=showReport(latest,{recent:true,contextReports:reports,contextError,contextLimited:limited||files.length>10||hasOlder,
   onProgress:progress=>{$('status').textContent='AI 分析中 · 已读取 '+reports.length+' 包 · 模型核对 '+progress.completed+'/'+progress.total+' 条…';}});
  const progress=await ready;
- $('status').textContent='AI 分析完成 · '+range+' · '+reports.length+' 包 / '+analysis.rawCount+' 条日志 · '+analysis.incidents.length+' 组故障或处置记录 · 小模型采用 '+progress.accepted+'/'+progress.total+' 条。'+(contextError?' 部分历史未读取，详见分析范围。':'');
+ $('status').textContent='AI 分析完成 · '+range+' · '+reports.length+' 包 / '+analysis.rawCount+' 条日志 · '+analysis.incidents.length+' 组故障或处置记录'+(analysis.loopRisks.length?' · 历史环路风险 '+analysis.loopRisks.length+' 项':'')+' · 小模型采用 '+progress.accepted+'/'+progress.total+' 条。'+(contextError?' 部分历史未读取，详见分析范围。':'');
 }
 
 async function run(action){if(busy||closed)return;busy=true;$('status').dataset.error='false';controls();try{await action();}catch(error){$('status').textContent=error.message;$('status').dataset.error='true';}finally{busy=false;controls();}}

@@ -3,21 +3,24 @@
 #include "../common/firmware_log.h"
 #include <ETH.h>
 #include <atomic>
+#include <cstring>
 #include <libssh_esp32.h>
 #include <libssh/libssh.h>
 #include "../config/switch_settings.h"
 #include "command_result.h"
+#include "command_transport.h"
 #include "terminal_capture.h"
 #include "../adapters/device_adapter.h"
 
 // All libssh objects belong to the worker; the Arduino loop only publishes profiles.
-class SwitchSsh {
+class SwitchSsh : public switchtransport::ICommandTransport {
   const switchdevice::IDeviceAdapter& adapter;
   SemaphoreHandle_t lock=nullptr;
   SwitchSettings pending;
   unsigned revision=0,commandRevision=0;
   switchcli::Result reply, userReply;
   std::vector<std::string> script;
+  switchmodel::Action scriptAction=switchmodel::Action::None;
   std::function<std::string(const std::string&,unsigned,const std::string&,const std::string&)> verifyHostKey;
   std::atomic<const char*> keyState{"unpaired"};
   std::atomic<unsigned> connectedRevision{~0u};
@@ -60,7 +63,7 @@ class SwitchSsh {
     xSemaphoreTake(lock,portMAX_DELAY);
     if(reply.state!="queued"){xSemaphoreGive(lock);return true;}
     if(commandRevision!=version){reply.state="cancelled";xSemaphoreGive(lock);return true;}
-    reply.state="running";auto id=reply.id;auto name=reply.command;auto steps=script;xSemaphoreGive(lock);
+    reply.state="running";auto id=reply.id;auto name=reply.command;auto steps=script;auto stepAction=scriptAction;xSemaphoreGive(lock);
     switchcli::TerminalCapture capture;bool ok=false;int exitStatus=0;ssh_channel exec=nullptr;
     if(shell){
       std::string prompt;switchcli::TerminalCapture sync,setup;
@@ -73,8 +76,8 @@ class SwitchSsh {
       if(ok&&steps.empty())ok=exchange(shell,adapter.readCommand(name),prompt,version,profile.commandTimeout*1000,capture);
       else if(ok){
         const auto userPrompt=prompt;
-        const auto expectedPort=name.substr(8);
-        const auto expected=adapter.actionPrompts(switchmodel::Action::Isolate,expectedPort,userPrompt);
+        const auto expectedPort=name.substr(name.find(':')+1);
+        const auto expected=adapter.actionPrompts(stepAction,expectedPort,userPrompt);
         ok=expected.size()==steps.size()&&!expected.empty()&&expected.size()<=16&&expected.back()==userPrompt;
         for(size_t i=0;i<steps.size()&&ok;++i){
           switchcli::TerminalCapture step;
@@ -184,6 +187,8 @@ class SwitchSsh {
     }
   }
 public:
+  const char* kind()const override{return "ssh";}
+  bool sessionAccepted()override{return connected()&&std::string(hostKeyState())=="trusted";}
   explicit SwitchSsh(const switchdevice::IDeviceAdapter& device):adapter(device){}
   void setHostKeyVerifier(std::function<std::string(const std::string&,unsigned,const std::string&,const std::string&)> verifier){verifyHostKey=verifier;}
   const char* hostKeyState() const{return keyState.load();}
@@ -198,6 +203,15 @@ public:
     if(force||profile.encode()!=pending.encode()){pending=profile;++revision;keyState.store("unpaired");if(reply.id.compare(0,4,"bdi-")==0)reply=switchcli::Result();}
     xSemaphoreGive(lock);
   }
+  // Application requests a pause; stopped() acknowledges worker cleanup.
+  // The caller retains the saved profile and supplies it when resuming.
+  void pause(){
+    if(!lock)return;
+    xSemaphoreTake(lock,portMAX_DELAY);auto profile=pending;xSemaphoreGive(lock);
+    profile.protocol="none";configure(profile,true);
+  }
+  void resume(const SwitchSettings& profile){configure(profile,true);}
+  bool stopped()const{return std::strcmp(state.load(),"disabled")==0;}
   std::string submit(const std::string& id,const std::string& name){
     if(!switchcli::identifier(id)||!adapter.readCommand(name))return "invalid_command";
     if(!lock)return "not_ready";
@@ -211,20 +225,23 @@ public:
   }
   // Internal policy-only write capability. HTTP accepts named read commands only.
   std::string submitIsolation(const std::string& id,const std::string& requested){
+    return submitAction(id,switchmodel::Action::Isolate,requested);
+  }
+  std::string submitAction(const std::string& id,switchmodel::Action action,const std::string& requested)override{
     const auto port=adapter.canonicalPort(requested);
-    const auto commands=adapter.actionCommands(switchmodel::Action::Isolate,port);
+    const auto commands=adapter.actionCommands(action,port);
     if(port.empty()||commands.empty()||!switchcli::identifier(id)||id.compare(0,4,"bdi-")!=0)return "invalid_command";
     if(!lock)return "not_ready";
     xSemaphoreTake(lock,portMAX_DELAY);
     std::string answer="queued";
-    if(reply.id==id)answer=reply.command=="isolate:"+port?reply.state:"id_conflict";
+    if(reply.id==id)answer=reply.command==switchmodel::actionCommandKey(action,port)?reply.state:"id_conflict";
     else if(std::string(state.load())!="connected"||connectedRevision.load()!=revision)answer="not_connected";
     else if(pending.transport!="shell")answer="shell_required";
     else if(reply.state=="queued"||reply.state=="running"||reply.id.compare(0,4,"bdi-")==0)answer="busy";
     else {
       if(reply.id.compare(0,4,"bdi-")!=0)userReply=reply;
-      reply=switchcli::Result();reply.id=id;reply.command="isolate:"+port;reply.target=pending.host;reply.state="queued";commandRevision=revision;
-      script=commands;
+      reply=switchcli::Result();reply.id=id;reply.command=switchmodel::actionCommandKey(action,port);reply.target=pending.host;reply.state="queued";commandRevision=revision;
+      script=commands;scriptAction=action;
     }
     xSemaphoreGive(lock);return answer;
   }

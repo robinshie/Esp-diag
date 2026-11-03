@@ -29,8 +29,9 @@ class NetworkPortal : public BLECharacteristicCallbacks, public BLEServerCallbac
   SwitchSettings switchSettings;
   unsigned mqttVersion=0, switchVersion=0;
   std::function<String()> storageStatus;
-  std::function<String()> switchStatus, heartbeatStatus, switchKeyFields, deviceExtraStatus;
+  std::function<String()> switchStatus, sshStatus, connectionFields, heartbeatStatus, switchKeyFields, deviceExtraStatus;
   std::function<bool()> resetSwitchKey;
+  std::function<String(const String&,bool)> restorePort;
   std::function<String(const String&,const String&)> switchCommand;
   std::function<String(const String&)> switchReply;
   std::function<String(uint32_t)> logFiles;
@@ -161,8 +162,11 @@ public:
   unsigned switchRevision() const {return switchVersion;}
   void setSwitchCommands(std::function<String(const String&,const String&)> command,std::function<String(const String&)> reply){switchCommand=command;switchReply=reply;}
   void setSwitchKey(std::function<String()> fields,std::function<bool()> reset){switchKeyFields=fields;resetSwitchKey=reset;}
+  void setPortRestore(std::function<String(const String&,bool)> handler){restorePort=handler;}
   void setDeviceExtraStatus(std::function<String()> provider){deviceExtraStatus=provider;}
   void setHeartbeatStatus(std::function<String()> provider){heartbeatStatus=provider;}
+  void setSshStatus(std::function<String()> provider){sshStatus=provider;}
+  void setConnectionFields(std::function<String()> provider){connectionFields=provider;}
   void setSwitchStatus(std::function<String()> provider){switchStatus=provider;}
   void setStorageStatus(std::function<String()> provider){storageStatus=provider;}
   void setLogExplainer(std::function<String(const String&)> provider){logExplain=provider;}
@@ -247,7 +251,7 @@ public:
     web.on("/device/status",HTTP_GET,[this](){
       if(!accessWindow()){web.send(403,"text/plain","Viewer closed");return;}
       web.sendHeader("Cache-Control","no-store");
-      std::string body=std::string("{\"mode\":\"")+(ESP_STANDALONE?"standalone":"usb_lab")+"\",\"log_source\":\""+(ESP_STANDALONE?"esp_native":"database")+"\",\"ai_on_device\":"+(logExplain?"true":"false")+",\"ssh_state\":\""+(switchStatus?switchStatus().c_str():"starting")+"\",\"boot_presses\":"+std::to_string(bootPresses.load())+",\"boot_releases\":"+std::to_string(bootReleases.load())+",\"boot_gpio\":"+std::to_string(ESP_BOARD_BOOT_PIN)+",\"rgb_gpio\":"+std::to_string(ESP_BOARD_RGB_PIN)+",\"hotspot_ready\":"+(hotspotReady?"true":"false")+",\"free_heap\":"+std::to_string(ESP.getFreeHeap())+",\"heartbeat\":\""+(heartbeatStatus?heartbeatStatus().c_str():"unavailable")+"\"}";
+      std::string body=std::string("{\"mode\":\"")+(ESP_STANDALONE?"standalone":"usb_lab")+"\",\"log_source\":\""+(ESP_STANDALONE?"esp_native":"database")+"\",\"ai_on_device\":"+(logExplain?"true":"false")+",\"ssh_state\":\""+(sshStatus?sshStatus().c_str():(switchStatus?switchStatus().c_str():"starting"))+"\",\"boot_presses\":"+std::to_string(bootPresses.load())+",\"boot_releases\":"+std::to_string(bootReleases.load())+",\"boot_gpio\":"+std::to_string(ESP_BOARD_BOOT_PIN)+",\"rgb_gpio\":"+std::to_string(ESP_BOARD_RGB_PIN)+",\"hotspot_ready\":"+(hotspotReady?"true":"false")+",\"free_heap\":"+std::to_string(ESP.getFreeHeap())+",\"heartbeat\":\""+(heartbeatStatus?heartbeatStatus().c_str():"unavailable")+"\"}";
       if(deviceExtraStatus){body.pop_back();body+=",";body+=deviceExtraStatus().c_str();body+='}';}
       web.send(200,"application/json",body.c_str());
     });
@@ -294,6 +298,9 @@ public:
         if(!MqttSettings::parsePort(web.arg("sw_port").c_str(),profile.port)||!SwitchSettings::timeout(web.arg("sw_connect_timeout").c_str(),profile.connectTimeout)||!SwitchSettings::timeout(web.arg("sw_command_timeout").c_str(),profile.commandTimeout)) {
           feedback(true);web.send(400,"text/plain; charset=utf-8","交换机端口或超时无效");return;
         }
+        if(web.hasArg("sw_failover_wait")&&!SwitchSettings::failoverWait(web.arg("sw_failover_wait").c_str(),profile.failoverWaitSeconds)){
+          feedback(true);web.send(400,"text/plain; charset=utf-8","Console 切换等待必须为 1–300 秒");return;
+        }
         if(web.arg("sw_clear_password")=="1")profile.password="";
         else if(!web.arg("sw_password").isEmpty())profile.password=web.arg("sw_password").c_str();
         if(web.arg("sw_clear_enable_password")=="1")profile.enablePassword="";
@@ -331,6 +338,11 @@ public:
       if(!switchReply||web.arg("request_id").isEmpty()||web.arg("request_id").length()>32){web.send(400,"text/plain","Invalid request");return;}
       web.sendHeader("Cache-Control","no-store");web.send(200,"application/x-www-form-urlencoded",switchReply(web.arg("request_id")));
     });
+    web.on("/switch/restore",HTTP_POST,[this](){
+      if(!inWindow()||!allowedOrigin()){web.send(403,"text/plain","Configuration closed or invalid origin");return;}
+      if(!restorePort||web.args()!=2||!web.hasArg("port")||web.arg("port").length()>40||web.arg("confirm")!="repair"){web.send(400,"text/plain","Port and explicit repair confirmation required");return;}
+      const auto state=restorePort(web.arg("port"),true);web.sendHeader("Cache-Control","no-store");web.send(state=="queued"?202:409,"text/plain",state);
+    });
     web.on("/switch/host-key/reset",HTTP_POST,[this](){
       if(!inWindow()||!allowedOrigin()){web.send(403,"text/plain","Configuration closed or invalid origin");return;}
       if(web.args()!=1||web.arg("confirm")!="repair"||!resetSwitchKey){web.send(400,"text/plain","Invalid re-pair request");return;}
@@ -345,7 +357,8 @@ public:
     });
     web.on("/switch",HTTP_GET,[this](){
       if(!inWindow()){web.send(403,"text/plain","Configuration closed");return;}
-      String body="protocol="+urlEncode(switchSettings.protocol)+"&host="+urlEncode(switchSettings.host)+"&port="+String(switchSettings.port)+"&username="+urlEncode(switchSettings.username)+"&fingerprint="+urlEncode(switchSettings.fingerprint)+"&transport="+urlEncode(switchSettings.transport)+"&connect_timeout="+String(switchSettings.connectTimeout)+"&command_timeout="+String(switchSettings.commandTimeout)+"&has_password="+String(switchSettings.password.empty()?0:1)+"&has_enable_password="+String(switchSettings.enablePassword.empty()?0:1)+"&client_supported=1&state="+(switchStatus?switchStatus():String("starting"));
+      String body="protocol="+urlEncode(switchSettings.protocol)+"&host="+urlEncode(switchSettings.host)+"&port="+String(switchSettings.port)+"&username="+urlEncode(switchSettings.username)+"&fingerprint="+urlEncode(switchSettings.fingerprint)+"&transport="+urlEncode(switchSettings.transport)+"&connect_timeout="+String(switchSettings.connectTimeout)+"&command_timeout="+String(switchSettings.commandTimeout)+"&failover_wait="+String(switchSettings.failoverWaitSeconds)+"&has_password="+String(switchSettings.password.empty()?0:1)+"&has_enable_password="+String(switchSettings.enablePassword.empty()?0:1)+"&client_supported=1&state="+(switchStatus?switchStatus():String("starting"));
+      if(connectionFields)body+="&"+connectionFields();
       if(heartbeatStatus)body+="&"+heartbeatStatus();
       body+="&sw_host_key_mode=auto";
       if(switchKeyFields)body+="&"+switchKeyFields();

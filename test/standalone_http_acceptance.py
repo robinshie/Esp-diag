@@ -47,7 +47,7 @@ def main():
     else:
         raise SystemExit("ESP did not become ready; connect to ESP-Logs and triple-click BOOT to reopen the window.")
 
-    assert device.get("firmware_version") == "native-bdi-20261102-r5", device
+    assert device.get("firmware_version") == "native-bdi-20261102-r6", device
     assert isinstance(device.get("bdi"), dict) and device["bdi"]["cycle"] > 0, device
     assert device['bdi']['observation_valid'] is True, device
     assert device['bdi'].get('device_profile') == 'h3c-s5130s-r6328p03', device

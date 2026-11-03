@@ -22,7 +22,7 @@ static const std::string downHeader=
 static const std::string stpHeader="MST ID Port Role STP State Protection\n";
 static const std::string loopHeader="Loop detection is enabled.\nLoop detection interval is 30 second(s).\n";
 static Snapshot snapshot(uint64_t cycle=1,uint64_t at=1000,const std::string& link="UP",const std::string& cause="",bool loop=true) {
-  Snapshot s; auto st=stamp(cycle,at); s.targetRevision=7; s.sshConnected=true; s.identityVerified=true;
+  Snapshot s; auto st=stamp(cycle,at); s.targetRevision=7; s.managementConnected=true; s.identityVerified=true;
   s.interfaces=parseInterfaces(briefHeader+"GE1/0/3 "+link+" 1G(a) F(a) A 10\n<H3C>\n",st);
   s.down=parseDownCauses(downHeader+(cause.empty()?"":"GE1/0/3 "+link+" "+cause+"\n")+"<H3C>\n",st);
   s.loops=parseLoops(loopHeader+(loop?"Loop is detected on following interfaces:\nInterface Action mode VLANs\nGigabitEthernet1/0/3 None 10\n":"No loop is detected.\n"),st);
@@ -94,7 +94,7 @@ static void diagnosisAndGates() {
   s.down.stamp.targetRevision=6; assert(!isolationPlan(s,p,port,1000).allowed); s=snapshot();
   s.loops.stamp.atMs=1001; assert(!isolationPlan(s,p,port,1000).allowed); s=snapshot();
   assert(!isolationPlan(s,p,port,46001).allowed);
-  s.sshConnected=false; assert(diagnosePort(s,port,1000).kind==FindingKind::Unknown); s=snapshot();
+  s.managementConnected=false; assert(diagnosePort(s,port,1000).kind==FindingKind::Unknown); s=snapshot();
   s.identityVerified=false; assert(!isolationPlan(s,p,port,1000).allowed); s=snapshot();
   s.loops.ports[port].action=LoopAction::Block;
   assert(diagnosePort(s,port,1000).kind==FindingKind::LoopDetected && isolationPlan(s,p,port,1000).reason=="switch_loop_protection_requires_readback");
@@ -178,7 +178,7 @@ static void actualEmbeddedBdi() {
   H3cBdiAgent gated; unsigned blockedCalls=0; gated.dispatch=[&](const ActionPlan&) { ++blockedCalls; };
   p.automationEnabled=false; gated.deliberate(snapshot(1,1000),p,1000); assert(blockedCalls==0);
   p=policy(); auto s=snapshot(2,3000); s.interfaces.ports[port].type='T'; gated.deliberate(s,p,3000); assert(blockedCalls==0);
-  s=snapshot(3,5000); s.sshConnected=false; gated.deliberate(s,p,5000); assert(blockedCalls==0);
+  s=snapshot(3,5000); s.managementConnected=false; gated.deliberate(s,p,5000); assert(blockedCalls==0);
   gated.deliberate(snapshot(4,7000,"DOWN","Not connected",false),p,7000); assert(blockedCalls==0);
   // The context was eligible, but the callback must recheck a changed policy.
   gated.log=[&](const std::string& line) { if(line.find("belief=action_allowed value=true")!=std::string::npos) p.automationEnabled=false; };
@@ -327,7 +327,7 @@ struct RuntimeHarness {
   void step(bool connected=true,bool trusted=true,uint64_t delta=100) { now+=delta;runtime.tick(now,connected,trusted); }
   bool is(const std::string& state)const{return runtime.json().find("\"state\":\""+state+"\"")!=std::string::npos;}
   template<class Predicate> void until(Predicate predicate,unsigned limit=2500) {while(limit--&&!predicate())step();assert(predicate());}
-  void rounds(unsigned count=3){const auto stop=analyses+count;until([&](){return analyses>=stop;});for(unsigned i=0;i<3;++i)step();}
+  void rounds(unsigned count=3){const auto stop=analyses+count;until([&](){return analyses>=stop;});for(size_t i=0;i<adapter.queryCount();++i)step();}
   void ack(const std::string& state="ok") {assert(!lastWrite.empty());replies[lastWrite].state=state;if(state=="ok")mode="isolated";step();}
 };
 static void runtimeRealCommandLifecycle() {
@@ -348,6 +348,18 @@ static void runtimeRealCommandLifecycle() {
   h.rounds(3);assert(h.writes.size()==2); // Ambiguous write is persistently locked.
 }
 static void runtimeGatesAndMetadata() {
+  {RuntimeHarness h;h.runtime.configure(h.target,1,"new-usb-path",true,1,"usb_console");h.rounds(2);
+   assert(h.writes.empty()&&h.runtime.json().find("\"topology_confirmed\":false")!=std::string::npos);
+   assert(h.runtime.bindManagementProfile(h.target,1,"GE1/0/1","usb_console"));h.rounds(2);assert(h.writes.size()==1);}
+  for(const char* mode:{"uart_console","tcp_console"}){
+    RuntimeHarness h;h.runtime.configure(h.target,1,"console-channel",true,1,mode);h.rounds(2);
+    assert(h.writes.empty()); // Original SSH site binding cannot authorize Console.
+    assert(h.runtime.bindManagementProfile(h.target,1,"GE1/0/1",mode,"physical-path-A"));
+    h.runtime.configure(h.target,2,"changed-console-path",true,1,mode,"physical-path-B");h.rounds(2);
+    assert(h.writes.empty()); // Changed pins/baud/bridge also revoke write authority.
+
+  }
+  {RuntimeHarness h;h.runtime.configure(h.target,1,"bad-usb-endpoint",true,22,"usb_console");h.step();assert(h.reads.empty()&&h.is("waiting_transport"));}
   {RuntimeHarness h;h.outputs["version"]="H3C S5120V2-LI\n";h.rounds();assert(h.writes.empty()&&h.is("unsupported_device"));}
   {RuntimeHarness h;h.truncated.insert("interfaces");h.rounds();assert(h.writes.empty()&&h.is("unknown"));}
   {RuntimeHarness h;h.states["loops"]="command_error";h.rounds();assert(h.writes.empty()&&h.is("unknown"));}
@@ -360,7 +372,7 @@ static void runtimeGatesAndMetadata() {
   {RuntimeHarness h;h.mode="physical";h.rounds();assert(h.writes.empty()&&h.is("monitoring"));}
   {RuntimeHarness h;h.mode="disabled";h.rounds();assert(h.writes.empty()&&h.is("monitoring"));assert(h.runtime.json().find("loop_detection_disabled")!=std::string::npos);}
   {RuntimeHarness h;h.store.writeOk=false;h.rounds();assert(h.writes.empty()&&h.store.writes==1);}
-  {RuntimeHarness h;h.step(true,false);assert(h.reads.empty()&&h.is("waiting_ssh"));}
+  {RuntimeHarness h;h.step(true,false);assert(h.reads.empty()&&h.is("waiting_transport"));}
   {RuntimeHarness h;h.holdReads=true;h.step();const auto id=h.reads.back();h.replies[id].state="ok";h.replies[id].target="192.168.10.99";h.holdReads=false;h.rounds(1);assert(h.writes.empty()&&h.is("unsupported_device"));}
   {RuntimeHarness h;h.until([&](){return h.writes.size()==1;});h.replies[h.lastWrite].state="ok";h.replies[h.lastWrite].id="old-request";h.step();assert(h.is("needs_review"));assert(h.outcomes.back()==port+":result_identity_mismatch");}
 }

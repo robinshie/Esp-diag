@@ -13,6 +13,7 @@ inline const char* command(const std::string& name){
   if(name=="aggregation")return "display link-aggregation verbose";
   if(name=="logs")return "display logbuffer reverse";
   if(name=="mac_moves")return "display mac-address mac-move";
+  if(name=="traffic")return "display counters inbound interface";
   return nullptr;
 }
 inline std::string prompt(const std::string& tail){

@@ -71,9 +71,15 @@ struct Stp { Stamp stamp; bool valid=false, enabled=true; std::map<std::string,s
 
 struct Aggregation { Stamp stamp; bool valid=false; std::set<std::string> members; };
 
+struct TrafficCount { uint64_t total=0,broadcast=0,multicast=0,errors=0; };
+struct TrafficCounters { Stamp stamp; bool valid=false; std::map<std::string,TrafficCount> ports; };
+struct StormPort { uint64_t broadcastPps=0; unsigned rounds=0; bool measured=false; };
+struct StormEvidence { Stamp stamp; bool valid=false; std::map<std::string,StormPort> ports; };
+
 struct Snapshot {
   Interfaces interfaces; DownCauses down; LoopDetection loops; Stp stp; Aggregation aggregation;
-  bool sshConnected=false, identityVerified=false;
+  TrafficCounters traffic; StormEvidence storm;
+  bool managementConnected=false, identityVerified=false;
   uint64_t targetRevision=0;
 };
 

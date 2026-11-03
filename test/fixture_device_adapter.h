@@ -16,7 +16,7 @@ public:
     if(key=="identity"){o.identity=stamp.complete&&output=="FixtureSwitch";return true;}
     if(key!="state")return false;
     if(output=="omitted")return false; // Deliberately leave fields untouched to test round isolation.
-    o.snapshot=Snapshot();o.snapshot.sshConnected=true;o.snapshot.targetRevision=stamp.targetRevision;
+    o.snapshot=Snapshot();o.snapshot.managementConnected=true;o.snapshot.targetRevision=stamp.targetRevision;
     o.snapshot.interfaces.stamp=o.snapshot.down.stamp=o.snapshot.loops.stamp=o.snapshot.stp.stamp=o.snapshot.aggregation.stamp=stamp;
     const bool valid=stamp.complete&&(output=="normal"||output=="loop");
     o.snapshot.interfaces.valid=o.snapshot.down.valid=o.snapshot.loops.valid=o.snapshot.stp.valid=o.snapshot.aggregation.valid=valid;

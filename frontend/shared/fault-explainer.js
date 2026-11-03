@@ -24,7 +24,7 @@ export function normalizeRecord(input){
  const record=input&&typeof input==='object'&&!Array.isArray(input)?input:{};
  const text=value(record.text); // Full frames below are bounded separately, not truncated before parsing.
  const raw=typeof record.text==='string'?record.text.slice(0,2048):'';
- const accepted=/^(?:H3C (?:LOG|PONG) |\[BDI\]\[(?:CMD|ACK|RECEIPT|RECOVERED|STATE|ACTION|EVENT|WARN|STATUS|BOOT|READY|HEARTBEAT|OBSERVE|VERIFY|H3C|BLOCKED|COLLECT)\]|\[(?:STORAGE|NETWORK|SSH|BOOT|MEMORY|LOG-AI)\])/.test(raw);
+ const accepted=/^(?:H3C (?:LOG|PONG) |\[BDI\]\[(?:CMD|ACK|RECEIPT|RECOVERED|STATE|ACTION|EVENT|WARN|STATUS|BOOT|READY|HEARTBEAT|OBSERVE|VERIFY|H3C|BLOCKED|COLLECT)\]|\[(?:STORAGE|NETWORK|SSH|CONSOLE|BOOT|MEMORY|LOG-AI)\])/.test(raw);
  const f=accepted?fields(raw):Object.create(null);
  const get=key=>value(f?.[key]);
  const rawEvent=get('event'),event=value(record.event)||rawEvent||(/^\[BDI\]\[BOOT\]/.test(raw)?'BOOT':'');
@@ -46,7 +46,7 @@ export function normalizeRecord(input){
  else if(/^\[BDI\]\[STATE\]/.test(raw))phase='snapshot';
  else if(/^\[BDI\]\[STATUS\]/.test(raw))phase='runtime';
  else if(/^\[BDI\]\[HEARTBEAT\]/.test(raw))phase='heartbeat';
- else if(/^\[SSH\]/.test(raw))phase='connection';
+ else if(/^\[(?:SSH|CONSOLE)\]/.test(raw))phase='connection';
  else if(/^\[BOOT\]/.test(raw))phase='network';
  else if(/^\[(?:MEMORY|LOG-AI)\]/.test(raw))phase='runtime';
  else if(/^\[BDI\]\[RECEIPT\]/.test(raw))phase='receipt';

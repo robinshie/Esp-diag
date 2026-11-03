@@ -86,7 +86,7 @@ test('high-confidence model output contradicting the protocol phase is rejected'
 }));
 test('firmware embeds isolated shared incident view and accepts interval packets over 64 lines',()=>{
  const html=readFileSync(new URL('../device/archive.html',import.meta.url),'utf8');
- const scripts=['fault-explainer.js','model-descriptions.js','report-analysis.js','report-ai-view.js'].map(name=>readFileSync(new URL('../shared/'+name,import.meta.url),'utf8').replace(/\n$/,'').split('\n').filter(line=>!line.startsWith('import ')).join('\n').replaceAll('export function ','function ').replaceAll('export const ','const ')).join('\n');
+ const scripts=['fault-explainer.js','model-descriptions.js','loop-storm.js','report-analysis.js','report-ai-view.js'].map(name=>readFileSync(new URL('../shared/'+name,import.meta.url),'utf8').replace(/\n$/,'').split('\n').filter(line=>!line.startsWith('import ')).join('\n').replaceAll('export function ','function ').replaceAll('export const ','const ')).join('\n');
  const expected=html.replace("import {renderReportAI} from '../shared/report-ai-view.js';",'const {renderReportAI}=(()=>{\n'+scripts+'\nreturn {renderReportAI};\n})();');
  const header=readFileSync(new URL('../../src/generated/archive_page.h',import.meta.url),'utf8');assert.equal(header.split('R"ESP_PAGE(')[1].split(')ESP_PAGE";')[0],expected);assert.doesNotMatch(expected,/import \{|https?:\/\/[^'\s]*\.js/);assert.match(expected,/lines.length>2048/);
  for(const[label,[title,meaning]]of Object.entries(modelDescriptions)){assert.ok(expected.includes(label));assert.ok(expected.includes(title));assert.ok(expected.includes(meaning));}

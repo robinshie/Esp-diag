@@ -1,0 +1,7 @@
+<H3C>display counters inbound interface GigabitEthernet 1/0/3
+Interface        Total (pkts)   Broadcast (pkts)   Multicast (pkts)  Err (pkts)
+GE1/0/3           492767061          492766905                 64          11
+
+ Overflow: More than 14 digits (7 digits for column "Err").
+       --: Not supported.
+<H3C>

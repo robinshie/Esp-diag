@@ -2,15 +2,16 @@
 #include "../device_adapter.h"
 #include "observations.h"
 #include "discovery_observations.h"
+#include "traffic_observations.h"
 #include "cli.h"
 
 namespace h3c {
 class DeviceAdapter final:public switchdevice::IDeviceAdapter {
 public:
   const char* id()const override{return "h3c-s5130s-r6328p03";}
-  size_t queryCount()const override{return 10;}
+  size_t queryCount()const override{return 11;}
   const char* queryAt(size_t index)const override{
-    const char* keys[]={"version","interfaces","down","loops","stp","aggregation","logs","cpu","memory","mac_moves"};
+    const char* keys[]={"version","interfaces","down","loops","stp","aggregation","logs","cpu","memory","mac_moves","traffic"};
     return index<queryCount()?keys[index]:"";
   }
   const char* readCommand(const std::string& key)const override{return h3ccli::command(key);}
@@ -23,13 +24,14 @@ public:
     if(key=="aggregation"){o.snapshot.aggregation=parseAggregation(output,stamp);return o.snapshot.aggregation.valid;}
     if(key=="cpu"){o.cpu=parseCpuUsage(output,stamp);return o.cpu.valid;}
     if(key=="mac_moves"){o.macMoves=parseMacMoves(output,stamp);return o.macMoves.valid;}
+    if(key=="traffic"){o.snapshot.traffic=parseTraffic(output,stamp);return o.snapshot.traffic.valid;}
     return key=="logs"||key=="memory";
   }
   std::string canonicalPort(const std::string& native)const override{return switchmodel::normalizePort(native);}
   std::vector<std::string> actionCommands(switchmodel::Action action,const std::string& canonical)const override{
     const auto port=canonicalPort(canonical);
-    if(port.empty()||canonical!=port||(action!=switchmodel::Action::Isolate&&action!=switchmodel::Action::RestoreOwned))return {};
-    return {"system-view",h3ccli::interfaceCommand(port),action==switchmodel::Action::Isolate?"shutdown":"undo shutdown","return"};
+    if(port.empty()||canonical!=port||(!switchmodel::isolationAction(action)&&action!=switchmodel::Action::RestoreOwned))return {};
+    return {"system-view",h3ccli::interfaceCommand(port),switchmodel::isolationAction(action)?"shutdown":"undo shutdown","return"};
   }
   std::vector<std::string> actionPrompts(switchmodel::Action action,const std::string& canonical,const std::string& user)const override{
     if(actionCommands(action,canonical).empty()||!userPrompt(user))return {};

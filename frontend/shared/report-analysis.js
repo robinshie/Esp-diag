@@ -1,5 +1,6 @@
 import {normalizeRecords, explainRecords, faultRule} from './fault-explainer.js';
 import {modelDescriptions} from './model-descriptions.js';
+import {assessLoopStorms} from './loop-storm.js';
 
 const faultLabels={AUTH_LOCKED:'auth_lock',LINK_DOWN:'link_down',THERMAL:'thermal',FAN_FAILURE:'fan',PSU_FAILURE:'power',
  LOOP:'loop',LOOP_DETECTED:'loop',LOGIN_FAILURE:'login_failure',STP_PROTECTION:'stp_protection',STP_CHANGE:'stp_protection',
@@ -96,7 +97,7 @@ export function buildReportAnalysis(report, contextReports=[], options={}) {
   if(message&&!seenDiagnostics.has(message)){seenDiagnostics.add(message);diagnostics.push(message);}
  }
  return {report,incidents,routines:routines.filter(item=>recent||item.evidence.current),unknown:unknown.filter(item=>recent||item.evidence.current),
-  diagnostics,
+  diagnostics,loopRisks:assessLoopStorms(reports),
   snapshots:[...snapshots].map(([device,fields])=>({device,...fields})),contextPackets:reports.length,
   simulated:items.some(item=>/^sim(?:[-_]|$)|^switch-demo(?:[-_]|$)/i.test(item.device)),
   rawCount:recent?reports.reduce((count,packet)=>count+packet.lines.length,0):report.lines.length};

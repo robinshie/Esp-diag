@@ -12,10 +12,12 @@ class ActionLedger {
   struct Progress {
     uint64_t revision=0,cycle=0,firstAt=0,lastAt=0;
     unsigned samples=0,interval=0;
+    uint64_t holdMs=0;
     std::string claim;
   };
   std::map<std::string,Progress> progress_;
   std::set<std::string> blocked_;
+  std::map<std::string,std::string> restoreAttempts_;
   static bool endpointValid(const std::string& endpoint) {
     if(endpoint.empty() || endpoint.size()>192) return false;
     for(unsigned char c:endpoint) if(c<=32 || c>=127) return false;
@@ -81,7 +83,7 @@ public:
   }
   bool claim(const std::string& endpoint,const ActionPlan& plan,const std::string& incident) {
     const auto key=storageKey(endpoint,plan.port);
-    if(key.empty() || !incidentValid(incident) || !plan.allowed || plan.action!=Action::Isolate ||
+    if(key.empty() || !incidentValid(incident) || !plan.allowed || !isolationAction(plan.action) ||
        normalizePort(plan.port)!=plan.port || !plan.cycle || !plan.targetRevision) {
       reason="invalid_claim"; return false;
     }
@@ -93,6 +95,22 @@ public:
     std::string verified;
     if(!read(key,verified) || verified!=value) { reason="ledger_readback_failed"; return false; }
     progress_.erase(key); reason="claim_durable"; return true;
+  }
+  // The original isolation claim remains locked throughout restore/verification.
+  // A separate durable marker prevents replay after an ambiguous restore result.
+  bool claimRestore(const std::string& endpoint,const ActionPlan& plan,const std::string& incident){
+    auto key=storageKey(endpoint,plan.port);std::string original,prior;
+    if(key.empty()||!plan.allowed||plan.action!=Action::RestoreOwned||!incidentValid(incident)||!read||!write||!read(key,original)||!matchingRecord(original,endpoint,plan.port)||original.find("\n"+incident+"\n")==std::string::npos){reason="restore_isolation_claim_missing";return false;}
+    key[0]='r';const auto marker="ESP-H3C-RESTORE-1\n"+original;
+    const auto attempt=restoreAttempts_.find(key);
+    if(attempt!=restoreAttempts_.end()&&attempt->second==marker){reason="restore_already_claimed_or_ambiguous";return false;}
+    const std::string prefix="ESP-H3C-RESTORE-1\n";
+    if(!read(key,prior)||prior==marker||(!prior.empty()&&(!starts(prior,prefix)||!matchingRecord(prior.substr(prefix.size()),endpoint,plan.port)))){reason="restore_already_claimed_or_ambiguous";return false;}
+    if(!block(key)){return false;}
+    restoreAttempts_[key]=marker;
+    if(!write(key,marker)){reason="restore_claim_write_failed";return false;}
+    std::string verified;if(!read(key,verified)||verified!=marker){reason="restore_claim_readback_failed";return false;}
+    reason="restore_claim_durable";return true;
   }
   void disconnected() { progress_.clear(); reason="observation_progress_reset"; }
 
@@ -107,8 +125,13 @@ public:
     if(!matchingRecord(stored,endpoint,port)) { resetProgress(key,"ledger_record_invalid_or_collision"); return false; }
     if(!usableSnapshot(s,now,p.maxAgeMs)) { resetProgress(key,"waiting_for_complete_fresh_observation"); return false; }
     const auto found=s.interfaces.ports.find(port);
+    const bool storm=stored.find("\nstorm-")!=std::string::npos;
     bool healthy=found!=s.interfaces.ports.end() && found->second.link==Link::Up && !s.down.ports.count(port) &&
-      s.loops.enabled && s.loops.intervalSeconds && !s.loops.ports.count(port) && diagnosePort(s,port,now,p.maxAgeMs).kind==FindingKind::Up;
+      !s.loops.ports.count(port) && diagnosePort(s,port,now,p.maxAgeMs).kind==FindingKind::Up;
+    if(storm){
+      const auto limit=p.stormBroadcastLimits.find(port);const auto measured=s.storm.ports.find(port);
+      healthy=healthy&&s.storm.valid&&fresh(s.storm.stamp,now,s.targetRevision,p.maxAgeMs)&&s.storm.stamp.cycle==s.interfaces.stamp.cycle&&limit!=p.stormBroadcastLimits.end()&&limit->second&&measured!=s.storm.ports.end()&&measured->second.measured&&measured->second.broadcastPps<limit->second;
+    }else healthy=healthy&&s.loops.enabled&&s.loops.intervalSeconds;
     const auto stp=s.stp.ports.find(port);
     if(stp!=s.stp.ports.end()) for(const auto& row:stp->second)
       if(row.state!="FORWARDING" || row.protection!="NONE") healthy=false;
@@ -118,15 +141,16 @@ public:
     for(const auto* stamp:stamps) at=std::min(at,stamp->atMs);
     if(!progress_.count(key) && progress_.size()>=128) { reason="ledger_memory_capacity"; return false; }
     auto& progress=progress_[key];
+    const auto hold=storm?p.stormRecoveryHoldMs:uint64_t(s.loops.intervalSeconds)*2000;
     const auto cycle=s.interfaces.stamp.cycle;
-    if(progress.revision!=s.targetRevision || progress.claim!=stored || progress.interval!=s.loops.intervalSeconds ||
+    if(progress.revision!=s.targetRevision || progress.claim!=stored || progress.interval!=s.loops.intervalSeconds || progress.holdMs!=hold ||
        cycle<progress.cycle || at<progress.lastAt || (progress.samples && at-progress.lastAt>p.maxAgeMs)) progress=Progress();
     if(progress.samples && (cycle==progress.cycle || at==progress.lastAt || at-progress.lastAt<p.minObservationGapMs)) {
       reason="duplicate_or_close_observation"; return false;
     }
-    if(!progress.samples) { progress.firstAt=at; progress.revision=s.targetRevision; progress.claim=stored; progress.interval=s.loops.intervalSeconds; }
+    if(!progress.samples) { progress.firstAt=at; progress.revision=s.targetRevision; progress.claim=stored; progress.interval=s.loops.intervalSeconds; progress.holdMs=hold; }
     progress.cycle=cycle; progress.lastAt=at; ++progress.samples;
-    if(progress.samples<2 || at-progress.firstAt<uint64_t(progress.interval)*2000) { reason="waiting_for_two_detection_intervals"; return false; }
+    if(progress.samples<2 || at-progress.firstAt<hold) { reason=storm?"waiting_for_storm_recovery_hold":"waiting_for_two_detection_intervals"; return false; }
     if(!erase) { reason="ledger_erase_unavailable"; return false; }
     // Fence a changed record immediately before destructive storage mutation.
     std::string current;

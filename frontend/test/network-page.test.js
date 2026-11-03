@@ -137,3 +137,38 @@ test('re-pair rejection is visible and does not repeat the mutation',async()=>{
   context.fetch=async(url)=>url==='/switch'?{ok:true,text:async()=> 'protocol=ssh&sw_host_key_mode=auto&sw_host_key_state=mismatch'}:{ok:false,text:async()=>{writes++;return '配置窗口已关闭';}};
   await nodes.get('ssh-key-reset').onclick();assert.equal(writes,1);assert.match(nodes.get('ssh-key-result').textContent,/配置窗口已关闭/);
 });
+
+test('Console uses the management session, hides SSH keys and ignores ICMP state',()=>{
+  const {nodes,run}=setup();run('wired=true');nodes.get('sw_protocol').value='ssh';
+  run("showSshState(new URLSearchParams({communication_mode:'uart_console',protocol:'ssh',state:'connected',heartbeat_state:'lost',sw_host_key_mode:'auto'}));updateSwitch()");
+  assert.equal(nodes.get('ssh-run').disabled,false);
+  assert.equal(nodes.get('ssh-fields').hidden,true);
+  assert.equal(nodes.get('ssh-key-reset').disabled,true);
+  assert.match(nodes.get('switch-state').textContent,/uart_console/);
+  assert.doesNotMatch(nodes.get('switch-state').textContent,/ping/);
+});
+
+test('dual-channel status refresh follows failover and keeps both-channel policy visible',()=>{
+  const {nodes,run}=setup();run('wired=true');nodes.get('sw_protocol').value='ssh';
+  run("showSshState(new URLSearchParams({communication_mode:'ssh',communication_policy:'ssh_uart_failover',state:'connected'}))");
+  assert.match(nodes.get('communication-note').textContent,/双通道.*5 秒/);
+  run("showSshState(new URLSearchParams({communication_mode:'uart_console',communication_policy:'ssh_uart_failover',state:'connected',console_tx:'17',console_rx:'18',console_baud:'9600'}))");
+  assert.match(nodes.get('communication-note').textContent,/GPIO Console.*17.*18/);
+  assert.match(nodes.get('communication-note').textContent,/双通道/);
+  assert.equal(nodes.get('ssh-fields').hidden,true);
+  assert.equal(nodes.get('ssh-run').disabled,false);
+});
+
+test('Console failover wait is loaded, saved and reflected in the dual-channel note',async()=>{
+  const {context,nodes,run}=setup();run('wired=true');
+  context.fetch=async()=>({ok:true,text:async()=>new URLSearchParams({protocol:'ssh',communication_mode:'ssh',communication_policy:'ssh_uart_failover',failover_wait:'30'}).toString()});
+  await run('loadSwitch()');assert.equal(nodes.get('sw_failover_wait').value,'30');
+  assert.match(nodes.get('communication-note').textContent,/持续 30 秒/);
+  run('mqttLoaded=true');assert.equal(run("setupBody(['a','b','c','d']).get('sw_failover_wait')"),'30');
+});
+
+test('dual-channel instructions describe Console completion, wait, SSH login and shutdown',()=>{
+  const {nodes,run}=setup();run("showCommunicationNote(new URLSearchParams({communication_policy:'ssh_uart_failover',communication_mode:'uart_console',failover_wait:'30'}))");
+  assert.match(nodes.get('communication-note').textContent,/持续 30 秒/);
+  assert.match(nodes.get('communication-note').textContent,/Console 命令执行结束后等待 5 秒.*登录 SSH.*登录成功后回切并关闭 Console/);
+});

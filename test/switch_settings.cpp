@@ -1,6 +1,12 @@
 #include "../src/config/switch_settings.h"
 #include <cassert>
 int main(){
+  {SwitchSettings s,copy;assert(s.failoverWaitSeconds==5);
+   const auto legacy=s.encode().substr(0,s.encode().rfind('\n'));assert(copy.decode(legacy)&&copy.failoverWaitSeconds==5);
+   for(unsigned value:{1u,30u,300u}){s.failoverWaitSeconds=value;assert(copy.decode(s.encode())&&copy.failoverWaitSeconds==value);}
+   for(unsigned value:{0u,301u}){s.failoverWaitSeconds=value;assert(!s.validate().empty()&&!copy.decode(s.encode()));}
+   unsigned value=5;for(auto text:{"0","301","-1","1.5","","999999999"}){assert(!SwitchSettings::failoverWait(text,value)&&value==5);}
+  }
   SwitchSettings s,copy;assert(s.protocol=="ssh"&&s.host=="192.168.10.2"&&s.username=="admin"&&s.port==22&&s.validate().empty());
   assert(s.validateNetwork(NetworkSettings{}).empty());
   assert(copy.decode(s.encode()));

@@ -43,6 +43,37 @@ class OfflineDiagnosticsTest(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 read_report(lambda _: {**self.chunk(raw), **change}, 'log', lambda _: None)
 
+    def test_expired_job_restarts_same_offset_without_losing_validated_chunks(self):
+        raw = json.dumps(self.report()).encode()
+        split = len(raw) // 2
+        replies = iter([self.chunk(raw, 0, split), {'state': 'pending', 'job': 7},
+                        {'state': 'expired'}, {'state': 'pending', 'job': 9},
+                        self.chunk(raw, split)])
+        paths = []
+        def get(path):
+            paths.append(path)
+            return next(replies)
+        self.assertEqual(read_report(get, 'log.json', lambda _: None), self.report())
+        self.assertEqual(paths[2], '/storage/read?job=7')
+        self.assertEqual(paths[3], '/storage/read?file=log.json&offset=' + str(split))
+        self.assertEqual(paths[4], '/storage/read?job=9')
+
+    def test_repeated_expiry_stops_after_three_restarts(self):
+        paths = []
+        def get(path):
+            paths.append(path)
+            return {'state': 'expired'}
+        with self.assertRaisesRegex(ValueError, 'expired'):
+            read_report(get, 'log.json', lambda _: None)
+        self.assertEqual(len(paths), 4)
+        self.assertEqual(set(paths), {'/storage/read?file=log.json&offset=0'})
+
+    def test_retry_after_expiry_still_rejects_wrong_chunk_offset(self):
+        raw = json.dumps(self.report()).encode()
+        replies = iter([{'state': 'expired'}, {**self.chunk(raw), 'start': 1}])
+        with self.assertRaisesRegex(ValueError, '位置或长度异常'):
+            read_report(lambda _: next(replies), 'log.json', lambda _: None)
+
     def test_wait_for_hotspot_then_collect_pages_without_writes(self):
         calls, attempts = [], 0
         raw = json.dumps(self.report()).encode()
@@ -132,9 +163,88 @@ class OfflineDiagnosticsTest(unittest.TestCase):
             output = Path(directory) / 'result.json'
             self.assertTrue(collect(get, output, observe=0, pause=lambda _: None))
             bundle = json.loads(output.read_text())
-        self.assertEqual(attempts, 51)
+        self.assertEqual(attempts, 52)  # Includes the fresh snapshot after download.
         self.assertEqual(bundle['listing_samples'][0]['response']['state'], 'busy')
         self.assertEqual(bundle['storage_samples'][0]['pending'], '23')
+
+    def test_disconnect_during_download_is_in_tail_logs_not_only_final_status(self):
+        calls, snapshots, downloaded = [], 0, False
+        def get(path):
+            nonlocal snapshots, downloaded
+            calls.append(path)
+            if path == '/device/status':
+                return {**self.status(), 'ssh_state': 'disconnected' if downloaded else 'connected'}
+            if path == '/storage':
+                return {'state': 'ready', 'pending': '1'}
+            query = parse_qs(urlsplit(path).query)
+            if path.startswith('/storage/files?'):
+                snapshots += 1
+                names = [3, 2] if downloaded else [2]
+                return {'state': 'ready', 'source': 'esp_native', 'files': [
+                    {'name': str(n), 'sequence': n} for n in names]}
+            self.assertTrue(path.startswith('/storage/read?'))
+            report = self.report()
+            if query['file'] == ['3']:
+                report['lines'] = [{'text': '[SSH][STATUS] state=disconnected'}]
+            downloaded = True
+            return self.chunk(json.dumps(report).encode())
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'result.json'
+            self.assertTrue(collect(get, output, observe=0, limit=1, pause=lambda _: None))
+            bundle = json.loads(output.read_text())
+        self.assertEqual(snapshots, 2)
+        self.assertEqual(len(bundle['reports']), 2)
+        self.assertEqual(bundle['reports'][-1]['lines'][0]['text'], '[SSH][STATUS] state=disconnected')
+        self.assertEqual(bundle['tail_collection']['reports'], 1)
+        self.assertFalse(bundle['summary']['ssh_connected'])
+        self.assertTrue(all(path.startswith(('/device/status', '/storage')) for path in calls))
+
+    def test_tail_paginates_and_limits_new_reports_without_rereading_history(self):
+        snapshots, reads = 0, []
+        def get(path):
+            nonlocal snapshots
+            if path == '/device/status':
+                return self.status()
+            if path == '/storage':
+                return {'state': 'ready'}
+            query = parse_qs(urlsplit(path).query)
+            if path.startswith('/storage/files?'):
+                snapshots += 1
+                n = 2 if snapshots == 1 else 5 if query['before'] == ['0'] else 4
+                return {'state': 'ready', 'source': 'esp_native', 'has_older': True,
+                        'files': [{'name': str(n), 'sequence': n}]}
+            reads.append(query['file'][0])
+            return self.chunk(json.dumps(self.report()).encode())
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'result.json'
+            self.assertTrue(collect(get, output, observe=0, limit=1, tail_limit=1, pause=lambda _: None))
+            bundle = json.loads(output.read_text())
+        self.assertEqual(reads, ['2', '5'])
+        self.assertEqual(snapshots, 3)
+        self.assertTrue(bundle['tail_collection']['limit_reached'])
+
+    def test_tail_failure_keeps_initial_logs_and_marks_collection_incomplete(self):
+        snapshots = 0
+        def get(path):
+            nonlocal snapshots
+            if path == '/device/status':
+                return self.status()
+            if path == '/storage':
+                return {'state': 'ready'}
+            if path.startswith('/storage/files?'):
+                snapshots += 1
+                if snapshots > 1:
+                    raise OSError('tail disconnected')
+                return {'state': 'ready', 'source': 'esp_native',
+                        'files': [{'name': '2', 'sequence': 2}]}
+            return self.chunk(json.dumps(self.report()).encode())
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'result.json'
+            self.assertFalse(collect(get, output, observe=0, pause=lambda _: None))
+            bundle = json.loads(output.read_text())
+        self.assertEqual(len(bundle['reports']), 1)
+        self.assertIn('tail disconnected', bundle['errors'])
+        self.assertFalse(bundle['collection_complete'])
 
     def test_storage_failure_preserves_raw_response_and_previous_run(self):
         def get(path):
